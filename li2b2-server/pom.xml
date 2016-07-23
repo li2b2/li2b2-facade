@@ -1,0 +1,206 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>HIStream : li2b2 : server</name>
+	<packaging>war</packaging>
+
+	<description>
+	This project emulates the core components
+	of an i2b2 server backend. Basic functionality
+	of PM, CRC, ONT and WORK cells allows the
+	official i2b2 webclient to connect ot this
+	emulated server.
+	</description>
+
+	<groupId>de.sekmi.li2b2</groupId>
+	<artifactId>li2b2-server</artifactId>
+	<version>0.1-SNAPSHOT</version>
+
+	<parent>
+		<groupId>de.sekmi.li2b2</groupId>
+		<artifactId>pom</artifactId>
+		<version>0.8-SNAPSHOT</version>
+	</parent>
+
+	<profiles>
+		<profile>
+			<id>jetty</id>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.jetty</groupId>
+						<artifactId>jetty-maven-plugin</artifactId>
+						<!--<version>9.3.10.v20160621</version> -->
+						<version>9.3.8.v20160314</version>
+						<configuration>
+							<useTestScope>true</useTestScope>
+							<useProvidedScope>true</useProvidedScope>
+							<scanIntervalSeconds>5</scanIntervalSeconds>
+							<contextXml>${project.basedir}/src/main/webapp/WEB-INF/jetty-context.xml</contextXml>
+							<webApp>
+								<descriptor>${project.basedir}/src/main/webapp/WEB-INF/jetty-defaults-web.xml</descriptor>
+								<jettyEnvXml>${project.basedir}/src/main/webapp/WEB-INF/jetty-env.xml</jettyEnvXml>
+							</webApp>
+						</configuration>
+						<dependencies>
+							<!-- jackson json media filters -->
+							<dependency>
+								<groupId>org.glassfish.jersey.media</groupId>
+								<artifactId>jersey-media-json-jackson</artifactId>
+								<version>2.14</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>2.10</version>
+						<executions>
+							<execution>
+								<id>unpack</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<!-- this is a non-standard dependency for executing jetty:run-war. 
+											See README.md for instructions. -->
+										<artifactItem>
+											<groupId>org.i2b2</groupId>
+											<artifactId>webclient</artifactId>
+											<version>1.7.07c</version>
+											<type>zip</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/classes</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+
+			<dependencies>
+				<!-- jetty:run dependencies (cannot be moved to plugin/dependencies because 
+					of errors) -->
+				<dependency>
+					<groupId>org.glassfish.jersey.containers</groupId>
+					<artifactId>jersey-container-servlet</artifactId>
+					<version>2.14</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.glassfish.jersey.containers.glassfish</groupId>
+					<artifactId>jersey-gf-cdi</artifactId>
+					<version>2.14</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.glassfish.jersey.containers.glassfish</groupId>
+					<artifactId>jersey-gf-cdi-ban-custom-hk2-binding</artifactId>
+					<version>2.14</version>
+					<scope>provided</scope>
+				</dependency>
+				<!-- CDI integration -->
+				<dependency>
+					<groupId>org.jboss.weld.servlet</groupId>
+					<artifactId>weld-servlet-core</artifactId>
+					<version>2.2.5.Final</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>target/generated-resources</directory>
+			</resource>
+		</resources>
+		<plugins>
+
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.sekmi.histream.li2b2</groupId>
+			<artifactId>li2b2-api</artifactId>
+			<version>0.8-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>2.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.2</version>
+			<scope>provided</scope>
+		</dependency>
+
+
+		<!-- template processing -->
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>2.3.23</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+<!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-undertow -->
+<dependency>
+    <groupId>org.jboss.resteasy</groupId>
+    <artifactId>resteasy-undertow</artifactId>
+    <version>3.0.18.Final</version>
+    <scope>test</scope>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-cdi -->
+<dependency>
+    <groupId>org.jboss.resteasy</groupId>
+    <artifactId>resteasy-cdi</artifactId>
+    <version>3.0.18.Final</version>
+    <scope>test</scope>
+</dependency>
+<!-- https://mvnrepository.com/artifact/javax.enterprise/cdi-api -->
+<dependency>
+    <groupId>javax.enterprise</groupId>
+    <artifactId>cdi-api</artifactId>
+    <version>1.2</version>
+    <scope>test</scope>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.jboss.weld.servlet/weld-servlet -->
+<dependency>
+    <groupId>org.jboss.weld.servlet</groupId>
+    <artifactId>weld-servlet</artifactId>
+    <version>2.3.5.Final</version>
+    <scope>test</scope>
+</dependency>
+<!-- https://mvnrepository.com/artifact/io.undertow/undertow-servlet -->
+<dependency>
+    <groupId>io.undertow</groupId>
+    <artifactId>undertow-servlet</artifactId>
+    <version>1.3.23.Final</version>
+    <scope>test</scope>
+</dependency>
+
+
+	</dependencies>
+</project>

@@ -1,0 +1,62 @@
+<ns5:response xmlns:ns5="http://www.i2b2.org/xsd/hive/msg/1.1/" xmlns:ns6="http://www.i2b2.org/xsd/cell/ont/1.1/" xmlns:ns8="http://www.i2b2.org/xsd/cell/crc/psm/analysisdefinition/1.1/" xmlns:ns7="http://www.i2b2.org/xsd/cell/crc/psm/querydefinition/1.1/" xmlns:ns9="http://www.i2b2.org/xsd/cell/pm/1.1/" xmlns:ns2="http://www.i2b2.org/xsd/cell/fr/1.0/" xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/" xmlns:ns3="http://www.i2b2.org/xsd/cell/crc/loader/1.1/">
+    <message_header>
+        <i2b2_version_compatible>1.1</i2b2_version_compatible>
+        <hl7_version_compatible>2.4</hl7_version_compatible>
+        <sending_application>
+            <application_name>Ontology Cell</application_name>
+            <application_version>1.700</application_version>
+        </sending_application>
+        <sending_facility>
+            <facility_name>i2b2 Hive</facility_name>
+        </sending_facility>
+        <receiving_application>
+            <application_name>i2b2 Ontology</application_name>
+            <application_version>1.6</application_version>
+        </receiving_application>
+        <receiving_facility>
+            <facility_name>i2b2 Hive</facility_name>
+        </receiving_facility>
+        <datetime_of_message>2016-07-19T22:18:49.808Z</datetime_of_message>
+        <security>
+            <domain>i2b2demo</domain>
+            <username>demo</username>
+            <password token_ms_timeout="1800000" is_token="true">SessionKey:R8ytkZuQNUGmNANxV5QU</password>
+        </security>
+        <message_control_id>
+            <message_num>7Ll75pXG9woHvoiio8jX4</message_num>
+            <instance_num>1</instance_num>
+        </message_control_id>
+        <processing_id>
+            <processing_id>P</processing_id>
+            <processing_mode>I</processing_mode>
+        </processing_id>
+        <accept_acknowledgement_type>AL</accept_acknowledgement_type>
+        <application_acknowledgement_type>AL</application_acknowledgement_type>
+        <country_code>US</country_code>
+        <project_id>Demo</project_id>
+    </message_header>
+    <response_header>
+        <result_status>
+            <status type="DONE">Ontology processing completed</status>
+        </result_status>
+    </response_header>
+    <message_body>
+        <ns6:concepts>
+            <concept>
+                <level>1</level>
+                <key>\\i2b2_DIAG\i2b2\Diagnoses\</key>
+                <name>Diagnoses</name>
+                <synonym_cd>N</synonym_cd>
+                <visualattributes>FA </visualattributes>
+                <totalnum xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+                <facttablecolumn>concept_cd</facttablecolumn>
+                <tablename>concept_dimension</tablename>
+                <columnname>concept_path</columnname>
+                <columndatatype>T</columndatatype>
+                <operator>LIKE</operator>
+                <dimcode>\i2b2\Diagnoses\</dimcode>
+                <tooltip>Diagnoses</tooltip>
+            </concept>
+        </ns6:concepts>
+    </message_body>
+</ns5:response>

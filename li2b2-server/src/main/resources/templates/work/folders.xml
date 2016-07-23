@@ -1,0 +1,68 @@
+<ns3:response xmlns:ns3="http://www.i2b2.org/xsd/hive/msg/1.1/" xmlns:ns6="http://www.i2b2.org/xsd/cell/crc/psm/analysisdefinition/1.1/" xmlns:ns5="http://www.i2b2.org/xsd/cell/crc/psm/querydefinition/1.1/" xmlns:ns7="http://www.i2b2.org/xsd/cell/pm/1.1/" xmlns:ns2="http://www.i2b2.org/xsd/cell/crc/psm/1.1/" xmlns:ns4="http://www.i2b2.org/xsd/cell/work/1.1/">
+    <message_header>
+        <i2b2_version_compatible>1.1</i2b2_version_compatible>
+        <hl7_version_compatible>2.4</hl7_version_compatible>
+        <sending_application>
+            <application_name>Workplace Cell</application_name>
+            <application_version>1.700</application_version>
+        </sending_application>
+        <sending_facility>
+            <facility_name>i2b2 Hive</facility_name>
+        </sending_facility>
+        <receiving_application>
+            <application_name>i2b2 Ontology</application_name>
+            <application_version>1.6</application_version>
+        </receiving_application>
+        <receiving_facility>
+            <facility_name>i2b2 Hive</facility_name>
+        </receiving_facility>
+        <datetime_of_message>2016-07-19T22:18:53.417Z</datetime_of_message>
+        <security>
+            <domain>i2b2demo</domain>
+            <username>demo</username>
+            <password token_ms_timeout="1800000" is_token="true">SessionKey:R8ytkZuQNUGmNANxV5QU</password>
+        </security>
+        <message_control_id>
+            <message_num>vK2le8W6PP7Wt6XBc7uzg</message_num>
+            <instance_num>1</instance_num>
+        </message_control_id>
+        <processing_id>
+            <processing_id>P</processing_id>
+            <processing_mode>I</processing_mode>
+        </processing_id>
+        <accept_acknowledgement_type>AL</accept_acknowledgement_type>
+        <application_acknowledgement_type>AL</application_acknowledgement_type>
+        <country_code>US</country_code>
+        <project_id>Demo</project_id>
+    </message_header>
+    <response_header>
+        <result_status>
+            <status type="DONE">Workplace processing completed</status>
+        </result_status>
+    </response_header>
+    <message_body>
+        <ns4:folders>
+            <folder>
+                <name>SHARED</name>
+                <user_id>shared</user_id>
+                <group_id>demo</group_id>
+                <protected_access>N</protected_access>
+                <share_id>Y</share_id>
+                <index>\\demo\100</index>
+                <visual_attributes>CA </visual_attributes>
+                <tooltip>demo - SHARED
+SHARED</tooltip>
+            </folder>
+            <folder>
+                <name>demo</name>
+                <user_id>demo</user_id>
+                <group_id>Demo</group_id>
+                <protected_access>N</protected_access>
+                <share_id>N</share_id>
+                <index>\\demo\SXRTJ9XfJTkj8AIKt4su</index>
+                <visual_attributes>CA </visual_attributes>
+                <tooltip>Demo - demo</tooltip>
+            </folder>
+        </ns4:folders>
+    </message_body>
+</ns3:response>

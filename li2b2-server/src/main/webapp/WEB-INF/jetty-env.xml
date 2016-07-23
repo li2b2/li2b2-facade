@@ -1,0 +1,26 @@
+<?xml version="1.0"  encoding="ISO-8859-1"?>
+<!-- <!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" 
+	"http://www.eclipse.org/jetty/configure.dtd"> -->
+<Configure id="webAppCtx" class="org.eclipse.jetty.webapp.WebAppContext">
+
+	<!-- configuration for WELD, as explained here: https://docs.jboss.org/weld/reference/latest/en-US/html/environments.html#_jetty -->
+	<New id="BeanManager" class="org.eclipse.jetty.plus.jndi.Resource">
+		<Arg>
+			<Ref id="webAppCtx" />
+		</Arg>
+		<Arg>BeanManager</Arg>
+		<Arg>
+			<New class="javax.naming.Reference">
+				<Arg>javax.enterprise.inject.spi.BeanManager</Arg>
+				<Arg>org.jboss.weld.resources.ManagerObjectFactory</Arg>
+				<Arg />
+			</New>
+		</Arg>
+	</New>
+
+	<Get class="java.lang.System" name="out">
+		<Call name="println">
+			<Arg>*** JETTY-ENV loaded</Arg>
+		</Call>
+	</Get>
+</Configure> 
