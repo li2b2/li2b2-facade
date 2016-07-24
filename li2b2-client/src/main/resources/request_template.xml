@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<i2b2:request xmlns:i2b2="http://www.i2b2.org/xsd/hive/msg/1.1/" xmlns:pm="http://www.i2b2.org/xsd/cell/pm/1.1/">
+<i2b2:request xmlns:i2b2="http://www.i2b2.org/xsd/hive/msg/1.1/">
     <message_header>
         <proxy>
             <redirect_url>http://services.i2b2.org/i2b2/services/PMService/getServices</redirect_url>

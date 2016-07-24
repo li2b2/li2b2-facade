@@ -9,7 +9,7 @@ import de.sekmi.li2b2.client.pm.UserConfiguration;
 
 public class TestClient {
 
-	public void main(String args[]) throws Exception{
+	public static void main(String args[]) throws Exception{
 		Client c = new Client();
 		c.setProxy(new URL("https://www.i2b2.org/webclient/index.php"));
 		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
@@ -25,10 +25,15 @@ public class TestClient {
 		}
 		// initialise other cells
 		c.setServices(uc.getCells());
-		Concept[] cats = c.ONT().getCategories();
+		Concept[] cats;
+		cats = c.ONT().getCategories();
 		System.out.println("Found "+cats.length+" concepts");
-		for( int i=0; i<cats.length; i++ ){
-			System.out.println("Concept:"+cats[i].key);
-		}
+		// retrieve visit details child concepts
+		
+		// TODO getting timeout error for getChildren
+		System.out.println("Retrieving child concepts (visit details)");
+		cats = c.ONT().getSchemes();
+//		cats = c.ONT().getChildren("\\\\i2b2_VISIT\\i2b2\\Visit Details\\");
+		System.out.println("Found "+cats.length+" concepts");
 	}
 }

@@ -49,6 +49,9 @@ public class Client {
 		} catch (ParserConfigurationException | SAXException | XPathExpressionException e) {
 			throw new IOException(e);
 		}
+		// null project ID not allowed by hive.
+		// it expects 'undefined' e.g. during login
+		projectId = "undefined";
 	}
 	
 	/** 
@@ -73,6 +76,12 @@ public class Client {
 	}
 	public String getOutputEncoding(){
 		return outputEncoding;
+	}
+	public String getUserLogin(){
+		return credentials.getUser();
+	}
+	public String getUserDomain(){
+		return credentials.getDomain();
 	}
 	
 	public void setAuthorisation(String user, String password, String domain, boolean isToken){

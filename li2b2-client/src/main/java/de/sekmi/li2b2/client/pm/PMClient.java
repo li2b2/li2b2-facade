@@ -5,16 +5,12 @@ import java.net.URL;
 import java.util.logging.Logger;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
 import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Client;
 import de.sekmi.li2b2.client.Credentials;
+import de.sekmi.li2b2.client.ErrorResponseException;
 import de.sekmi.li2b2.client.HiveException;
-import de.sekmi.li2b2.client.I2b2Constants;
 import de.sekmi.li2b2.client.Request;
-import de.sekmi.li2b2.client.Response;
-import de.sekmi.li2b2.client.Response.ResultStatus;
 
 public class PMClient extends CellClient{
 	private static final Logger log = Logger.getLogger(PMClient.class.getName());
@@ -32,10 +28,10 @@ public class PMClient extends CellClient{
 	 * @param domain user domain
 	 * @param oldPassword user's old password
 	 * @param newPassword new password
-	 * @throws HiveException password change operation failed
+	 * @throws ErrorResponseException password change operation failed
 	 * @throws IOException network/communications error
 	 */
-	public void changePassword(String user, String domain, char[] oldPassword, char[] newPassword)throws HiveException, IOException{
+	public void changePassword(String user, String domain, char[] oldPassword, char[] newPassword)throws ErrorResponseException, IOException{
 		throw new UnsupportedOperationException("not implemented");
 	}
 	
@@ -44,32 +40,20 @@ public class PMClient extends CellClient{
 	 * Use this method to authenticate and available projects and service cells.
 	 * 
 	 * @return user configuration
-	 * @throws HiveException application layer error. most commonly authentication failure
+	 * @throws ErrorResponseException application layer error. most commonly authentication failure
+	 * @throws HiveException unexpected response body
 	 * @throws IOException network or communication error
 	 */
-	public UserConfiguration requestUserConfiguration() throws HiveException, IOException{
+	public UserConfiguration requestUserConfiguration() throws ErrorResponseException, HiveException{
 		Request req = createRequestMessage();
 		// set message body
 		// 
         // <pm:get_user_configuration><project>undefined</project></pm:get_user_configuration>
 		//
 		Element el = req.addBodyElement(XMLNS, "get_user_configuration");
-		el.appendChild(el.getOwnerDocument().createElement("project")).setTextContent("undefinded");
+		el.appendChild(el.getOwnerDocument().createElement("project")).setTextContent(client.getProjectId());
 		// submit
-		Response resp = submitRequest(req, "getServices");
-		// check status
-		ResultStatus rs = resp.getResultStatus();
-		if( !rs.getCode().equals("DONE") ){
-			throw new HiveException(rs);
-		}
-		Element body = resp.getMessageBody();
-		Node n = body.getFirstChild();
-		if( n == null || n.getNodeType() != Node.ELEMENT_NODE 
-				|| n.getNamespaceURI() == null || !n.getNamespaceURI().equals(I2b2Constants.PM_NS)
-				|| !n.getLocalName().equals("configure") )
-		{
-			throw new IOException("pm:configure element expected in response message_body instead of "+n);
-		}
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "configure");
 		UserConfiguration config = UserConfiguration.parse((Element)n);
 		// if we have a session key, use it for future calls
 		if( config.getSessionKey() != null ){

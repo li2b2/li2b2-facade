@@ -1,6 +1,5 @@
 package de.sekmi.li2b2.client.ont;
 
-import java.io.IOException;
 import java.net.URL;
 
 import javax.xml.bind.JAXBContext;
@@ -15,8 +14,6 @@ import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Client;
 import de.sekmi.li2b2.client.HiveException;
 import de.sekmi.li2b2.client.Request;
-import de.sekmi.li2b2.client.Response;
-import de.sekmi.li2b2.client.Response.ResultStatus;
 
 public class OntologyClient extends CellClient {
 	public static final String XMLNS = "http://www.i2b2.org/xsd/cell/ont/1.1/";
@@ -31,11 +28,9 @@ public class OntologyClient extends CellClient {
 	 * return synonyms but no hidden concepts.
 	 * 
 	 * @return concept categories
-	 * @throws IOException network/communication error
-	 * @throws HiveException application layer error, e.g. session expired
+	 * @throws HiveException application layer error, e.g. session expired, unexpected response content
 	 */
-	public Concept[] getCategories() throws IOException, HiveException{
-
+	public Concept[] getCategories() throws HiveException{
 		Request req = createRequestMessage();
 		// set body
 		// <ont:get_categories  synonyms="true" hiddens="false" type="core"/>
@@ -43,15 +38,52 @@ public class OntologyClient extends CellClient {
 		el.setAttribute("synonyms", "true");
 		el.setAttribute("hiddens", "false");
 		el.setAttribute("type", "core");
+
 		// submit
-		Response resp = submitRequest(req, "getCategories");
-		ResultStatus rs = resp.getResultStatus();
-		if( !rs.getCode().equals("DONE") ){
-			throw new HiveException(rs);
-		}
+		el = submitRequestWithResponseContent(req, "getCategories", XMLNS, "concepts");
 		// parse concepts
-		// TODO move to private method since we will need this more often
-		NodeList nl = resp.getMessageBody().getElementsByTagName("concept");
+		return parseConcepts(el);
+	}
+
+	public Concept[] getSchemes() throws HiveException{
+		Request req = createRequestMessage();
+		// set body
+		// <ont:get_schemes  type="default"/>
+		Element el = req.addBodyElement(XMLNS, "get_schemes");
+		el.setAttribute("type", "default");
+
+		// submit
+		el = submitRequestWithResponseContent(req, "getSchemes", XMLNS, "concepts");
+		// parse concepts
+		return parseConcepts(el);
+	}
+	
+	// TODO getting timeout error for getChildren
+	public Concept[] getChildren(String parentKey) throws HiveException{
+		//	<ns4:get_children blob="false" type="core" max='200'  synonyms="false" hiddens="false">
+		//	  <parent>\\i2b2_DEMO\i2b2\Demographics\</parent>
+		//	</ns4:get_children>
+		Request req = createRequestMessage();
+		Element el = req.addBodyElement(XMLNS, "get_children");
+		el.setAttribute("blob", "false");
+		el.setAttribute("type", "core");
+		el.setAttribute("max", "200");
+		el.setAttribute("synonyms", "false");
+		el.setAttribute("hiddens", "false");
+		el.appendChild(el.getOwnerDocument().createElement("parent")).setTextContent(parentKey);
+
+		el = submitRequestWithResponseContent(req, "getChildren", XMLNS, "concepts");
+		return parseConcepts(el);
+	}
+	/**
+	 * Process a DOM concept wrapper element and parse all contained concepts.
+	 * 
+	 * @param conceptWrapper DOM element node containing only 'concept' children.
+	 * @return concept array
+	 * @throws HiveException parse error
+	 */
+	private Concept[] parseConcepts(Element conceptWrapper) throws HiveException{
+		NodeList nl = conceptWrapper.getChildNodes();
 		Concept[] concepts = new Concept[nl.getLength()];
 		try {
 			Unmarshaller um = JAXBContext.newInstance(Concept.class).createUnmarshaller();
@@ -59,8 +91,8 @@ public class OntologyClient extends CellClient {
 				concepts[i] = (Concept)um.unmarshal(new DOMSource(nl.item(i)));
 			}
 		} catch (JAXBException e) {
-			throw new IOException("error parsing concepts", e);
+			throw new HiveException("error parsing concepts", e);
 		}
-		return new Concept[]{};
+		return concepts;		
 	}
 }

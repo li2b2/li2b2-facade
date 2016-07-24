@@ -20,6 +20,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import de.sekmi.li2b2.client.Response.ResultStatus;
+
 public class CellClient {
 	private static final Logger log = Logger.getLogger(CellClient.class.getName());
 
@@ -98,39 +100,64 @@ public class CellClient {
 		c.setRequestProperty("Content-Type", "application/xml; charset="+getOutputCharset());
 		return c;
 	}
-	protected Response submitRequest(Request request, String method) throws MalformedURLException, IOException{
-		return submitRequest(newBuilder(), request, createRequest(method));
-	}
-	protected Response submitRequest(DocumentBuilder b, Request request, URL requestUrl) throws IOException{
-		HttpURLConnection c = createConnection(request, requestUrl);
-		c.connect();
-		OutputStream out = c.getOutputStream();
-		
+	protected Response submitRequest(Request request, String method) throws HiveException{
 		try {
+			return submitRequest(newBuilder(), request, createRequest(method));
+		} catch (MalformedURLException e) {
+			throw new HiveException("RESTful endpoint URL construction failed: "+method, e);
+		}
+	}
+	protected Response submitRequest(DocumentBuilder b, Request request, URL requestUrl) throws HiveException{
+		HttpURLConnection c;
+		try {
+			c = createConnection(request, requestUrl);
+			c.connect();
+		} catch (IOException e) {
+			throw new HiveException(e);
+		}
+		
+		try( OutputStream out = c.getOutputStream() ){
 			log.info("Submitting to "+requestUrl);
 			DOMUtils.printDOM(request.dom, System.out);
 			DOMUtils.printDOM(request.dom, out, getOutputCharset());
-		} catch (TransformerException e) {
-			throw new IOException(e);
+		}catch (TransformerException e) {
+			throw new HiveException("DOM compilation failed",e);
+		} catch (IOException e) {
+			throw new HiveException("Unable to write to URL connection", e);
 		}
-		out.close();
-		int status = c.getResponseCode();
-		// check status code for failure
-		if( status != 200 ){
-			throw new IOException("Unexpected HTTP response code "+status);
-		}
-//		System.out.println("Response:"+status);
-		InputStream in = c.getInputStream();
+		
+		// don't need to check response status: getInputStream will throw exception if not 2xx
+//		int status = c.getResponseCode();
+
 		Document resp;
-		try {
+		try( InputStream in = c.getInputStream() ){
 			resp = b.parse(in);
 			DOMUtils.stripWhitespace(resp.getDocumentElement());
-		} catch (SAXException | XPathExpressionException e) {
-			throw new IOException("Unable to parse response XML",e);
+		} catch (SAXException | IOException | XPathExpressionException e) {
+			throw new HiveException("Unable to parse response",e);
 		}
 		log.info("Received response:");
 		DOMUtils.printDOM(resp, System.out);
 		return new Response(resp);
 	}
 
+	/**
+	 * Submit a request and expect the response body to contain
+	 * the specified XML element.
+	 * 
+	 * @param request request
+	 * @param restMethod RESTful method
+	 * @param responseNS response body namespace
+	 * @param responseElement response body element
+	 * @return response element specified in the argument list. if the element is not found, a {@link HiveException} will be thrown.
+	 * @throws HiveException server request or response error
+	 */
+	protected Element submitRequestWithResponseContent(Request request, String restMethod, String responseNS, String responseElement) throws HiveException{
+		Response resp = submitRequest(request, restMethod);
+		ResultStatus rs = resp.getResultStatus();
+		if( !rs.getCode().equals("DONE") ){
+			throw new ErrorResponseException(rs);
+		}
+		return resp.requireBodyElement(responseNS, responseElement);
+	}
 }
