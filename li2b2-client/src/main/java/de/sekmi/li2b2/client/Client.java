@@ -15,6 +15,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import de.sekmi.li2b2.client.pm.UserConfiguration;
+import de.sekmi.li2b2.client.crc.QueryClient;
 import de.sekmi.li2b2.client.ont.OntologyClient;
 import de.sekmi.li2b2.client.pm.Cell;
 import de.sekmi.li2b2.client.pm.PMClient;
@@ -31,6 +32,7 @@ public class Client {
 	
 	private PMClient pm;
 	private OntologyClient ont;
+	private QueryClient crc;
 	
 	private Document requestTemplate;
 	private DocumentBuilderFactory factory;
@@ -114,12 +116,18 @@ public class Client {
 	public void setONT(URL url){
 		this.ont = new OntologyClient(this, url);
 	}
+	public void setCRC(URL url){
+		this.crc = new QueryClient(this, url);
+	}
 	
 	public PMClient PM(){
 		return this.pm;
 	}
 	public OntologyClient ONT(){
 		return this.ont;
+	}
+	public QueryClient CRC(){
+		return this.crc;
 	}
 	protected Request createRequest(DocumentBuilder builder){
 		Document req = builder.newDocument();
@@ -136,6 +144,9 @@ public class Client {
 				switch( cells[i].id ){
 				case "ONT":
 					setONT(new URL(cells[i].url));
+					break;
+				case "CRC":
+					setCRC(new URL(cells[i].url));
 					break;
 				default:
 					log.info("Ignoring unsupported cell "+cells[i].id+": "+cells[i].name);

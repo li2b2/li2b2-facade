@@ -3,6 +3,7 @@ package de.sekmi.li2b2.client;
 import java.net.URL;
 import java.util.Arrays;
 
+import de.sekmi.li2b2.client.crc.ResultType;
 import de.sekmi.li2b2.client.ont.Concept;
 import de.sekmi.li2b2.client.pm.Project;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
@@ -32,8 +33,14 @@ public class TestClient {
 		
 		// TODO getting timeout error for getChildren
 		System.out.println("Retrieving child concepts (visit details)");
-		cats = c.ONT().getSchemes();
-//		cats = c.ONT().getChildren("\\\\i2b2_VISIT\\i2b2\\Visit Details\\");
+//		cats = c.ONT().getSchemes();
+		cats = c.ONT().getChildren("\\\\i2b2_VISIT\\i2b2\\Visit Details\\");
 		System.out.println("Found "+cats.length+" concepts");
+
+		System.out.println("Retrieving result types");
+		ResultType[] types = c.CRC().getResultType();
+		for( ResultType t : types ){
+			System.out.println("Result:"+t.name);
+		}
 	}
 }
