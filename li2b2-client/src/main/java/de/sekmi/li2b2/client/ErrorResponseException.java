@@ -1,6 +1,13 @@
 package de.sekmi.li2b2.client;
 
-public class HiveException extends Exception {
+/**
+ * Hive response header contained an ERROR result status code, which
+ * means that the operation failed or was not understood by the server.
+ *
+ * @author R.W.Majeed
+ *
+ */
+public class ErrorResponseException extends HiveException {
 	
 	/**
 	 * 
@@ -9,12 +16,12 @@ public class HiveException extends Exception {
 	private String statusType;
 	private String statusMessage;
 	
-	public HiveException(String statusType, String statusMessage){
+	public ErrorResponseException(String statusType, String statusMessage){
 		super(statusType+":"+statusMessage);
 		this.statusType = statusType;
 		this.statusMessage = statusMessage;
 	}
-	public HiveException(Response.ResultStatus status){
+	public ErrorResponseException(Response.ResultStatus status){
 		this(status.getCode(), status.getMessage());
 	}
 	public String getStatusType(){
