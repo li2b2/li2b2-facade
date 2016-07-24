@@ -3,21 +3,17 @@ package de.sekmi.li2b2.client;
 import java.net.URL;
 import java.util.Arrays;
 
-import org.junit.Test;
-
 import de.sekmi.li2b2.client.ont.Concept;
 import de.sekmi.li2b2.client.pm.Project;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 
 public class TestClient {
 
-	
-	@Test
-	public void testWithHarvard() throws Exception{
+	public void main(String args[]) throws Exception{
 		Client c = new Client();
 		c.setProxy(new URL("https://www.i2b2.org/webclient/index.php"));
 		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
-		c.setAuthorisation("demo", "demouser", "i2b2demo", false);
+		c.setAuthorisation("demo", "demouser", "i2b2demo");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
 		Project[] projects = uc.getProjects();
 		if( projects != null ){
