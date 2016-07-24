@@ -64,7 +64,11 @@ public class OntologyClient extends CellClient {
 		//	  <parent>\\i2b2_DEMO\i2b2\Demographics\</parent>
 		//	</ns4:get_children>
 		Request req = createRequestMessage();
+		
 		Element el = req.addBodyElement(XMLNS, "get_children");
+		// official server needs prefix 'ns4'.
+		// seriously, you need to clean up your XML code
+		el.setPrefix("ns4");
 		el.setAttribute("blob", "false");
 		el.setAttribute("type", "core");
 		el.setAttribute("max", "200");
