@@ -26,6 +26,14 @@ public class OntologyClient extends CellClient {
 		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Retrieve available ontology categories. This method will also
+	 * return synonyms but no hidden concepts.
+	 * 
+	 * @return concept categories
+	 * @throws IOException network/communication error
+	 * @throws HiveException application layer error, e.g. session expired
+	 */
 	public Concept[] getCategories() throws IOException, HiveException{
 
 		Request req = createRequestMessage();

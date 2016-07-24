@@ -51,9 +51,17 @@ public class Client {
 		}
 	}
 	
+	/** 
+	 * Set the project id which will be used during hive communcations.
+	 * @param projectId project ID
+	 */
 	public void setProjectId(String projectId){
 		this.projectId = projectId;
 	}
+	/**
+	 * Get the project ID
+	 * @return project id
+	 */
 	public String getProjectId(){
 		return this.projectId;
 	}
@@ -69,6 +77,15 @@ public class Client {
 	
 	public void setAuthorisation(String user, String password, String domain, boolean isToken){
 		setAuthorisation(new Credentials(domain, user, password, isToken));
+	}
+	/**
+	 * Set login credentials for password based authentication.
+	 * @param user user name
+	 * @param password password
+	 * @param domain domain (for user)
+	 */
+	public void setAuthorisation(String user, String password, String domain){
+		setAuthorisation(user, password, domain, false);
 	}
 	public void setAuthorisation(Credentials credentials){
 		this.credentials = credentials;
@@ -95,7 +112,7 @@ public class Client {
 	public OntologyClient ONT(){
 		return this.ont;
 	}
-	public Request createRequest(DocumentBuilder builder){
+	protected Request createRequest(DocumentBuilder builder){
 		Document req = builder.newDocument();
 		req.appendChild(req.importNode(requestTemplate.getDocumentElement(), true));
 		Request r = new Request(req);

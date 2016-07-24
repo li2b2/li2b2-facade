@@ -25,17 +25,27 @@ public class PMClient extends CellClient{
 		super(client, serviceUrl);
 	}
 	
-	public void changePassword(String user, String domain, char[] oldPassword, char[] newPassword){
-		
+	/**
+	 * Change the password of any user. This method does not require prior authentication.
+	 * 
+	 * @param user user name
+	 * @param domain user domain
+	 * @param oldPassword user's old password
+	 * @param newPassword new password
+	 * @throws HiveException password change operation failed
+	 * @throws IOException network/communications error
+	 */
+	public void changePassword(String user, String domain, char[] oldPassword, char[] newPassword)throws HiveException, IOException{
+		throw new UnsupportedOperationException("not implemented");
 	}
 	
 	/**
 	 * Request the configuration for the current user.
-	 * Use this method to authenticate and retrieve available service cells.
+	 * Use this method to authenticate and available projects and service cells.
 	 * 
-	 * @return
-	 * @throws HiveException
-	 * @throws IOException
+	 * @return user configuration
+	 * @throws HiveException application layer error. most commonly authentication failure
+	 * @throws IOException network or communication error
 	 */
 	public UserConfiguration requestUserConfiguration() throws HiveException, IOException{
 		Request req = createRequestMessage();
@@ -47,6 +57,7 @@ public class PMClient extends CellClient{
 		el.appendChild(el.getOwnerDocument().createElement("project")).setTextContent("undefinded");
 		// submit
 		Response resp = submitRequest(req, "getServices");
+		// check status
 		ResultStatus rs = resp.getResultStatus();
 		if( !rs.getCode().equals("DONE") ){
 			throw new HiveException(rs);
