@@ -56,9 +56,4 @@ public class PMService extends AbstractService{
 		
 		return Response.ok(w.toString()).build();
 	}
-	@Override
-	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
