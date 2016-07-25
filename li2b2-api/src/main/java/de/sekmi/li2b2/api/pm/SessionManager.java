@@ -7,6 +7,7 @@ public interface SessionManager {
 		String getId();
 		String getUserId();
 		String getProjectId();
+		String getToken();
 		// XXX set project id? or set at creation?
 		long getCreationTime();
 		long getLastAccess();
