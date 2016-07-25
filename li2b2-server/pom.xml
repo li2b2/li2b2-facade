@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<name>HIStream : li2b2 : server</name>
+	<name>li2b2 : server</name>
 	<packaging>war</packaging>
 
 	<description>
@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>de.sekmi.li2b2</groupId>
 		<artifactId>pom</artifactId>
-		<version>0.8-SNAPSHOT</version>
+		<version>0.1-SNAPSHOT</version>
 	</parent>
 
 	<profiles>
@@ -130,9 +130,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>de.sekmi.histream.li2b2</groupId>
+			<groupId>de.sekmi.li2b2</groupId>
 			<artifactId>li2b2-api</artifactId>
-			<version>0.8-SNAPSHOT</version>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
