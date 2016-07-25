@@ -83,7 +83,9 @@ public class CellClient {
 	 * </p>
 	 * @param request request
 	 * @param requestUrl URL
+	 * @return connection
 	 * @throws IOException io error
+	 * 
 	 */
 	protected HttpURLConnection createConnection(Request request, URL requestUrl) throws IOException{
 		HttpURLConnection c;

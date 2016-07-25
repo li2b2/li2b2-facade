@@ -1,6 +1,5 @@
 package de.sekmi.li2b2.client.pm;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -29,9 +28,9 @@ public class PMClient extends CellClient{
 	 * @param oldPassword user's old password
 	 * @param newPassword new password
 	 * @throws ErrorResponseException password change operation failed
-	 * @throws IOException network/communications error
+	 * @throws HiveException server error
 	 */
-	public void changePassword(String user, String domain, char[] oldPassword, char[] newPassword)throws ErrorResponseException, IOException{
+	public void changePassword(String user, String domain, char[] oldPassword, char[] newPassword)throws ErrorResponseException, HiveException{
 		throw new UnsupportedOperationException("not implemented");
 	}
 	
@@ -42,7 +41,6 @@ public class PMClient extends CellClient{
 	 * @return user configuration
 	 * @throws ErrorResponseException application layer error. most commonly authentication failure
 	 * @throws HiveException unexpected response body
-	 * @throws IOException network or communication error
 	 */
 	public UserConfiguration requestUserConfiguration() throws ErrorResponseException, HiveException{
 		Request req = createRequestMessage();
