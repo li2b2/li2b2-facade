@@ -1,12 +1,15 @@
-package de.sekmi.li2b2.services.test;
+package de.sekmi.li2b2.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Singleton;
 
 import de.sekmi.li2b2.api.pm.Project;
 import de.sekmi.li2b2.api.pm.ProjectManager;
 import de.sekmi.li2b2.api.pm.User;
 
+//@Singleton
 public class ProjectManagerImpl implements ProjectManager {
 
 	private List<UserImpl> users;

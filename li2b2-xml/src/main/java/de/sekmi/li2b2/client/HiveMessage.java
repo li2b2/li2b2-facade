@@ -61,6 +61,15 @@ public abstract class HiveMessage {
 		e.setTextContent(credentials.getPassword());
 		return this;
 	}
+	public Credentials getSecurity(){
+		Element mh = getMessageHeader();
+		NodeList nl = mh.getElementsByTagName("security").item(0).getChildNodes();
+		String[] a = new String[3];
+		for( int i=0; i<a.length; i++ ){
+			a[i] = nl.item(i).getTextContent();
+		}
+		return new Credentials(a[0], a[1], a[2], ((Element)nl.item(2)).getAttribute("is_tokent").equals("true"));
+	}
 	
 	public HiveMessage setProjectId(String projectId){
 		Element mh = getMessageHeader();

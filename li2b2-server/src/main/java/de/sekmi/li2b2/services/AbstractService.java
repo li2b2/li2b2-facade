@@ -86,6 +86,18 @@ public abstract class AbstractService {
 //			sub.appendChild(el.getOwnerDocument().createTextNode(value));
 //		}
 //	}
+	protected Document createResponseTemplate(DocumentBuilder builder){
+		Document dom = builder.newDocument();
+		Element re = (Element)dom.appendChild(dom.createElementNS(HIVE_NS, "response"));
+		try{
+			Document rh = builder.parse(getClass().getResourceAsStream("/templates/response_header.xml"));
+			stripWhitespace(rh.getDocumentElement());
+			re.appendChild(dom.adoptNode(rh.getDocumentElement()));
+		} catch (SAXException | IOException | XPathExpressionException e) {
+			log.log(Level.WARNING, "unable to process response header template", e);
+		}
+		return dom;
+	}
 	Document createResponse(DocumentBuilder builder, Element request_header){
 		Document dom = builder.newDocument();
 		Element re = (Element)dom.appendChild(dom.createElementNS(HIVE_NS, "response"));

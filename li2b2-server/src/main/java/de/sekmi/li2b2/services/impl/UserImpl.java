@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.services.test;
+package de.sekmi.li2b2.services.impl;
 
 import java.util.Arrays;
 

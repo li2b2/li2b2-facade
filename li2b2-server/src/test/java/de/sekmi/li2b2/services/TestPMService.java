@@ -6,60 +6,53 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.jboss.resteasy.cdi.CdiInjectorFactory;
-import org.jboss.resteasy.plugins.server.undertow.UndertowJaxrsServer;
-import org.jboss.resteasy.spi.ResteasyDeployment;
-import org.jboss.resteasy.test.TestPortProvider;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.undertow.servlet.Servlets;
-import io.undertow.servlet.api.DeploymentInfo;
-
+import de.sekmi.li2b2.client.Client;
+import de.sekmi.li2b2.client.pm.UserConfiguration;
 public class TestPMService{
+	TestServer server;
 
-	private UndertowJaxrsServer server;
+	public URL getPM_URL() throws MalformedURLException{
+		return server.getPMServiceURI().toURL();
+	}
 
 	@Before
-	public void startServer() throws Exception {
-		server = new UndertowJaxrsServer().start();
-		ResteasyDeployment rd = new ResteasyDeployment();
-//		rd.getActualResourceClasses().add(WorkplaceService.class);
-		rd.getActualResourceClasses().add(PMService.class);
-		rd.setInjectorFactoryClass(CdiInjectorFactory.class.getName());
-		DeploymentInfo di = server.undertowDeployment(rd);
-		di.setClassLoader(getClass().getClassLoader());
-		di.setDeploymentName("TestPM");
-		di.setContextPath("/");
-		di.addListeners(Servlets.listener(org.jboss.weld.environment.servlet.Listener.class));
-		server.deploy(di);
+	public void startServer() throws Exception{
+		server = new TestServer();
+		server.start_local(0);
 	}
-	
-	public URL createURL(String name) throws MalformedURLException{
-		return TestPortProvider.createURL("/i2b2/services/PMService"+name);
-	}
-	
-	@Test
+	//@Test
 	public void testPost() throws MalformedURLException, IOException{
-		URL url = createURL("/getServices");
-		System.out.println(url);
-		HttpURLConnection c = (HttpURLConnection)url.openConnection();
-		c.setRequestMethod("POST");
-		c.connect();
-		Assert.assertEquals(200, c.getResponseCode());
-		InputStream in = c.getInputStream();
-		in.close();
+		//URL url = createURL("/getServices");
+//		//ystem.out.println(url);
+//		HttpURLConnection c = (HttpURLConnection)url.openConnection();
+//		c.setRequestMethod("POST");
+//		c.connect();
+//		Assert.assertEquals(200, c.getResponseCode());
+//		InputStream in = c.getInputStream();
+//		in.close();
 	}
-	
+
 	@Test
 	public void invalidLoginCredentialsShouldFail(){
 		
 	}
 
+	@Test
+	public void expectValidUserConfiguration() throws Exception{
+		Client client = new Client();
+		client.setPM(getPM_URL());
+		client.setAuthorisation("demo", "demouser", "i2b2demo");
+		UserConfiguration uc = client.PM().requestUserConfiguration();
+		Assert.assertNotNull(uc);
+		// TODO verify additional configuration settings, projects
+	}
 	@After
-	public void stopServer() {
+	public void stopServer() throws Exception {
 		server.stop();
 	}
 
