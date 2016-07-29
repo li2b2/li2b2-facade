@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import de.sekmi.li2b2.client.crc.ResultType;
 import de.sekmi.li2b2.client.ont.Concept;
-import de.sekmi.li2b2.client.pm.Project;
+import de.sekmi.li2b2.hive.pm.Project;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 
 public class TestClient {

@@ -1,19 +1,19 @@
-package de.sekmi.li2b2.client.pm;
+package de.sekmi.li2b2.hive.pm;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="project")
+@XmlRootElement(name="cell_data")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Project {
+public class Cell {
 
 	@XmlAttribute
 	public String id;
 	public String name;
-	public String wiki;
-	public String description;
-	public String path;
-	public String[] role;
+	public String url;
+	public String project_path;
+	public String method;
+	public Boolean can_override;
 }

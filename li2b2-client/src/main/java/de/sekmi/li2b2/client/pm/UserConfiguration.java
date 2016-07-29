@@ -8,6 +8,9 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import de.sekmi.li2b2.hive.pm.Cell;
+import de.sekmi.li2b2.hive.pm.Project;
+
 
 public class UserConfiguration {
 

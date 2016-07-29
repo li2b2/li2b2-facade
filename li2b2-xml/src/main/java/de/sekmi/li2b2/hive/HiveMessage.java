@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.client;
+package de.sekmi.li2b2.hive;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -11,6 +11,9 @@ public abstract class HiveMessage {
 
 	public HiveMessage(Document dom){
 		this.dom = dom;
+	}
+	public Document getDOM(){
+		return dom;
 	}
 	public Element getMessageHeader(){
 		Node n = dom.getDocumentElement().getFirstChild();

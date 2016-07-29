@@ -12,8 +12,8 @@ import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Client;
-import de.sekmi.li2b2.client.HiveException;
-import de.sekmi.li2b2.client.Request;
+import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveRequest;
 
 public class QueryClient extends CellClient {
 
@@ -23,7 +23,7 @@ public class QueryClient extends CellClient {
 		super(client, serviceUrl);
 	}
 
-	private void setPSMHeader(Request request, String requestType){
+	private void setPSMHeader(HiveRequest request, String requestType){
 		//<ns4:psmheader>
 		//    <user login="demo">demo</user>
 		//    <patient_set_limit>0</patient_set_limit>
@@ -44,7 +44,7 @@ public class QueryClient extends CellClient {
 		el.appendChild(el.getOwnerDocument().createElement("request_type")).setTextContent(requestType);
 	}
 	public ResultType[] getResultType() throws HiveException{
-		Request req = createRequestMessage();
+		HiveRequest req = createRequestMessage();
 		// set body
 		setPSMHeader(req, "CRC_QRY_getResultType");
 		

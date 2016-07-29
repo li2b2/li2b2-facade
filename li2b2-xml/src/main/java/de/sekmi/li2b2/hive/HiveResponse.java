@@ -1,13 +1,13 @@
-package de.sekmi.li2b2.client;
+package de.sekmi.li2b2.hive;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class Response extends HiveMessage{
+public class HiveResponse extends HiveMessage{
 
-	public Response(Document dom) {
+	public HiveResponse(Document dom) {
 		super(dom);
 	}
 

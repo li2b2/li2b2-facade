@@ -23,9 +23,10 @@ import org.xml.sax.SAXException;
 
 import de.sekmi.li2b2.api.pm.ProjectManager;
 import de.sekmi.li2b2.api.pm.User;
-import de.sekmi.li2b2.client.Credentials;
-import de.sekmi.li2b2.client.HiveException;
-import de.sekmi.li2b2.client.Request;
+import de.sekmi.li2b2.hive.Credentials;
+import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveRequest;
+import de.sekmi.li2b2.hive.HiveResponse;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
@@ -47,19 +48,19 @@ public class PMService extends AbstractService{
 		DocumentBuilder b = newDocumentBuilder();
 		responseTemplate = createResponseTemplate(b);
 	}
-	protected de.sekmi.li2b2.client.Response createResponse(DocumentBuilder b){
+	protected HiveResponse createResponse(DocumentBuilder b){
 		Document dom = b.newDocument();
 		dom.appendChild(dom.importNode(responseTemplate, true));
 		
-		de.sekmi.li2b2.client.Response resp = new de.sekmi.li2b2.client.Response(dom);
+		HiveResponse resp = new HiveResponse(dom);
 		return resp;
 	}
 	
-	protected Request parseRequest(InputStream requestBody) throws HiveException{
+	protected HiveRequest parseRequest(InputStream requestBody) throws HiveException{
 		try{
 			DocumentBuilder b = newDocumentBuilder();
 			Document dom = parseRequest(b, requestBody);
-			Request req = new Request(dom);
+			HiveRequest req = new HiveRequest(dom);
 			return req;
 		}catch( IOException | SAXException | ParserConfigurationException e ){
 			throw new HiveException("Error parsing request XML", e);
@@ -68,7 +69,7 @@ public class PMService extends AbstractService{
 	@POST
 	@Path("getServices")
 	public Response getServices(InputStream requestBody) throws HiveException{
-		Request req = parseRequest(requestBody);
+		HiveRequest req = parseRequest(requestBody);
 		Credentials cred = req.getSecurity();
 		if( cred.isToken() ){
 			// need session manager

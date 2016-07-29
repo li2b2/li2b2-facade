@@ -12,8 +12,8 @@ import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Client;
-import de.sekmi.li2b2.client.HiveException;
-import de.sekmi.li2b2.client.Request;
+import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveRequest;
 
 public class OntologyClient extends CellClient {
 	public static final String XMLNS = "http://www.i2b2.org/xsd/cell/ont/1.1/";
@@ -31,7 +31,7 @@ public class OntologyClient extends CellClient {
 	 * @throws HiveException application layer error, e.g. session expired, unexpected response content
 	 */
 	public Concept[] getCategories() throws HiveException{
-		Request req = createRequestMessage();
+		HiveRequest req = createRequestMessage();
 		// set body
 		// <ont:get_categories  synonyms="true" hiddens="false" type="core"/>
 		Element el = req.addBodyElement(XMLNS, "get_categories");
@@ -46,7 +46,7 @@ public class OntologyClient extends CellClient {
 	}
 
 	public Concept[] getSchemes() throws HiveException{
-		Request req = createRequestMessage();
+		HiveRequest req = createRequestMessage();
 		// set body
 		// <ont:get_schemes  type="default"/>
 		Element el = req.addBodyElement(XMLNS, "get_schemes");
@@ -58,12 +58,11 @@ public class OntologyClient extends CellClient {
 		return parseConcepts(el);
 	}
 	
-	// TODO getting timeout error for getChildren
 	public Concept[] getChildren(String parentKey) throws HiveException{
 		//	<ns4:get_children blob="false" type="core" max='200'  synonyms="false" hiddens="false">
 		//	  <parent>\\i2b2_DEMO\i2b2\Demographics\</parent>
 		//	</ns4:get_children>
-		Request req = createRequestMessage();
+		HiveRequest req = createRequestMessage();
 		
 		Element el = req.addBodyElement(XMLNS, "get_children");
 		// official server needs prefix 'ns4'.

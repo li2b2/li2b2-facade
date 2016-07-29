@@ -6,10 +6,10 @@ import java.util.logging.Logger;
 import org.w3c.dom.Element;
 import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Client;
-import de.sekmi.li2b2.client.Credentials;
-import de.sekmi.li2b2.client.ErrorResponseException;
-import de.sekmi.li2b2.client.HiveException;
-import de.sekmi.li2b2.client.Request;
+import de.sekmi.li2b2.hive.Credentials;
+import de.sekmi.li2b2.hive.ErrorResponseException;
+import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveRequest;
 
 public class PMClient extends CellClient{
 	private static final Logger log = Logger.getLogger(PMClient.class.getName());
@@ -43,7 +43,7 @@ public class PMClient extends CellClient{
 	 * @throws HiveException unexpected response body
 	 */
 	public UserConfiguration requestUserConfiguration() throws ErrorResponseException, HiveException{
-		Request req = createRequestMessage();
+		HiveRequest req = createRequestMessage();
 		// set message body
 		// 
         // <pm:get_user_configuration><project>undefined</project></pm:get_user_configuration>

@@ -22,4 +22,5 @@ public class WorkplaceService {
 		}
 		return Response.ok(xml).build();
 	}
+	// TODO getChildren
 }

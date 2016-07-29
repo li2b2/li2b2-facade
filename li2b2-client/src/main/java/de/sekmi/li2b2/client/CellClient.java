@@ -20,7 +20,12 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import de.sekmi.li2b2.client.Response.ResultStatus;
+import de.sekmi.li2b2.hive.DOMUtils;
+import de.sekmi.li2b2.hive.ErrorResponseException;
+import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveRequest;
+import de.sekmi.li2b2.hive.HiveResponse;
+import de.sekmi.li2b2.hive.HiveResponse.ResultStatus;
 
 public class CellClient {
 	private static final Logger log = Logger.getLogger(CellClient.class.getName());
@@ -44,25 +49,25 @@ public class CellClient {
 	}
 
 	/**
-	 * Create a new request message. Will also set the security
+	 * Create a new HiveRequest message. Will also set the security
 	 * credentials.
 	 * 
 	 * @param builder document builder
-	 * @return request message
+	 * @return HiveRequest message
 	 */
-	protected Request createRequestMessage(DocumentBuilder builder){
-		Request req = client.createRequest(builder);
+	protected HiveRequest createRequestMessage(DocumentBuilder builder){
+		HiveRequest req = client.createRequest(builder);
 		req.setSecurity(client.credentials);
 		req.setProjectId(client.getProjectId());
 		// TODO set message id
 		return req;
 	}
-	protected Request createRequestMessage(){
+	protected HiveRequest createRequestMessage(){
 		return createRequestMessage(newBuilder());
 	}
-	protected Request createRequestMessage(String bodyXML) throws SAXException, IOException{
+	protected HiveRequest createRequestMessage(String bodyXML) throws SAXException, IOException{
 		DocumentBuilder b = newBuilder();
-		Request req = createRequestMessage(b);
+		HiveRequest req = createRequestMessage(b);
 		// parse body XML
 		Document dom = b.parse(new InputSource(new StringReader(bodyXML)));
 		Element body = req.getMessageBody();
@@ -77,24 +82,24 @@ public class CellClient {
 	 * <p>
 	 *  This method will also prepare the returned connection for
 	 *  the {@link URLConnection#connect()} call. Specifically,
-	 *  the request method will be set to {@code POST}, and the
+	 *  the HiveRequest method will be set to {@code POST}, and the
 	 *  {@code Content-Type} header will be set to {@code application/xml}
 	 *  with output charset.
 	 * </p>
-	 * @param request request
+	 * @param HiveRequest HiveRequest
 	 * @param requestUrl URL
 	 * @return connection
 	 * @throws IOException io error
 	 * 
 	 */
-	protected HttpURLConnection createConnection(Request request, URL requestUrl) throws IOException{
+	protected HttpURLConnection createConnection(HiveRequest HiveRequest, URL requestUrl) throws IOException{
 		HttpURLConnection c;
 		if( client.getProxy() != null ){
-			request.setRedirectUrl(requestUrl);
+			HiveRequest.setRedirectUrl(requestUrl);
 			c = (HttpURLConnection)client.getProxy().openConnection();
 		}else{
 			// clear redirect URL
-			request.setRedirectUrl(null);
+			HiveRequest.setRedirectUrl(null);
 			c = (HttpURLConnection)requestUrl.openConnection();
 		}		
 		c.setRequestMethod("POST");
@@ -102,14 +107,14 @@ public class CellClient {
 		c.setRequestProperty("Content-Type", "application/xml; charset="+getOutputCharset());
 		return c;
 	}
-	protected Response submitRequest(Request request, String method) throws HiveException{
+	protected HiveResponse submitRequest(HiveRequest HiveRequest, String method) throws HiveException{
 		try {
-			return submitRequest(newBuilder(), request, createRequest(method));
+			return submitRequest(newBuilder(), HiveRequest, createRequest(method));
 		} catch (MalformedURLException e) {
 			throw new HiveException("RESTful endpoint URL construction failed: "+method, e);
 		}
 	}
-	protected Response submitRequest(DocumentBuilder b, Request request, URL requestUrl) throws HiveException{
+	protected HiveResponse submitRequest(DocumentBuilder b, HiveRequest request, URL requestUrl) throws HiveException{
 		HttpURLConnection c;
 		try {
 			c = createConnection(request, requestUrl);
@@ -120,15 +125,15 @@ public class CellClient {
 		
 		try( OutputStream out = c.getOutputStream() ){
 			log.info("Submitting to "+requestUrl);
-			DOMUtils.printDOM(request.dom, System.out);
-			DOMUtils.printDOM(request.dom, out, getOutputCharset());
+			DOMUtils.printDOM(request, System.out);
+			DOMUtils.printDOM(request.getDOM(), out, getOutputCharset());
 		}catch (TransformerException e) {
 			throw new HiveException("DOM compilation failed",e);
 		} catch (IOException e) {
 			throw new HiveException("Unable to write to URL connection", e);
 		}
 		
-		// don't need to check response status: getInputStream will throw exception if not 2xx
+		// don't need to check HiveResponse status: getInputStream will throw exception if not 2xx
 //		int status = c.getResponseCode();
 
 		Document resp;
@@ -136,26 +141,26 @@ public class CellClient {
 			resp = b.parse(in);
 			DOMUtils.stripWhitespace(resp.getDocumentElement());
 		} catch (SAXException | IOException | XPathExpressionException e) {
-			throw new HiveException("Unable to parse response",e);
+			throw new HiveException("Unable to parse HiveResponse",e);
 		}
-		log.info("Received response:");
+		log.info("Received HiveResponse:");
 		DOMUtils.printDOM(resp, System.out);
-		return new Response(resp);
+		return new HiveResponse(resp);
 	}
 
 	/**
-	 * Submit a request and expect the response body to contain
+	 * Submit a HiveRequest and expect the HiveResponse body to contain
 	 * the specified XML element.
 	 * 
-	 * @param request request
+	 * @param HiveRequest HiveRequest
 	 * @param restMethod RESTful method
-	 * @param responseNS response body namespace
-	 * @param responseElement response body element
-	 * @return response element specified in the argument list. if the element is not found, a {@link HiveException} will be thrown.
-	 * @throws HiveException server request or response error
+	 * @param responseNS HiveResponse body namespace
+	 * @param responseElement HiveResponse body element
+	 * @return HiveResponse element specified in the argument list. if the element is not found, a {@link HiveException} will be thrown.
+	 * @throws HiveException server HiveRequest or HiveResponse error
 	 */
-	protected Element submitRequestWithResponseContent(Request request, String restMethod, String responseNS, String responseElement) throws HiveException{
-		Response resp = submitRequest(request, restMethod);
+	protected Element submitRequestWithResponseContent(HiveRequest HiveRequest, String restMethod, String responseNS, String responseElement) throws HiveException{
+		HiveResponse resp = submitRequest(HiveRequest, restMethod);
 		ResultStatus rs = resp.getResultStatus();
 		if( !rs.getCode().equals("DONE") ){
 			throw new ErrorResponseException(rs);

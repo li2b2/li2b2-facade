@@ -17,7 +17,10 @@ import org.xml.sax.SAXException;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 import de.sekmi.li2b2.client.crc.QueryClient;
 import de.sekmi.li2b2.client.ont.OntologyClient;
-import de.sekmi.li2b2.client.pm.Cell;
+import de.sekmi.li2b2.hive.Credentials;
+import de.sekmi.li2b2.hive.DOMUtils;
+import de.sekmi.li2b2.hive.HiveRequest;
+import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.client.pm.PMClient;
 
 public class Client {
@@ -129,10 +132,10 @@ public class Client {
 	public QueryClient CRC(){
 		return this.crc;
 	}
-	protected Request createRequest(DocumentBuilder builder){
+	protected HiveRequest createRequest(DocumentBuilder builder){
 		Document req = builder.newDocument();
 		req.appendChild(req.importNode(requestTemplate.getDocumentElement(), true));
-		Request r = new Request(req);
+		HiveRequest r = new HiveRequest(req);
 		// TODO random message id
 		r.setMessageId("asdf", "0");
 		return r;

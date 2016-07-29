@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.client;
+package de.sekmi.li2b2.hive;
 
 import java.net.URL;
 import java.time.Instant;
@@ -6,15 +6,15 @@ import java.time.Instant;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class Request extends HiveMessage{
+public class HiveRequest extends HiveMessage{
 
-	public Request(Document dom) {
+	public HiveRequest(Document dom) {
 		super(dom);
 		// set timestamp
 		getMessageHeader().getElementsByTagName("datetime_of_message").item(0).setTextContent(Instant.now().toString());
 	}
 
-	public Request setRedirectUrl(URL url){
+	public HiveRequest setRedirectUrl(URL url){
 		Element mh = getMessageHeader();
 		if( url != null ){
 			mh.getFirstChild().getFirstChild().setTextContent(url.toExternalForm());
