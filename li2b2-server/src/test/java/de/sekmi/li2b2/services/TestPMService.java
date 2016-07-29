@@ -1,8 +1,6 @@
 package de.sekmi.li2b2.services;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
