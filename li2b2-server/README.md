@@ -1,13 +1,21 @@
 
 
-Dependencies
-------------
-For development/testing, the server can be started with
-`mvn -P jetty jetty:run-war`. This functionality needs i2b2 webclient. 
-You may need to download the webclient from i2b2.org/software and 
-install the bundle into your local maven repository manually via
+Development and testing
+-----------------------
+For development/testing, the server can be started from eclipse
+by executing `li2b2-server/src/test/java/de.sekmi.li2b2.services.TestServer`. 
+
+If you want to include the webclient in the demo server,
+you do the following:
+
+Download the webclient from i2b2.org/software and install 
+the bundle into your local maven repository manually via
 ```
  mvn install:install-file -Dfile=i2b2webclient-1707c.zip -DgroupId=org.i2b2 -DartifactId=webclient -Dversion=1.7.07c -Dpackaging=zip
 ```
+To import the webclient into eclipse, run `mvn -P i2b2 eclipse:eclipse`.
 
- 
+To update the eclipse project files and dependencies, right-click on `li2b2-server` project
+and choose `Refresh`.
+
+Now run the `TestServer` again, and go to http://localhost:8080/webclient/default.htm
