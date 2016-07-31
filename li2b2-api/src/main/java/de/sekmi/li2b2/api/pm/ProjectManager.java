@@ -11,4 +11,5 @@ public interface ProjectManager {
 	User getUserById(String userId, String domain);
 	Project getProjectById(String projectId);
 	User addUser(String userId, String domain);
+	Project addProject(String id, String name);
 }
