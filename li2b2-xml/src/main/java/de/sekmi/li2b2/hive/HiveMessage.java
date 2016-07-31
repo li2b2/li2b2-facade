@@ -88,6 +88,10 @@ public abstract class HiveMessage {
 		mh.getElementsByTagName("project_id").item(0).setTextContent(projectId);
 		return this;
 	}
+	public String getProjectId(){
+		Element mh = getMessageHeader();
+		return mh.getElementsByTagName("project_id").item(0).getTextContent();
+	}
 	public HiveMessage setSendingApplication(String name, String version){
 		Element mh = getMessageHeader();
 		NodeList nl = mh.getElementsByTagName("sending_application").item(0).getChildNodes();

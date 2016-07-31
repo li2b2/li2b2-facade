@@ -101,10 +101,12 @@ public abstract class AbstractService extends AbstractCell{
 		int msgInst;
 		try{
 			msgInst = Integer.parseInt(requestId.getLastChild().getTextContent());
+			msgInst ++;
 		}catch( NumberFormatException e ){
 			msgInst = 1;
 		}
 		resp.setMessageId(requestId.getFirstChild().getTextContent(), Integer.toString(msgInst));
+		resp.setProjectId(request.getProjectId());
 		return resp;
 	}
 	
@@ -148,8 +150,13 @@ public abstract class AbstractService extends AbstractCell{
 		
 		return dom;
 	}*/
-	void appendTextElement(Element parent, String name, String content){
-		parent.appendChild(parent.getOwnerDocument().createElement(name)).setTextContent(content);
+	Element appendTextElement(Element parent, String name, String content){
+		Element el = (Element)parent.getOwnerDocument().createElement(name);
+		parent.appendChild(el);
+		if( content != null ){
+			el.setTextContent(content);
+		}
+		return el;
 	}
 
 }
