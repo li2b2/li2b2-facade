@@ -1,5 +1,5 @@
-<response xmlns="http://www.i2b2.org/xsd/hive/msg/1.1/">
-    <message_header xmlns="http://www.i2b2.org/xsd/hive/msg/1.1/">
+<hive:response xmlns:hive="http://www.i2b2.org/xsd/hive/msg/1.1/">
+    <message_header>
         <i2b2_version_compatible>1.1</i2b2_version_compatible>
         <hl7_version_compatible>2.4</hl7_version_compatible>
         <sending_application>
@@ -41,4 +41,4 @@
         </result_status>
     </response_header>
     <message_body/>
-</response>
+</hive:response>
