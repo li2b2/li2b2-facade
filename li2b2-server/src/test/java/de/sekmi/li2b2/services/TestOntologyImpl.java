@@ -18,5 +18,9 @@ public class TestOntologyImpl {
 			count ++;
 		}
 		Assert.assertEquals(2, count);
+		
+		Concept c = ont.getConceptByKey("examplesub");
+		Assert.assertNotNull(c);
+		Assert.assertEquals("Sub", c.getDisplayName());
 	}
 }

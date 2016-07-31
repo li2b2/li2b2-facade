@@ -3,7 +3,9 @@ package de.sekmi.li2b2.services.impl;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import de.sekmi.li2b2.api.ont.Concept;
@@ -12,11 +14,11 @@ import de.sekmi.li2b2.api.ont.Modifier;
 
 public class ConceptImpl implements Concept{
 
-	@XmlElement
+	@XmlAttribute
 	private String key;
 	@XmlElement
 	private String name;
-//	@XmlElementWrapper(name="narrower")
+	@XmlElementWrapper(name="narrower")
 	@XmlElement(name="concept")
 	private List<ConceptImpl> concepts;
 	
@@ -32,13 +34,12 @@ public class ConceptImpl implements Concept{
 
 	@Override
 	public boolean hasNarrower() {
-		return concepts.isEmpty();
+		return concepts != null;
 	}
 
 	@Override
-	public Iterable<Concept> getNarrower() {
-		// TODO Auto-generated method stub
-		return null;
+	public Iterable<? extends Concept> getNarrower() {
+		return concepts;
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class ConceptImpl implements Concept{
 	}
 
 	@Override
-	public Iterable<Modifier> getModifiers() {
+	public Iterable<? extends Modifier> getModifiers() {
 		return Collections.emptyList();
 	}
 
