@@ -19,9 +19,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-@Path("/i2b2/services/QueryToolService")
-public class QueryToolService {
+import de.sekmi.li2b2.hive.HiveException;
+
+@Path(QueryToolService.SERVICE_PATH)
+public class QueryToolService extends AbstractService{
+
 	private static final Logger log = Logger.getLogger(QueryToolService.class.getName());
+	public static final String SERVICE_PATH="/i2b2/services/QueryToolService/";
+	
+	public QueryToolService() throws HiveException {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	@POST
 	@Path("request")
@@ -83,4 +92,10 @@ public class QueryToolService {
 			return Response.noContent().build();			
 		}
 	}
+
+	@Override
+	public String getCellId() {
+		return "CRC";
+	}
+
 }

@@ -1,5 +1,7 @@
 package de.sekmi.li2b2.hive;
 
+import java.time.Instant;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,6 +31,13 @@ public abstract class HiveMessage {
 		}else{
 			return null;
 		}
+	}
+	public HiveMessage setTimestamp(Instant timestamp){
+		getMessageHeader().getElementsByTagName("datetime_of_message").item(0).setTextContent(timestamp.toString());
+		return this;
+	}
+	public HiveMessage setTimestamp(){
+		return setTimestamp(Instant.now());
 	}
 	/**
 	 * Get the required body content element with the specified namespace and qualified name.
@@ -79,11 +88,27 @@ public abstract class HiveMessage {
 		mh.getElementsByTagName("project_id").item(0).setTextContent(projectId);
 		return this;
 	}
+	public HiveMessage setSendingApplication(String name, String version){
+		Element mh = getMessageHeader();
+		NodeList nl = mh.getElementsByTagName("sending_application").item(0).getChildNodes();
+		nl.item(0).setTextContent(name);
+		nl.item(1).setTextContent(version);
+		return this;
+	}
+
 	public HiveMessage setMessageId(String id, String inst){
 		Element mh = getMessageHeader();
 		NodeList nl = mh.getElementsByTagName("message_control_id").item(0).getChildNodes();
 		nl.item(0).setTextContent(id);
 		nl.item(1).setTextContent(inst);
 		return this;
+	}
+	public Element getMessageId(){
+		return (Element)getMessageHeader().getElementsByTagName("message_control_id").item(0);
+	}
+
+	public Element addBodyElement(String namespaceURI, String qualifiedName){
+		Element bod = getMessageBody();
+		return (Element)bod.appendChild(bod.getOwnerDocument().createElementNS(namespaceURI, qualifiedName));
 	}
 }

@@ -35,14 +35,4 @@ public class HiveResponse extends HiveMessage{
 			return status.getTextContent();
 		}
 	}
-	
-	@Override
-	public Element getMessageBody(){
-		Node n = getResponseHeader().getNextSibling();
-		if( n != null && n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName().equals("message_body") ){
-			return (Element)n;
-		}else{
-			throw new RuntimeException("No message body in response:"+n);
-		}
-	}
 }

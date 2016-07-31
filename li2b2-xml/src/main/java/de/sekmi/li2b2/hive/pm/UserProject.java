@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="project")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Project {
+public class UserProject {
 
 	@XmlAttribute
 	public String id;

@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import de.sekmi.li2b2.client.crc.ResultType;
 import de.sekmi.li2b2.client.ont.Concept;
-import de.sekmi.li2b2.hive.pm.Project;
+import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 
 public class TestClient {
@@ -16,7 +16,7 @@ public class TestClient {
 		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
 		c.setAuthorisation("demo", "demouser", "i2b2demo");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
-		Project[] projects = uc.getProjects();
+		UserProject[] projects = uc.getProjects();
 		if( projects != null ){
 			// use first project
 			c.setProjectId(projects[0].id);
