@@ -1,0 +1,10 @@
+<ontology>
+	<concept>
+		<key>diag</key>
+		<name>Diagnosen</name>
+	</concept>
+	<concept>
+		<key>Example</key>
+		<name>Beispiel</name>
+	</concept>
+</ontology>

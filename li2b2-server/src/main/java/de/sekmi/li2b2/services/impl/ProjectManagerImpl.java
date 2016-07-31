@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Singleton;
+
 //import javax.inject.Singleton;
 
 import de.sekmi.li2b2.api.pm.Project;
 import de.sekmi.li2b2.api.pm.ProjectManager;
 import de.sekmi.li2b2.api.pm.User;
 
-//@Singleton
+@Singleton
 public class ProjectManagerImpl implements ProjectManager {
 
 	private List<UserImpl> users;
