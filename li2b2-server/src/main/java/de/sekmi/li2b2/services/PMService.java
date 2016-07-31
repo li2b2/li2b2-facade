@@ -33,6 +33,7 @@ import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.hive.pm.Cell;
+import de.sekmi.li2b2.hive.pm.Param;
 import de.sekmi.li2b2.hive.pm.UserProject;
 
 @Singleton
@@ -121,6 +122,11 @@ public class PMService extends AbstractService{
 			Set<String> roles = project.getUserRoles(user);
 			up.role = new String[roles.size()];
 			roles.toArray(up.role);
+			// param demo
+			up.params = new Param[]{
+					new Param("announcement","This is a demo of the <span style='color:orange;font-weight:bold'>li2b2 server</span>.")
+					,new Param("Software","<span style='color:orange;font-weight:bold'>li2b2 server</span>")
+			};
 			// append
 			marshaller.marshal(up, ue);
 		}
