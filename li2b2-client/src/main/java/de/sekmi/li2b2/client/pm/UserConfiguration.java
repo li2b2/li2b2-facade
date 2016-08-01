@@ -8,6 +8,8 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import de.sekmi.li2b2.client.HiveException;
+
 
 public class UserConfiguration {
 
@@ -37,7 +39,7 @@ public class UserConfiguration {
 	public String getUserFullName(){
 		return fullName;
 	}
-	private void parseElement(Element configure){
+	private void parseElement(Element configure) throws HiveException {
 		Element user = (Element)configure.getElementsByTagName("user").item(0);
 		fullName = user.getElementsByTagName("full_name").item(0).getTextContent();
 		userName = user.getElementsByTagName("user_name").item(0).getTextContent();
@@ -61,11 +63,10 @@ public class UserConfiguration {
 				cells[i] = (Cell)um.unmarshal(new DOMSource(nl.item(i)));
 			}		
 		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new HiveException("error parsing concepts", e);
 		}
 	}
-	public static UserConfiguration parse(Element configure){
+	public static UserConfiguration parse(Element configure) throws HiveException{
 		UserConfiguration ci = new UserConfiguration();
 		ci.parseElement(configure);
 		return ci;
