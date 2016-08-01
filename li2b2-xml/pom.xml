@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<name>li2b2 : client</name>
+	<name>li2b2 : XML</name>
 	<packaging>jar</packaging>
 
 	<description>
-	Lightweight client implementation to authenticate with
-	an i2b2 hive, manage users/roles and run queries.
+	Message structures and code for parsing.
+	Used by client and server.
 	</description>
 
 	<groupId>de.sekmi.li2b2</groupId>
-	<artifactId>li2b2-client</artifactId>
+	<artifactId>li2b2-xml</artifactId>
 	<version>0.1-SNAPSHOT</version>
 
 	<parent>
@@ -21,11 +21,6 @@
 
 
 	<dependencies>
-		<dependency>
-			<groupId>de.sekmi.li2b2</groupId>
-			<artifactId>li2b2-xml</artifactId>
-			<version>0.1-SNAPSHOT</version>
-		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

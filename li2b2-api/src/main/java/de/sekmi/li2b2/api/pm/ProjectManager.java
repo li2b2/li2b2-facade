@@ -8,6 +8,8 @@ package de.sekmi.li2b2.api.pm;
  */
 public interface ProjectManager {
 
-	User getUserById(String userId);
+	User getUserById(String userId, String domain);
 	Project getProjectById(String projectId);
+	User addUser(String userId, String domain);
+	Project addProject(String id, String name);
 }

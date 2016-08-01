@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.client;
+package de.sekmi.li2b2.hive;
 
 public class Credentials {
 	private String user;

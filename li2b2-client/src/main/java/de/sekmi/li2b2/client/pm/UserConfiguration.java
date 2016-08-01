@@ -8,6 +8,8 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import de.sekmi.li2b2.hive.pm.Cell;
+import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.HiveException;
 
 
@@ -20,7 +22,7 @@ public class UserConfiguration {
 	private String userDomain;
 
 	
-	Project[] projects;
+	UserProject[] projects;
 	Cell[] cells;
 	
 	
@@ -49,12 +51,12 @@ public class UserConfiguration {
 		isAdmin = Boolean.parseBoolean(user.getElementsByTagName("is_admin").item(0).getTextContent());
 		try {
 			Unmarshaller um;
-			um = JAXBContext.newInstance(Cell.class, Project.class).createUnmarshaller();
+			um = JAXBContext.newInstance(Cell.class, UserProject.class).createUnmarshaller();
 
 			NodeList nl = user.getElementsByTagName("project");
-			projects = new Project[nl.getLength()];
+			projects = new UserProject[nl.getLength()];
 			for( int i=0; i<projects.length; i++ ){
-				projects[i] = (Project)um.unmarshal(new DOMSource(nl.item(i)));
+				projects[i] = (UserProject)um.unmarshal(new DOMSource(nl.item(i)));
 			}
 			// parse cells
 			nl = configure.getElementsByTagName("cell_data");
@@ -71,7 +73,7 @@ public class UserConfiguration {
 		ci.parseElement(configure);
 		return ci;
 	}
-	public Project[] getProjects(){
+	public UserProject[] getProjects(){
 		return projects;
 	}
 	public Cell[] getCells() {

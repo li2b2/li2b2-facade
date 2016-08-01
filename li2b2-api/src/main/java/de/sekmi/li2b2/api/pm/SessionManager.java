@@ -4,12 +4,13 @@ public interface SessionManager {
 
 	
 	public interface Session{
-		String getId();
 		String getUserId();
 		String getProjectId();
+		String getToken();
 		// XXX set project id? or set at creation?
 		long getCreationTime();
 		long getLastAccess();
+		void invalidate();
 	}
 	
 	/** 
@@ -23,7 +24,6 @@ public interface SessionManager {
 	public Session accessSession(String sessionId);
 	
 	public Session createSession(String userId);
-	public void deleteSession(String sessionId);
 	
 
 	/**

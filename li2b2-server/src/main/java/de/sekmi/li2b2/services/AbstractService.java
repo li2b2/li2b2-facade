@@ -2,28 +2,39 @@ package de.sekmi.li2b2.services;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public abstract class AbstractService {
+import de.sekmi.li2b2.hive.DOMUtils;
+import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveRequest;
+import de.sekmi.li2b2.hive.HiveResponse;
+
+public abstract class AbstractService extends AbstractCell{
 	private static final Logger log = Logger.getLogger(AbstractService.class.getName());
 	public static final String HIVE_NS="http://www.i2b2.org/xsd/hive/msg/1.1/";
+
+	protected Document responseTemplate;
 	
+	protected AbstractService() throws HiveException{
+		DocumentBuilder b;
+		try {
+			b = newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			throw new HiveException(e);
+		}
+		responseTemplate = createResponseTemplate(b);
+	}
+
 	/**
 	 * Service name (for communication to client).
 	 * <p>
@@ -58,26 +69,45 @@ public abstract class AbstractService {
 		// remove whitespace nodes from message header
 		Element root = dom.getDocumentElement();
 		try {
-			stripWhitespace(root);
+			DOMUtils.stripWhitespace(root);
 		} catch (XPathExpressionException e) {
 			log.log(Level.WARNING, "Unable to strip whitespace from request", e);
 		}
 		return dom;
 	}
-	HiveRequest parseRequest(Document request){
-		return HiveRequest.parse(request.getDocumentElement());
-	}
-	private void stripWhitespace(Element node) throws XPathExpressionException{
-		XPathFactory xf = XPathFactory.newInstance();
-		// XPath to find empty text nodes.
-		XPathExpression xe = xf.newXPath().compile("//text()[normalize-space(.) = '']");  
-		NodeList nl = (NodeList)xe.evaluate(node, XPathConstants.NODESET);
-
-		// Remove each empty text node from document.
-		for (int i = 0; i < nl.getLength(); i++) {
-		    Node empty = nl.item(i);
-		    empty.getParentNode().removeChild(empty);
+	protected HiveRequest parseRequest(InputStream requestBody) throws HiveException{
+		try{
+			DocumentBuilder b = newDocumentBuilder();
+			Document dom = parseRequest(b, requestBody);
+			HiveRequest req = new HiveRequest(dom);
+			return req;
+		}catch( IOException | SAXException | ParserConfigurationException e ){
+			throw new HiveException("Error parsing request XML", e);
 		}
+	}
+
+	protected HiveResponse createResponse(DocumentBuilder b, HiveRequest request){
+		Document dom = b.newDocument();
+		dom.appendChild(dom.importNode(responseTemplate.getDocumentElement(), true));
+		
+		HiveResponse resp = new HiveResponse(dom);
+		resp.setTimestamp();
+		
+		// set sending application
+		resp.setSendingApplication(getName(), getVersion());
+		
+		// set message id
+		Element requestId = request.getMessageId();
+		int msgInst;
+		try{
+			msgInst = Integer.parseInt(requestId.getLastChild().getTextContent());
+			msgInst ++;
+		}catch( NumberFormatException e ){
+			msgInst = 1;
+		}
+		resp.setMessageId(requestId.getFirstChild().getTextContent(), Integer.toString(msgInst));
+		resp.setProjectId(request.getProjectId());
+		return resp;
 	}
 	
 //	private void appendTextNode(Element el, String name, String value){
@@ -86,6 +116,17 @@ public abstract class AbstractService {
 //			sub.appendChild(el.getOwnerDocument().createTextNode(value));
 //		}
 //	}
+	private Document createResponseTemplate(DocumentBuilder builder) throws HiveException{
+		Document dom;
+		try{
+			dom = builder.parse(getClass().getResourceAsStream("/response_template.xml"));
+			DOMUtils.stripWhitespace(dom.getDocumentElement());
+		} catch (SAXException | IOException | XPathExpressionException e) {
+			throw new HiveException("Unable to load response template XML", e);
+		}
+		return dom;
+	}
+	/*
 	Document createResponse(DocumentBuilder builder, Element request_header){
 		Document dom = builder.newDocument();
 		Element re = (Element)dom.appendChild(dom.createElementNS(HIVE_NS, "response"));
@@ -108,5 +149,14 @@ public abstract class AbstractService {
 		}
 		
 		return dom;
+	}*/
+	Element appendTextElement(Element parent, String name, String content){
+		Element el = (Element)parent.getOwnerDocument().createElement(name);
+		parent.appendChild(el);
+		if( content != null ){
+			el.setTextContent(content);
+		}
+		return el;
 	}
+
 }

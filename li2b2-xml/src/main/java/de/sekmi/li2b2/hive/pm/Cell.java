@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.client.pm;
+package de.sekmi.li2b2.hive.pm;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -16,4 +16,16 @@ public class Cell {
 	public String project_path;
 	public String method;
 	public Boolean can_override;
+
+	protected Cell(){
+	}
+	public Cell(String id, String name, String url){
+		this.id = id;
+		this.name = name;
+		this.url = url;
+		this.project_path = "/";
+		this.method = "REST";
+		this.can_override = true;
+	}
+	
 }

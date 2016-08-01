@@ -19,43 +19,39 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-@Path("/i2b2/services/QueryToolService")
-public class QueryToolService {
+import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveRequest;
+
+@Path(QueryToolService.SERVICE_PATH)
+public class QueryToolService extends AbstractService{
+
 	private static final Logger log = Logger.getLogger(QueryToolService.class.getName());
+	public static final String SERVICE_PATH="/i2b2/services/QueryToolService/";
+	
+	public QueryToolService() throws HiveException {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	@POST
 	@Path("request")
-	public Response request(InputStream body){
-		Document dom = null;
-		try {
-			DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
-			fac.setIgnoringElementContentWhitespace(true);
-			fac.setNamespaceAware(true);
-			DocumentBuilder b = fac.newDocumentBuilder();
-			dom = b.parse(body);
-			dom.normalizeDocument();
-			body.close();
-		} catch (ParserConfigurationException | SAXException | IOException e) {
-			log.log(Level.SEVERE,"XML error",e);
-			return Response.status(500).build();
-		}
+	public Response request(InputStream requestBody) throws HiveException{
+		HiveRequest req = parseRequest(requestBody);
+		Element psm_header = (Element)req.getMessageBody().getFirstChild();
+		Element request = (Element)req.getMessageBody().getLastChild();
 		// get request type
-		NodeList nl = dom.getElementsByTagName("request_type");
+		NodeList nl = psm_header.getElementsByTagName("request_type");
 		String type = null;
 		if( nl.getLength() != 0 ){
 			type = nl.item(0).getTextContent();
 		}
-		// find request body
-		Node sib = nl.item(0).getParentNode().getNextSibling();
-		while( sib != null && sib.getNodeType() == Node.TEXT_NODE && sib.getTextContent().trim().length() == 0 ){
-			sib = sib.getNextSibling();
-		}
-		Element req = null;
-		if( sib != null && sib.getNodeType() == Node.ELEMENT_NODE ){
-			req = (Element)sib;
-		}
+//
+//		Element req = null;
+//		if( sib != null && sib.getNodeType() == Node.ELEMENT_NODE ){
+//			req = (Element)sib;
+//		}
 		
-		return request(type, req);
+		return request(type, request);
 	}
 	
 	private Response request(String type, Element request){
@@ -73,7 +69,8 @@ public class QueryToolService {
 		}else if( type.equals("CRC_QRY_getQueryMasterList_fromUserId") ){
 			return Response.ok(getClass().getResourceAsStream("/templates/crc/masterlist.xml")).build();
 		}else if( type.equals("CRC_QRY_runQueryInstance_fromQueryDefinition") ){
-			// XXX			
+			// XXX
+			log.info("Run query: "+request.getChildNodes().item(0).getNodeName()+", "+request.getChildNodes().item(1).getNodeName());
 			return Response.ok(getClass().getResourceAsStream("/templates/crc/master_instance_result.xml")).build();
 		}else if( type.equals("CRC_QRY_deleteQueryMaster") ){
 			// XXX
@@ -83,4 +80,10 @@ public class QueryToolService {
 			return Response.noContent().build();			
 		}
 	}
+
+	@Override
+	public String getCellId() {
+		return "CRC";
+	}
+
 }

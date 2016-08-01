@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.client;
+package de.sekmi.li2b2.hive;
 
 /**
  * Exception caused by unexpected server (hive) behaviour.

@@ -7,8 +7,15 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-@Path("/i2b2/services/WorkplaceService")
-public class WorkplaceService {
+import de.sekmi.li2b2.hive.HiveException;
+
+@Path(WorkplaceService.SERVICE_PATH)
+public class WorkplaceService extends AbstractService{
+	public static final String SERVICE_PATH="/i2b2/services/WorkplaceService/";
+	public WorkplaceService() throws HiveException {
+		super();
+	}
+
 	private static final Logger log = Logger.getLogger(WorkplaceService.class.getName());
 
 	@POST
@@ -21,5 +28,11 @@ public class WorkplaceService {
 			log.info("folders");
 		}
 		return Response.ok(xml).build();
+	}
+	// TODO getChildren
+
+	@Override
+	public String getCellId() {
+		return "WORK";
 	}
 }

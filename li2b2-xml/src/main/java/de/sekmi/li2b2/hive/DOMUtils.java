@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.client;
+package de.sekmi.li2b2.hive;
 
 import java.io.OutputStream;
 
@@ -36,6 +36,9 @@ public class DOMUtils {
 		} catch (TransformerException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	public static void printDOM(HiveMessage message, OutputStream out){
+		printDOM(message.dom, out);
 	}
 	public static void printDOM(Node node, OutputStream out, String encoding) throws TransformerException{
 		    TransformerFactory tf = TransformerFactory.newInstance();

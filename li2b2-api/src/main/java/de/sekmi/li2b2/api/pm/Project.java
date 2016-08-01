@@ -1,5 +1,7 @@
 package de.sekmi.li2b2.api.pm;
 
+import java.util.Set;
+
 public interface Project {
 
 	/**
@@ -13,7 +15,19 @@ public interface Project {
 	 */
 	String getName();
 	
-	void addUserRole(User user, String role);
-	Iterable<String> getUserRoles(User user);
+	/**
+	 * TODO what is path for?
+	 * The default implementation returns {@code "/"+getId()}.
+	 * @return project path
+	 */
+	default String getPath() {return "/"+getId();}
+
+	void addUserRoles(User user, String ... roles );
+	/**
+	 * Get the roles for the given user in this project.
+	 * @param user user
+	 * @return roles, or empty list if no access to project
+	 */
+	Set<String> getUserRoles(User user);
 	// TODO removeUser (removes all roles), removeUserRole
 }

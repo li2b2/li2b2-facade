@@ -8,10 +8,10 @@ public interface Concept {
 	default Concept getSynonymTarget(){return null;}
 
 	boolean hasNarrower();
-	Iterable<Concept> getNarrower();
+	Iterable<? extends Concept> getNarrower();
 
 	boolean hasModifiers();
-	Iterable<Modifier> getModifiers();
+	Iterable<? extends Modifier> getModifiers();
 	
 	/* TODO implement <facttablecolumn>concept_cd</facttablecolumn>
     <tablename>concept_dimension</tablename>

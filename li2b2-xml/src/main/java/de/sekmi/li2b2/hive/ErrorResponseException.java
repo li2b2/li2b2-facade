@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.client;
+package de.sekmi.li2b2.hive;
 
 /**
  * Hive response header contained an ERROR result status code, which
@@ -21,7 +21,7 @@ public class ErrorResponseException extends HiveException {
 		this.statusType = statusType;
 		this.statusMessage = statusMessage;
 	}
-	public ErrorResponseException(Response.ResultStatus status){
+	public ErrorResponseException(HiveResponse.ResultStatus status){
 		this(status.getCode(), status.getMessage());
 	}
 	public String getStatusType(){
