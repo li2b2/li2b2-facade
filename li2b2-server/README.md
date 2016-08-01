@@ -13,7 +13,7 @@ the bundle into your local maven repository manually via
 ```
  mvn install:install-file -Dfile=i2b2webclient-1707c.zip -DgroupId=org.i2b2 -DartifactId=webclient -Dversion=1.7.07c -Dpackaging=zip
 ```
-To import the webclient into eclipse, run `mvn -P i2b2 eclipse:eclipse`.
+To import the webclient into eclipse, run `mvn -P i2b2 clean eclipse:eclipse`.
 
 To update the eclipse project files and dependencies, right-click on `li2b2-server` project
 and choose `Refresh`.
