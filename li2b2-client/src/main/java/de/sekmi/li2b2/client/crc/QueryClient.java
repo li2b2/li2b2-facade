@@ -14,6 +14,7 @@ import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Client;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
+import de.sekmi.li2b2.hive.crc.ResultType;
 
 public class QueryClient extends CellClient {
 

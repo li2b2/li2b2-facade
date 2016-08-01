@@ -3,8 +3,8 @@ package de.sekmi.li2b2.client;
 import java.net.URL;
 import java.util.Arrays;
 
-import de.sekmi.li2b2.client.crc.ResultType;
 import de.sekmi.li2b2.client.ont.Concept;
+import de.sekmi.li2b2.hive.crc.ResultType;
 import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 
