@@ -2,21 +2,24 @@ package de.sekmi.li2b2.services.impl.crc;
 
 import de.sekmi.li2b2.api.crc.ResultType;
 
-public class ResultTypeImpl extends de.sekmi.li2b2.hive.crc.ResultType implements ResultType{
+public class ResultTypeImpl implements ResultType{
 
 	@Override
 	public Integer getId() {
-		return this.result_type_id;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public String getName() {
-		return this.name;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public String getDescription() {
-		return this.description;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
