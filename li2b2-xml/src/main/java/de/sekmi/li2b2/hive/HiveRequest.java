@@ -10,7 +10,7 @@ public class HiveRequest extends HiveMessage{
 	public HiveRequest(Document dom) {
 		super(dom);
 		// set timestamp
-		setTimestamp();
+		//setTimestamp();
 	}
 
 	public HiveRequest setRedirectUrl(URL url){

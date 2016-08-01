@@ -57,6 +57,7 @@ public class CellClient {
 	 */
 	protected HiveRequest createRequestMessage(DocumentBuilder builder){
 		HiveRequest req = client.createRequest(builder);
+		req.setTimestamp();
 		req.setSecurity(client.credentials);
 		req.setProjectId(client.getProjectId());
 		// TODO set message id
