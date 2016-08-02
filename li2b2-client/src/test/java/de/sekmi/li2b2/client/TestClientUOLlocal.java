@@ -8,10 +8,12 @@ import javax.xml.bind.JAXB;
 
 import org.junit.Test;
 
-import de.sekmi.li2b2.client.pm.Project;
+import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.pm.Role;
 import de.sekmi.li2b2.client.pm.User;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
+import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.ErrorResponseException;
 
 public class TestClientUOLlocal {
 
@@ -21,7 +23,7 @@ public class TestClientUOLlocal {
 		c.setPM(new URL("http://127.0.0.1:9090/i2b2/services/PMService/"));
 		c.setAuthorisation("i2b2", "demouser", "i2b2demo");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
-		Project[] projects = uc.getProjects();
+		UserProject[] projects = uc.getProjects();
 		if( projects != null ){
 			// use first project
 			c.setProjectId(projects[0].id);
@@ -94,6 +96,24 @@ public class TestClientUOLlocal {
 		System.out.println(singleUser.toString());
 //		singleUser = c.PM().getUser("i2b2");
 //		System.out.println(singleUser.toString());
+		users = c.PM().getUsers();
+		for( User u : users ){
+			System.out.println(u.toString());
+		}
+
+		c.PM().createUser("test1", "dito123");
+		users = c.PM().getUsers();
+		for( User u : users ){
+			System.out.println(u.toString());
+		}
+		// change user
+		c.PM().createUser("test1", "test user 1", "test@aktin.org", null);
+		users = c.PM().getUsers();
+		for( User u : users ){
+			System.out.println(u.toString());
+		}
+		
+		c.PM().deleteUser("test1");
 		users = c.PM().getUsers();
 		for( User u : users ){
 			System.out.println(u.toString());

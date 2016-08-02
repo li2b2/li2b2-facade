@@ -76,7 +76,7 @@ public class PMClient extends CellClient{
 	 * @throws HiveException unexpected response body
 	 */
 	public User[] getUsers() throws HiveException{
-		Request req = createRequestMessage();
+		HiveRequest req = createRequestMessage();
 		// set body
 		// <ont:get_schemes  type="default"/>
 		Element el = req.addBodyElement(XMLNS, "get_all_user");
@@ -95,7 +95,7 @@ public class PMClient extends CellClient{
 	 * @throws HiveException
 	 */
 	public User getUser(String user_name) throws HiveException{
-		Request req = createRequestMessage();
+		HiveRequest req = createRequestMessage();
 		// set body
 		// <ont:get_schemes  type="default"/>
 		Element el = req.addBodyElement(XMLNS, "get_user");
@@ -108,6 +108,70 @@ public class PMClient extends CellClient{
 		User user = User.parseUser((Element)n);
 		// parse concepts
 		return user;
+	}
+	
+	/**
+	 * Create one user using username and password 
+	 * 
+	 * @param user_name String username of the new user, have to be unique
+	 * @param password String password for the new user
+	 * @return
+	 * @throws HiveException
+	 */
+	public void createUser (String user_name, String password) throws HiveException {
+		createUser(user_name, null, null, password);
+	}
+	/**
+	 * Create one user using username, fullname, email and password 
+	 * 
+	 * @param user_name String username of the new user, have to be unique
+	 * @param full_name String. Full name for the new user, descriptive (optional)
+	 * @param email String. email of the new user, for contact (optional)
+	 * @param password String password for the new user
+	 * @return
+	 * @throws HiveException
+	 */
+	public void createUser (String user_name, String full_name, String email, String password) throws HiveException {
+
+		HiveRequest req = createRequestMessage();
+		Element el = req.addBodyElement(XMLNS, "set_user");
+		el.setPrefix("pm");
+		el.appendChild(el.getOwnerDocument().createElement("user_name")).setTextContent(user_name);
+		if (full_name != null) {
+			el.appendChild(el.getOwnerDocument().createElement("full_name")).setTextContent(full_name);
+		}
+		if (email != null) {
+			el.appendChild(el.getOwnerDocument().createElement("email")).setTextContent(email);
+		}
+		if (password != null) {
+			el.appendChild(el.getOwnerDocument().createElement("password")).setTextContent(password);
+		}
+
+		// submit
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
+		// n has content  <ns4:response>1 records</ns4:response>
+		n.getTextContent();
+	}
+
+	/**
+	 * Delete one existing user
+	 * 
+	 * @param user_name
+	 * @return 
+	 * @throws HiveException unexpected response body
+	 */
+	public void deleteUser(String user_name) throws HiveException{
+		HiveRequest req = createRequestMessage();
+		// set body
+		// <ont:get_schemes  type="default"/>
+		Element el = req.addBodyElement(XMLNS, "delete_user");
+		el.setPrefix("pm");
+		el.setTextContent(user_name);
+		
+		// submit
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
+		// n has content  <ns4:response>1 records</ns4:response>
+		n.getTextContent();
 	}
 	
 
@@ -129,9 +193,8 @@ public class PMClient extends CellClient{
 	}
 	public Role[] getRoles(String user_name, String project_id) throws HiveException {
 
-		Request req = createRequestMessage();
-		// set body
-		// <ont:get_schemes  type="default"/>
+		HiveRequest req = createRequestMessage();
+
 		Element el = req.addBodyElement(XMLNS, "get_all_role");
 		el.setPrefix("pm");
 		if (user_name != null) {
@@ -159,9 +222,8 @@ public class PMClient extends CellClient{
 	 * @throws ErrorResponseException if current user does not have sufficient rights (has to be admin / manager)
 	 */
 	public void setRole (String user_name, String role, String project_id) throws HiveException, ErrorResponseException {
-		Request req = createRequestMessage();
-		// set body
-		// <ont:get_schemes  type="default"/>
+		HiveRequest req = createRequestMessage();
+
 		Element el = req.addBodyElement(XMLNS, "set_role");
 		el.setPrefix("pm");
 
@@ -186,9 +248,8 @@ public class PMClient extends CellClient{
 	 * @throws ErrorResponseException if user-role-project combination does not exist
 	 */
 	public void deleteRole (String user_name, String role, String project_id) throws HiveException, ErrorResponseException {
-		Request req = createRequestMessage();
-		// set body
-		// <ont:get_schemes  type="default"/>
+		HiveRequest req = createRequestMessage();
+
 		Element el = req.addBodyElement(XMLNS, "delete_role");
 		el.setPrefix("pm");
 

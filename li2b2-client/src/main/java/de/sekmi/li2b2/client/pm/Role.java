@@ -11,7 +11,7 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import de.sekmi.li2b2.client.HiveException;
+import de.sekmi.li2b2.hive.HiveException;
 
 @XmlRootElement(name="role")
 @XmlAccessorType(XmlAccessType.FIELD) // FIELD NONE ... @XmlElement

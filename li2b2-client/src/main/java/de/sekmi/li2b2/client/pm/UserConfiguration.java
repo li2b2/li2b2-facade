@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.hive.pm.UserProject;
-import de.sekmi.li2b2.client.HiveException;
+import de.sekmi.li2b2.hive.HiveException;
 
 
 public class UserConfiguration {
