@@ -50,7 +50,7 @@
 											<type>zip</type>
 										</artifactItem>
 									</artifactItems>
-									<outputDirectory>${project.build.directory}/classes</outputDirectory>
+									<outputDirectory>${project.build.directory}/generated-resources</outputDirectory>
 								</configuration>
 							</execution>
 						</executions>
@@ -61,7 +61,7 @@
 						<directory>src/main/resources</directory>
 					</resource>
 					<resource>
-						<directory>target/generated-resources</directory>
+						<directory>${project.build.directory}/generated-resources</directory>
 					</resource>
 				</resources>
 			</build>
