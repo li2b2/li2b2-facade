@@ -2,7 +2,6 @@ package de.sekmi.li2b2.hive;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class HiveResponse extends HiveMessage{
@@ -22,6 +21,13 @@ public class HiveResponse extends HiveMessage{
 		}else{
 			return new ResultStatus((Element)nl.item(0).getFirstChild());
 		}
+	}
+	public void setResultStatus(String type, String message){
+		Element rh = getResponseHeader();
+		NodeList nl = rh.getElementsByTagName("result_status");
+		Element status = (Element)nl.item(0).getFirstChild();
+		status.setAttribute("type", type);
+		status.setTextContent(message);
 	}
 	public static class ResultStatus{
 		private Element status;
