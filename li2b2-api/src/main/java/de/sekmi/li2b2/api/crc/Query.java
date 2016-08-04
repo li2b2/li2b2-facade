@@ -4,7 +4,7 @@ import java.time.Instant;
 
 import org.w3c.dom.Element;
 
-public interface QueryMaster {
+public interface Query {
 	String getId();
 	String getDisplayName();
 	String getUser();
