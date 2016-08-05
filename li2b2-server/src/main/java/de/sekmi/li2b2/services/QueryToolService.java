@@ -2,6 +2,7 @@ package de.sekmi.li2b2.services;
 
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.ws.rs.POST;
@@ -19,6 +20,7 @@ import de.sekmi.li2b2.api.crc.QueryResult;
 import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.api.crc.ResultType;
 import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.hive.crc.CrcResponse;
 
 @Path(AbstractCRCService.SERVICE_PATH)
@@ -117,9 +119,13 @@ public class QueryToolService extends AbstractCRCService {
 		// TODO try without result id
 		appendTextElement(e, "result_instance_id", instance.getId()+"/"+index);
 		appendTextElement(e, "query_instance_id", instance.getId());
-		appendTextElement(e, "description", result.getDescription());
+		// need this for the webclient
+		appendTextElement(e, "description", result.getResultType().getDescription()+" for \""+instance.getQuery().getDisplayName()+"\"");
 		// TODO use sequence number for result types
 		addResultType(e, 0, result.getResultType());
+		if( result.getSetSize() != null ){
+			appendTextElement(e, "set_size", result.getSetSize().toString());			
+		}
 		// TODO try without date
 		appendTextElement(e, "start_date", instance.getQuery().getCreateDate().toString());
 		addStatusType(e, result.getStatus());
@@ -235,9 +241,67 @@ public class QueryToolService extends AbstractCRCService {
 			return;
 		}
 		
-		qi.getResults().get(ri);
-		addResult(el, qi, qi.getResults().get(ri), ri);
-		// TODO add XML result
+		QueryResult r = qi.getResults().get(ri);
+		addResult(el, qi, r, ri);
+		Iterable<? extends Entry<String, ?>> bd = r.getBreakdownData();
+		if( bd != null ){
+			// add XML result
+			Element x = el.getOwnerDocument().createElement("crc_xml_result");
+			el.appendChild(x);
+			appendTextElement(x, "xml_result_id", resultInstancId);
+			appendTextElement(x, "result_instance_id", ii);
+			
+			StringBuilder b = new StringBuilder();
+			b.append("<ns10:i2b2_result_envelope xmlns:ns10=\"http://www.i2b2.org/xsd/hive/msg/result/1.1/\">");
+			b.append("<body>");
+			// wrong use of namespaces, but we need to do this for compatibility with official i2b2 sources
+			b.append("<ns10:result name=\"");
+			b.append(r.getResultType().getName());
+			b.append("\">\n");
+			for( Entry<String,?> e : bd ){
+				Object v = e.getValue();
+				String t;
+				if( v instanceof Integer ){
+					t = "int";
+				}else{
+					// TODO what other types are supported by the webclient?
+					t = null;
+				}
+				b.append("<data type=\""+t+"\" column=\""+e.getKey()+"\">"+v.toString()+"</data>\n");
+			}
+			b.append("</ns10:result></body></ns10:i2b2_result_envelope>\n");
+			appendTextElement(x, "xml_value", b.toString());
+			/*
+			Element y = el.getOwnerDocument().createElement("xml_value");
+
+			x.appendChild(y);
+			Element ire = el.getOwnerDocument().createElementNS(I2b2Constants.RESULT_NS, "i2b2_result_envelope");
+			ire.setPrefix("ns10");
+			x = y;
+			y = ire;
+			x.appendChild(y);
+			x = el.getOwnerDocument().createElement("body");
+			y.appendChild(x);
+			y = el.getOwnerDocument().createElement("result");
+			//y.setPrefix("ns10");
+			x.appendChild(y);
+			y.setAttribute("name", r.getResultType().getName());
+			for( Entry<String,?> e : bd ){
+				Object v = e.getValue();
+				String t;
+				if( v instanceof Integer ){
+					t = "int";
+				}else{
+					// TODO what other types are supported by the webclient?
+					t = null;
+				}
+				x = appendTextElement(y, "data", v.toString());
+				x.setAttribute("column", e.getKey());
+				if( t != null ){
+					x.setAttribute("type", t);
+				}
+			}*/
+		}
 		
 	}
 

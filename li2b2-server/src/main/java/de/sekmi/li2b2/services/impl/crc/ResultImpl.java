@@ -1,6 +1,10 @@
 package de.sekmi.li2b2.services.impl.crc;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
 
 import de.sekmi.li2b2.api.crc.QueryResult;
 import de.sekmi.li2b2.api.crc.QueryStatus;
@@ -16,18 +20,13 @@ public class ResultImpl implements QueryResult{
 	}
 
 	@Override
-	public String getDescription() {
-		return type.getDescription();
-	}
-
-	@Override
 	public ResultType getResultType() {
 		return type;
 	}
 
 	@Override
 	public Integer getSetSize() {
-		return null;
+		return 123;
 	}
 
 	@Override
@@ -43,6 +42,13 @@ public class ResultImpl implements QueryResult{
 	@Override
 	public QueryStatus getStatus() {
 		return QueryStatus.WAITTOPROCESS;
+	}
+
+	@Override
+	public Iterable<? extends Entry<String, ?>> getBreakdownData() {
+		Map<String, Object> a = new HashMap<>();
+		a.put("patient_count", new Random().nextInt(10000) );
+		return a.entrySet();
 	}
 
 }
