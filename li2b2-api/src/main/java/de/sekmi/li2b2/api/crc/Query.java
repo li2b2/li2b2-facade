@@ -17,4 +17,5 @@ public interface Query {
 	 * @return execution instance
 	 */
 	QueryInstance getInstance();
+	void setDisplayName(String name);
 }

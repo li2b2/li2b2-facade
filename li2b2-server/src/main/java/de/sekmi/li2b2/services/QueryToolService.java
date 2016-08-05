@@ -173,7 +173,9 @@ public class QueryToolService extends AbstractCRCService {
 		Element el = response.addResponseBody("master_responseType", "DONE");
 		Query q = manager.getQuery(masterId);
 		if( q != null ){
-			// TODO change name
+			// change name
+			q.setDisplayName(newName);
+			// write response
 			Element qm = (Element)el.appendChild(el.getOwnerDocument().createElement("query_master"));
 			appendTextElement(qm, "query_master_id", masterId);
 			appendTextElement(qm, "name", q.getDisplayName());

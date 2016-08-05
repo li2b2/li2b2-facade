@@ -34,6 +34,7 @@ public class QueryImpl implements Query, QueryInstance{
 	public String getId() {
 		return id;
 	}
+	@Override
 	public void setDisplayName(String name){
 		this.displayName = name;
 	}
