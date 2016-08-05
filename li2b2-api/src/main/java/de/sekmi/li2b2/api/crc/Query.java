@@ -8,6 +8,7 @@ public interface Query {
 	String getId();
 	String getDisplayName();
 	String getUser();
+	String getGroupId();
 	Element getDefinition();
 	Instant getCreateDate();
 	/**

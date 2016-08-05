@@ -10,4 +10,7 @@ public enum QueryStatus {
 	private QueryStatus(){
 		this.typeId = 0;
 	}
+	public int typeId(){
+		return typeId;
+	}
 }

@@ -1,15 +1,15 @@
 package de.sekmi.li2b2.api.crc;
 
-import java.util.List;
-
 import org.w3c.dom.Element;
 
 public interface QueryManager {
 
-	Query runQuery(Element definition, List<ResultType> results);
+	Query runQuery(String userId, String groupId, Element queryDefinition, String[] result_types);
 	
 	Query getQuery(String queryId);
 
+	QueryInstance getExeution(String instanceId);
+	
 	/**
 	 * List queries for user
 	 * @param userId user id
@@ -22,4 +22,5 @@ public interface QueryManager {
 	 * @return result types
 	 */
 	Iterable<? extends ResultType> getResultTypes();
+	void deleteQuery(String queryId);
 }
