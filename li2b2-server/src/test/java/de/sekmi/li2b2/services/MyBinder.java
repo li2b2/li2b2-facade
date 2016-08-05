@@ -32,7 +32,7 @@ public class MyBinder extends AbstractBinder{
 		
 		// crc
 		QueryManagerImpl crc = new QueryManagerImpl();
-		crc.addResultType("patient_count_xml", "CATNUM", "Patient count (simple)");
+		crc.addResultType("PATIENT_COUNT_XML", "CATNUM", "Patient count (simple)");
 		bind(crc).to(QueryManager.class);
 
 		//bind(PMService.class).to(AbstractCell.class);

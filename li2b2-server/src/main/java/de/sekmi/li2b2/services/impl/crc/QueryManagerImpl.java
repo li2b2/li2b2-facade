@@ -27,7 +27,9 @@ public class QueryManagerImpl implements QueryManager{
 	private ResultTypeImpl getResultType(String name){
 		for( int i=0; i<types.size(); i++ ){
 			ResultTypeImpl r = types.get(i);
-			if( name.equals(r.getName()) ){
+			// TODO result name should always be processed in uppercase
+			// TODO better convert the names at QueryToolService
+			if( name.equalsIgnoreCase(r.getName()) ){
 				return r;
 			}
 		}
