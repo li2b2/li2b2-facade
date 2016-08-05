@@ -8,7 +8,7 @@ public interface QueryManager {
 	
 	Query getQuery(String queryId);
 
-	QueryInstance getExeution(String instanceId);
+	QueryExecution getExeution(String instanceId);
 	
 	/**
 	 * List queries for user

@@ -13,7 +13,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.api.crc.Query;
-import de.sekmi.li2b2.api.crc.QueryInstance;
+import de.sekmi.li2b2.api.crc.QueryExecution;
 import de.sekmi.li2b2.api.crc.QueryManager;
 import de.sekmi.li2b2.api.crc.QueryResult;
 import de.sekmi.li2b2.api.crc.QueryStatus;
@@ -81,7 +81,7 @@ public class QueryToolService extends AbstractCRCService {
 		// request_xml probably not needed, client can request it via getRequestXml
 
 		// one query_instance
-		QueryInstance qi = q.getInstance();
+		QueryExecution qi = q.getInstance();
 		addInstance(el, q, qi);
 
 		// result types
@@ -92,7 +92,7 @@ public class QueryToolService extends AbstractCRCService {
 		}
 	}
 	
-	private void addInstance(Element parent, Query q, QueryInstance qi){
+	private void addInstance(Element parent, Query q, QueryExecution qi){
 		Element e = parent.getOwnerDocument().createElement("query_instance");
 		parent.appendChild(e);
 		appendTextElement(e, "query_instance_id", qi.getId());
@@ -111,7 +111,7 @@ public class QueryToolService extends AbstractCRCService {
 		appendTextElement(s, "name", status.name());
 		appendTextElement(s, "description", status.name());
 	}
-	private void addResult(Element parent, QueryInstance instance, QueryResult result, int index){
+	private void addResult(Element parent, QueryExecution instance, QueryResult result, int index){
 		Element e = parent.getOwnerDocument().createElement("query_result_instance");
 		parent.appendChild(e);
 		// TODO try without result id
@@ -205,7 +205,7 @@ public class QueryToolService extends AbstractCRCService {
 	@Override
 	protected void getQueryResultInstanceList_fromQueryInstanceId(CrcResponse response, String instanceId) {
 		Element el = response.addResponseBody("result_responseType", "DONE");
-		QueryInstance qi = manager.getExeution(instanceId);
+		QueryExecution qi = manager.getExeution(instanceId);
 		if( qi == null ){
 			return;
 		}
@@ -229,7 +229,7 @@ public class QueryToolService extends AbstractCRCService {
 		String ii = resultInstancId.substring(0, sep);
 		int ri = Integer.parseInt(resultInstancId.substring(sep+1));
 
-		QueryInstance qi = manager.getExeution(ii);
+		QueryExecution qi = manager.getExeution(ii);
 		if( qi == null ){
 			// TODO error
 			return;

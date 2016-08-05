@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.crc.QueryManager;
 import de.sekmi.li2b2.api.crc.Query;
-import de.sekmi.li2b2.api.crc.QueryInstance;
+import de.sekmi.li2b2.api.crc.QueryExecution;
 import de.sekmi.li2b2.api.crc.ResultType;
 
 public class QueryManagerImpl implements QueryManager{
@@ -92,7 +92,7 @@ public class QueryManagerImpl implements QueryManager{
 		queries.removeIf( q -> queryId.equals(q.getId()) );
 	}
 	@Override
-	public QueryInstance getExeution(String instanceId) {
+	public QueryExecution getExeution(String instanceId) {
 		return getQuery(instanceId);
 	}
 

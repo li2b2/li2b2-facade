@@ -7,10 +7,10 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.crc.Query;
-import de.sekmi.li2b2.api.crc.QueryInstance;
+import de.sekmi.li2b2.api.crc.QueryExecution;
 import de.sekmi.li2b2.api.crc.QueryStatus;
 
-public class QueryImpl implements Query, QueryInstance{
+public class QueryImpl implements Query, QueryExecution{
 	private String id;
 	private String userId;
 	private String groupId;
@@ -66,7 +66,7 @@ public class QueryImpl implements Query, QueryInstance{
 	}
 
 	@Override
-	public QueryInstance getInstance() {
+	public QueryExecution getInstance() {
 		return this;
 	}
 	@Override

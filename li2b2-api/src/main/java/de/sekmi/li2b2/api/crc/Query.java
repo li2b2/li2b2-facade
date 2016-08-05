@@ -16,6 +16,6 @@ public interface Query {
 	 * XXX maybe add support for multiple executions later
 	 * @return execution instance
 	 */
-	QueryInstance getInstance();
+	QueryExecution getInstance();
 	void setDisplayName(String name);
 }
