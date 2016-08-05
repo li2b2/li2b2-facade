@@ -3,7 +3,7 @@ package de.sekmi.li2b2.api.crc;
 import java.time.Instant;
 
 public interface QueryResult {
-	String getId(); // result id
+	//String getId(); // result id
 	String getDescription();
 	ResultType getResultType();
 	Integer getSetSize();

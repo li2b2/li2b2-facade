@@ -55,7 +55,7 @@ public class QueryManagerImpl implements QueryManager{
 	}
 	@Override
 	public Query runQuery(String userId, String groupId, Element definition, String[] results) {
-		
+		// TODO move definition node to private fragment
 		QueryImpl q = new QueryImpl(Integer.toString(querySeq.incrementAndGet()), userId, groupId, definition);
 		q.setDisplayName("Query "+q.getId());
 		// TODO add properties, 

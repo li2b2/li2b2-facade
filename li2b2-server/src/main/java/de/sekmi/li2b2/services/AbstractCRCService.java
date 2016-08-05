@@ -30,6 +30,9 @@ public abstract class AbstractCRCService extends AbstractService{
 	protected Response handleRequest(InputStream requestBody) throws HiveException, ParserConfigurationException{
 		HiveRequest req = parseRequest(requestBody);
 		Element psm_header = (Element)req.getMessageBody().getFirstChild();
+
+		// TODO might have pdo_header instead of psm_header, add PDO support later (e.g. for timeline)
+		
 		Element request = (Element)req.getMessageBody().getLastChild();
 		// get request type
 		NodeList nl = psm_header.getElementsByTagName("request_type");
@@ -58,20 +61,6 @@ public abstract class AbstractCRCService extends AbstractService{
 		return resp;
 	}
 
-	protected abstract void getResultType(CrcResponse response) throws JAXBException;
-	protected abstract void getQueryMasterList_fromUserId(CrcResponse response, String userId) throws JAXBException;
-	/**
-	 * Run the specified query
-	 * @param response response returned to the client
-	 * @param query_definition {@code query_definition} element
-	 * @param result_output_list {@code result_output_list} element
-	 */
-	protected abstract void runQueryInstance_fromQueryDefinition(CrcResponse response, Element psm_header, Element query_definition, Element result_output_list)throws JAXBException;
-	protected abstract void getRequestXml_fromQueryMasterId(CrcResponse response, String masterId);
-	protected abstract void deleteQueryMaster(CrcResponse response, String masterId);
-	protected abstract void renameQueryMaster(CrcResponse response, String masterId, String newName);
-	protected abstract void getQueryInstanceList_fromQueryMasterId(CrcResponse response, String masterId);
-	protected abstract void getQueryResultInstanceList_fromQueryInstanceId(CrcResponse response, String instanceId);
 
 	private void request(String type, Element psm_header, Element request, CrcResponse response) throws DOMException, JAXBException{
 		String rtype = null;
@@ -115,8 +104,11 @@ public abstract class AbstractCRCService extends AbstractService{
 		}else if( type.equals("CRC_QRY_getQueryResultInstanceList_fromQueryInstanceId") ){
 			String instanceId = request.getElementsByTagName("query_instance_id").item(0).getTextContent();
 			getQueryResultInstanceList_fromQueryInstanceId(response, instanceId);
+		}else if( type.equals("CRC_QRY_getResultDocument_fromResultInstanceId") ){
+			String resultInstanceId = request.getElementsByTagName("query_result_instance_id").item(0).getTextContent();
+			getResultDocument_fromResultInstanceId(response, resultInstanceId);
 		}else{
-			// TODO CRC_QRY_getResultDocument_fromResultInstanceId
+			// TODO 
 			response.setResultStatus("ERROR", "Feature not supported (yet)");
 		}
 	}
@@ -126,4 +118,19 @@ public abstract class AbstractCRCService extends AbstractService{
 		return "CRC";
 	}
 
+	protected abstract void getResultType(CrcResponse response) throws JAXBException;
+	protected abstract void getQueryMasterList_fromUserId(CrcResponse response, String userId) throws JAXBException;
+	/**
+	 * Run the specified query
+	 * @param response response returned to the client
+	 * @param query_definition {@code query_definition} element
+	 * @param result_output_list {@code result_output_list} element
+	 */
+	protected abstract void runQueryInstance_fromQueryDefinition(CrcResponse response, Element psm_header, Element query_definition, Element result_output_list)throws JAXBException;
+	protected abstract void getRequestXml_fromQueryMasterId(CrcResponse response, String masterId);
+	protected abstract void deleteQueryMaster(CrcResponse response, String masterId);
+	protected abstract void renameQueryMaster(CrcResponse response, String masterId, String newName);
+	protected abstract void getQueryInstanceList_fromQueryMasterId(CrcResponse response, String masterId);
+	protected abstract void getQueryResultInstanceList_fromQueryInstanceId(CrcResponse response, String instanceId);
+	protected abstract void getResultDocument_fromResultInstanceId(CrcResponse response, String resultInstancId);
 }

@@ -2,6 +2,7 @@ package de.sekmi.li2b2.services.impl.crc;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 
 import org.w3c.dom.Element;
 
@@ -73,7 +74,7 @@ public class QueryImpl implements Query, QueryInstance{
 		return QueryStatus.INCOMPLETE;
 	}
 	@Override
-	public Iterable<ResultImpl> getResults() {
+	public List<ResultImpl> getResults() {
 		return Arrays.asList(results);
 	}
 	@Override

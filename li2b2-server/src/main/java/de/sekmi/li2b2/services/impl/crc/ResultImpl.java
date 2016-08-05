@@ -14,10 +14,6 @@ public class ResultImpl implements QueryResult{
 		this.query = query;
 		this.type = type;
 	}
-	@Override
-	public String getId() {
-		return query.getId()+"/"+type.getName();
-	}
 
 	@Override
 	public String getDescription() {

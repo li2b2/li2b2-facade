@@ -1,14 +1,12 @@
 package de.sekmi.li2b2.services;
 
 import java.io.InputStream;
+import java.time.Instant;
 
 import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Element;
@@ -22,7 +20,6 @@ import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.api.crc.ResultType;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.crc.CrcResponse;
-import de.sekmi.li2b2.hive.crc.QueryMaster;
 
 @Path(AbstractCRCService.SERVICE_PATH)
 public class QueryToolService extends AbstractCRCService {
@@ -43,16 +40,17 @@ public class QueryToolService extends AbstractCRCService {
 		return super.handleRequest(httpBody);
 	}
 	@Override
-	protected void getQueryMasterList_fromUserId(CrcResponse response, String userId) throws JAXBException{
+	protected void getQueryMasterList_fromUserId(CrcResponse response, String userId){
 		Element el = response.addResponseBody("master_responseType", "DONE");
-		Marshaller m = JAXBContext.newInstance(QueryMaster.class).createMarshaller();
-		for( Query query : manager.listQueries(userId) ){
-			QueryMaster master = new QueryMaster(query.getId(), query.getDisplayName(), query.getUser(), query.getCreateDate());
-			m.marshal(master, el);
+//		Marshaller m = JAXBContext.newInstance(QueryMaster.class).createMarshaller();
+		for( Query q : manager.listQueries(userId) ){
+			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateDate(), null);
+//			QueryMaster master = new QueryMaster(query.getId(), query.getDisplayName(), query.getUser(), query.getCreateDate());
+//			m.marshal(master, el);
 		}
 	}
 	@Override
-	protected void getResultType(CrcResponse response) throws JAXBException{
+	protected void getResultType(CrcResponse response) {
 		Element el = response.addResponseBody("result_type_responseType", "DONE");
 		int id_seq = 1;
 		for( ResultType type : manager.getResultTypes() ){
@@ -63,7 +61,7 @@ public class QueryToolService extends AbstractCRCService {
 
 	@Override
 	protected void runQueryInstance_fromQueryDefinition(CrcResponse response, Element psm_header,
-			Element query_definition, Element result_output_list) throws JAXBException {
+			Element query_definition, Element result_output_list) {
 		Element psm_user = (Element)psm_header.getFirstChild();
 		String userId = psm_user.getAttribute("login");
 		String groupId = psm_user.getAttribute("group");
@@ -79,12 +77,7 @@ public class QueryToolService extends AbstractCRCService {
 		// build response
 		Element el = response.addResponseBody("master_instance_result_responseType", "DONE");
 		// one query_master
-		Element e = (Element)el.appendChild(el.getOwnerDocument().createElement("query_master"));
-		appendTextElement(e, "query_master_id", q.getId());
-		appendTextElement(e, "name", q.getDisplayName());
-		appendTextElement(e, "user_id", q.getUser());
-		appendTextElement(e, "group_id", q.getGroupId());
-		appendTextElement(e, "create_date", q.getCreateDate().toString());
+		appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateDate(), null);
 		// request_xml probably not needed, client can request it via getRequestXml
 
 		// one query_instance
@@ -92,8 +85,10 @@ public class QueryToolService extends AbstractCRCService {
 		addInstance(el, q, qi);
 
 		// result types
+		int index = 0;
 		for( QueryResult qr : qi.getResults() ){
-			addResult(el, qi, qr);
+			addResult(el, qi, qr, index);
+			index ++;
 		}
 	}
 	
@@ -116,11 +111,11 @@ public class QueryToolService extends AbstractCRCService {
 		appendTextElement(s, "name", status.name());
 		appendTextElement(s, "description", status.name());
 	}
-	private void addResult(Element parent, QueryInstance instance, QueryResult result){
+	private void addResult(Element parent, QueryInstance instance, QueryResult result, int index){
 		Element e = parent.getOwnerDocument().createElement("query_result_instance");
 		parent.appendChild(e);
 		// TODO try without result id
-		appendTextElement(e, "result_instance_id", result.getId());
+		appendTextElement(e, "result_instance_id", instance.getId()+"/"+index);
 		appendTextElement(e, "query_instance_id", instance.getId());
 		appendTextElement(e, "description", result.getDescription());
 		// TODO use sequence number for result types
@@ -140,20 +135,32 @@ public class QueryToolService extends AbstractCRCService {
 		appendTextElement(e, "visual_attribute_type", "LA");
 		appendTextElement(e, "description", type.getDescription());
 	}
+	private void appendQueryMaster(Element parent, String id, String name, String userId, String groupId, Instant createDate, Element queryDef){
+		Element e = parent.getOwnerDocument().createElement("query_master");
+		parent.appendChild(e);
+		appendTextElement(e, "query_master_id", id);
+		appendTextElement(e, "name", name);
+		appendTextElement(e, "user_id", userId);
+		if( groupId != null ){
+			appendTextElement(e, "group_id", groupId);
+		}
+		if( createDate != null ){
+			appendTextElement(e, "create_date", createDate.toString());
+		}
+		if( queryDef != null ){
+			Element requestXml = parent.getOwnerDocument().createElement("request_xml");		
+			requestXml.appendChild(requestXml.getOwnerDocument().importNode(queryDef, true));
+			// setPrefix("ns3")
+			e.appendChild(requestXml);
+		}
+	}
 
 	@Override
 	protected void getRequestXml_fromQueryMasterId(CrcResponse response, String masterId) {
 		Element el = response.addResponseBody("master_responseType", "DONE");
 		Query q = manager.getQuery(masterId);
 		if( q != null ){
-			Element qm = (Element)el.appendChild(el.getOwnerDocument().createElement("query_master"));
-			appendTextElement(qm, "query_master_id", masterId);
-			appendTextElement(qm, "name", q.getDisplayName());
-			appendTextElement(qm, "user_id", q.getUser());
-			// add request XML
-			Element requestXml = qm.getOwnerDocument().createElement("request_xml");		
-			requestXml.appendChild(qm.getOwnerDocument().importNode(q.getDefinition(), true)).setPrefix("ns3");
-			qm.appendChild(requestXml);
+			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), null, null, q.getDefinition());
 		}else{
 			// TODO send error response/empty master?			
 		}
@@ -203,9 +210,35 @@ public class QueryToolService extends AbstractCRCService {
 			return;
 		}
 		addInstance(el, qi.getQuery(), qi);
+		int index = 0;
 		for( QueryResult result : qi.getResults() ){
-			addResult(el, qi, result);
+			addResult(el, qi, result, index);
 		}
+	}
+
+	@Override
+	protected void getResultDocument_fromResultInstanceId(CrcResponse response, String resultInstancId) {
+		Element el = response.addResponseBody("crc_xml_result_responseType", "DONE");
+		// 
+		int sep = resultInstancId.indexOf('/');
+		if( sep < 1 ){
+			// TODO error
+			return;
+		}
+		
+		String ii = resultInstancId.substring(0, sep);
+		int ri = Integer.parseInt(resultInstancId.substring(sep+1));
+
+		QueryInstance qi = manager.getExeution(ii);
+		if( qi == null ){
+			// TODO error
+			return;
+		}
+		
+		qi.getResults().get(ri);
+		addResult(el, qi, qi.getResults().get(ri), ri);
+		// TODO add XML result
+		
 	}
 
 }
