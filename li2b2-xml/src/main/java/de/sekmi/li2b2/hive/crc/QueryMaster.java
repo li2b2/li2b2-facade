@@ -2,6 +2,10 @@ package de.sekmi.li2b2.hive.crc;
 
 import java.time.Instant;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Represents the i2b2 query_master object
  * <pre><![CDATA[
@@ -17,13 +21,15 @@ import java.time.Instant;
  *
  */
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name="query_master")
 public class QueryMaster {
 	public String query_master_id;
 	public String name;
 	public String user_id;
 	public String group_id;
 	// TODO: use instant and implement XmlTypeAdapter
-	public String createDate;
+	public String create_date;
 	
 	protected QueryMaster(){
 	}
@@ -31,6 +37,6 @@ public class QueryMaster {
 		this.query_master_id = master_id;
 		this.name = name;
 		this.user_id = user_id;
-		this.createDate = createDate.toString();
+		this.create_date = createDate.toString();
 	}
 }
