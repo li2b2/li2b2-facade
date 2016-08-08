@@ -14,7 +14,7 @@ import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Client;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
-import de.sekmi.li2b2.hive.crc.ResultType;
+import de.sekmi.li2b2.hive.crc.QueryResultType;
 
 public class QueryClient extends CellClient {
 
@@ -44,7 +44,7 @@ public class QueryClient extends CellClient {
 		el.appendChild(el.getOwnerDocument().createElement("estimated_time")).setTextContent("0");
 		el.appendChild(el.getOwnerDocument().createElement("request_type")).setTextContent(requestType);
 	}
-	public ResultType[] getResultType() throws HiveException{
+	public QueryResultType[] getResultType() throws HiveException{
 		HiveRequest req = createRequestMessage();
 		// set body
 		setPSMHeader(req, "CRC_QRY_getResultType");
@@ -52,12 +52,12 @@ public class QueryClient extends CellClient {
 		// submit
 		Element el = submitRequestWithResponseContent(req, "request", PSM_NS, "response");
 		NodeList nl = el.getElementsByTagName("query_result_type");
-		ResultType[] types = new ResultType[nl.getLength()];
+		QueryResultType[] types = new QueryResultType[nl.getLength()];
 		// parse concepts
 		try {
-			Unmarshaller um = JAXBContext.newInstance(ResultType.class).createUnmarshaller();
+			Unmarshaller um = JAXBContext.newInstance(QueryResultType.class).createUnmarshaller();
 			for( int i=0; i<types.length; i++ ){
-				types[i] = (ResultType)um.unmarshal(new DOMSource(nl.item(i)));
+				types[i] = (QueryResultType)um.unmarshal(new DOMSource(nl.item(i)));
 			}
 		} catch (JAXBException e) {
 			throw new HiveException("error parsing result types", e);

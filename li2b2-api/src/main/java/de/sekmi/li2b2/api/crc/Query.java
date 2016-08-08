@@ -4,10 +4,11 @@ import java.time.Instant;
 
 import org.w3c.dom.Element;
 
-public interface QueryMaster {
+public interface Query {
 	String getId();
 	String getDisplayName();
 	String getUser();
+	String getGroupId();
 	Element getDefinition();
 	Instant getCreateDate();
 	/**
@@ -15,5 +16,6 @@ public interface QueryMaster {
 	 * XXX maybe add support for multiple executions later
 	 * @return execution instance
 	 */
-	QueryInstance getInstance();
+	QueryExecution getInstance();
+	void setDisplayName(String name);
 }

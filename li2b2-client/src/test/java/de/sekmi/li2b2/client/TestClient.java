@@ -4,7 +4,7 @@ import java.net.URL;
 import java.util.Arrays;
 
 import de.sekmi.li2b2.client.ont.Concept;
-import de.sekmi.li2b2.hive.crc.ResultType;
+import de.sekmi.li2b2.hive.crc.QueryResultType;
 import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 
@@ -38,8 +38,8 @@ public class TestClient {
 		System.out.println("Found "+cats.length+" concepts");
 
 		System.out.println("Retrieving result types");
-		ResultType[] types = c.CRC().getResultType();
-		for( ResultType t : types ){
+		QueryResultType[] types = c.CRC().getResultType();
+		for( QueryResultType t : types ){
 			System.out.println("Result:"+t.name);
 		}
 	}

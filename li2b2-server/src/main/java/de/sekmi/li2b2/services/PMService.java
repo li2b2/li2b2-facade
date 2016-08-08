@@ -49,7 +49,7 @@ public class PMService extends AbstractService{
 		otherCells = new ArrayList<>(4);
 		registerCell(new Cell("ONT", "OntologyService", OntologyService.SERVICE_PATH));
 		registerCell(new Cell("WORK", "WorkplaceSevice", WorkplaceService.SERVICE_PATH));
-		registerCell(new Cell("CRC", "QueryToolService", QueryToolService.SERVICE_PATH));
+		registerCell(new Cell("CRC", "QueryToolService", AbstractCRCService.SERVICE_PATH));
 		
 	}
 	

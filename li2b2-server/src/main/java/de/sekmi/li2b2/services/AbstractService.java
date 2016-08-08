@@ -85,16 +85,11 @@ public abstract class AbstractService extends AbstractCell{
 			throw new HiveException("Error parsing request XML", e);
 		}
 	}
-
-	protected HiveResponse createResponse(DocumentBuilder b, HiveRequest request){
-		Document dom = b.newDocument();
-		dom.appendChild(dom.importNode(responseTemplate.getDocumentElement(), true));
-		
-		HiveResponse resp = new HiveResponse(dom);
-		resp.setTimestamp();
+	protected void fillResponseHeader(HiveResponse response, HiveRequest request){
+		response.setTimestamp();
 		
 		// set sending application
-		resp.setSendingApplication(getName(), getVersion());
+		response.setSendingApplication(getName(), getVersion());
 		
 		// set message id
 		Element requestId = request.getMessageId();
@@ -105,8 +100,18 @@ public abstract class AbstractService extends AbstractCell{
 		}catch( NumberFormatException e ){
 			msgInst = 1;
 		}
-		resp.setMessageId(requestId.getFirstChild().getTextContent(), Integer.toString(msgInst));
-		resp.setProjectId(request.getProjectId());
+		response.setMessageId(requestId.getFirstChild().getTextContent(), Integer.toString(msgInst));
+		response.setProjectId(request.getProjectId());		
+	}
+
+	protected Document createResponse(DocumentBuilder b){
+		Document dom = b.newDocument();
+		dom.appendChild(dom.importNode(responseTemplate.getDocumentElement(), true));
+		return dom;
+	}
+	protected HiveResponse createResponse(DocumentBuilder b, HiveRequest request){
+		HiveResponse resp = new HiveResponse(createResponse(b));
+		fillResponseHeader(resp, request);
 		return resp;
 	}
 	

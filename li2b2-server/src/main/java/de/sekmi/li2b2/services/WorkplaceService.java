@@ -30,7 +30,8 @@ public class WorkplaceService extends AbstractService{
 		return Response.ok(xml).build();
 	}
 	// TODO getChildren
-
+	// TODO addChild
+	
 	@Override
 	public String getCellId() {
 		return "WORK";
