@@ -112,7 +112,7 @@ public class TestClientUOLlocal {
 		for( User u : users ){
 			System.out.println(u.toString());
 		}
-		
+
 		c.PM().deleteUser("test1");
 		users = c.PM().getUsers();
 		for( User u : users ){
@@ -145,4 +145,5 @@ public class TestClientUOLlocal {
 		
 		JAXB.marshal(testUser, System.out);
 	}
+	
 }
