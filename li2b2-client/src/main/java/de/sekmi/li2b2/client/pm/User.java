@@ -24,7 +24,7 @@ public class User {
 	        <is_admin>false</is_admin>
 	    </user>
 	 */
-
+	
 	private String full_name;
 	private String user_name;
 	private String email;
@@ -111,5 +111,6 @@ public class User {
 	public String toString() {
 		return full_name + " as " + user_name + ", email: " + email + ", " + (is_admin ? "is a admin." : "no admin") + " pw: " + password;
 	}
+
 }
 
