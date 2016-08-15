@@ -224,7 +224,7 @@ public class QueryToolService extends AbstractCRCService {
 	@Override
 	protected void getQueryResultInstanceList_fromQueryInstanceId(CrcResponse response, String instanceId) {
 		Element el = response.addResponseBody("result_responseType", "DONE");
-		QueryExecution qi = manager.getExeution(instanceId);
+		QueryExecution qi = manager.getExecution(instanceId);
 		if( qi == null ){
 			return;
 		}
@@ -248,7 +248,7 @@ public class QueryToolService extends AbstractCRCService {
 		String ii = resultInstancId.substring(0, sep);
 		int ri = Integer.parseInt(resultInstancId.substring(sep+1));
 
-		QueryExecution qi = manager.getExeution(ii);
+		QueryExecution qi = manager.getExecution(ii);
 		if( qi == null ){
 			// TODO error
 			return;

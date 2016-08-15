@@ -92,7 +92,7 @@ public class QueryManagerImpl implements QueryManager{
 		queries.removeIf( q -> queryId.equals(q.getId()) );
 	}
 	@Override
-	public QueryExecution getExeution(String instanceId) {
+	public QueryExecution getExecution(String instanceId) {
 		return getQuery(instanceId);
 	}
 

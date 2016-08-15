@@ -10,7 +10,7 @@ public interface QueryManager {
 	
 	Query getQuery(String queryId);
 
-	QueryExecution getExeution(String instanceId);
+	QueryExecution getExecution(String instanceId);
 	
 	/**
 	 * List queries for user
