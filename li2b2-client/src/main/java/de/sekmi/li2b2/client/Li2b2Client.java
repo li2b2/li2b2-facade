@@ -42,6 +42,11 @@ public class Li2b2Client {
 	
 	private String outputEncoding;
 	
+	/**
+	 * Construct a new client instance.
+	 * TODO use more appropriate exception: IOException sounds like io occurs at construction
+	 * @throws IOException
+	 */
 	public Li2b2Client() throws IOException{
 		factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
