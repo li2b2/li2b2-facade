@@ -18,7 +18,7 @@ import de.sekmi.li2b2.hive.ErrorResponseException;
 public class TestClientUOLlocal {
 
 	public static void main(String args[]) throws Exception{
-		Client c = new Client();
+		Li2b2Client c = new Li2b2Client();
 		c.setProxy(new URL("http://134.106.36.86:2080/webclient/index.php"));
 		c.setPM(new URL("http://127.0.0.1:9090/i2b2/services/PMService/"));
 		c.setAuthorisation("i2b2", "demouser", "i2b2demo");
@@ -39,7 +39,7 @@ public class TestClientUOLlocal {
 		
 	}
 	
-	public static void testRoles (Client c) throws HiveException {
+	public static void testRoles (Li2b2Client c) throws HiveException {
 		Role[] roles;
 				
   		// get roles test
@@ -87,7 +87,7 @@ public class TestClientUOLlocal {
 	}
 	
 
-	public static void testUsers (Client c) throws HiveException {
+	public static void testUsers (Li2b2Client c) throws HiveException {
 		User[] users;
 		User singleUser;
 		

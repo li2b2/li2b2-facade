@@ -20,7 +20,6 @@ import de.sekmi.li2b2.api.crc.QueryResult;
 import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.api.crc.ResultType;
 import de.sekmi.li2b2.hive.HiveException;
-import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.hive.crc.CrcResponse;
 
 @Path(AbstractCRCService.SERVICE_PATH)

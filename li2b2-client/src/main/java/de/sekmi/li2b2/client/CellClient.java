@@ -30,10 +30,10 @@ import de.sekmi.li2b2.hive.HiveResponse.ResultStatus;
 public class CellClient {
 	private static final Logger log = Logger.getLogger(CellClient.class.getName());
 
-	protected Client client;
+	protected Li2b2Client client;
 	protected URL serviceUrl;
 	
-	public CellClient(Client client, URL serviceUrl){
+	public CellClient(Li2b2Client client, URL serviceUrl){
 		this.client = client;
 		this.serviceUrl = serviceUrl;
 	}

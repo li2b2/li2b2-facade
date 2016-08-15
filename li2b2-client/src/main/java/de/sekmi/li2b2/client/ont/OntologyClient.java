@@ -11,14 +11,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.client.CellClient;
-import de.sekmi.li2b2.client.Client;
+import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 
 public class OntologyClient extends CellClient {
 	public static final String XMLNS = "http://www.i2b2.org/xsd/cell/ont/1.1/";
 	
-	public OntologyClient(Client client, URL serviceUrl) {
+	public OntologyClient(Li2b2Client client, URL serviceUrl) {
 		super(client, serviceUrl);
 		// TODO Auto-generated constructor stub
 	}

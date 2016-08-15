@@ -11,7 +11,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.client.CellClient;
-import de.sekmi.li2b2.client.Client;
+import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.crc.QueryResultType;
@@ -20,7 +20,7 @@ public class QueryClient extends CellClient {
 
 	public static final String PSM_NS = "http://www.i2b2.org/xsd/cell/crc/psm/1.1/";
 
-	public QueryClient(Client client, URL serviceUrl) {
+	public QueryClient(Li2b2Client client, URL serviceUrl) {
 		super(client, serviceUrl);
 	}
 

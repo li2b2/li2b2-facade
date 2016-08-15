@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.sekmi.li2b2.client.Client;
+import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 public class TestPMService{
 	TestServer server;
@@ -42,7 +42,7 @@ public class TestPMService{
 
 	@Test
 	public void expectValidUserConfiguration() throws Exception{
-		Client client = new Client();
+		Li2b2Client client = new Li2b2Client();
 		client.setPM(getPM_URL());
 		client.setAuthorisation("demo", "demouser", "i2b2demo");
 		UserConfiguration uc = client.PM().requestUserConfiguration();

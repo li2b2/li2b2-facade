@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import org.w3c.dom.Element;
 import de.sekmi.li2b2.client.CellClient;
-import de.sekmi.li2b2.client.Client;
+import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.hive.Credentials;
 import de.sekmi.li2b2.hive.ErrorResponseException;
 import de.sekmi.li2b2.hive.HiveException;
@@ -16,7 +16,7 @@ public class PMClient extends CellClient{
 
 	public static final String XMLNS = "http://www.i2b2.org/xsd/cell/pm/1.1/";
 
-	public PMClient(Client client, URL serviceUrl){
+	public PMClient(Li2b2Client client, URL serviceUrl){
 		super(client, serviceUrl);
 	}
 	

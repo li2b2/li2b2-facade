@@ -23,8 +23,8 @@ import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.client.pm.PMClient;
 
-public class Client {
-	private static final Logger log = Logger.getLogger(Client.class.getName());
+public class Li2b2Client {
+	private static final Logger log = Logger.getLogger(Li2b2Client.class.getName());
 
 	// configuration for connection
 	private URL proxy;
@@ -42,7 +42,7 @@ public class Client {
 	
 	private String outputEncoding;
 	
-	public Client() throws IOException{
+	public Li2b2Client() throws IOException{
 		factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
 		this.outputEncoding = "UTF-8";
