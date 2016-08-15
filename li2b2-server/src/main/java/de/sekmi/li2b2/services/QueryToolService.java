@@ -1,5 +1,6 @@
 package de.sekmi.li2b2.services;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Map.Entry;
@@ -42,13 +43,21 @@ public class QueryToolService extends AbstractCRCService {
 	}
 	@Override
 	protected void getQueryMasterList_fromUserId(CrcResponse response, String userId){
+		Iterable<? extends Query> list;
+		try {
+			list = manager.listQueries(userId);
+		} catch (IOException e) {
+			response.setResultStatus("ERROR", e.getMessage());
+			return;
+		}
 		Element el = response.addResponseBody("master_responseType", "DONE");
 //		Marshaller m = JAXBContext.newInstance(QueryMaster.class).createMarshaller();
-		for( Query q : manager.listQueries(userId) ){
+		for( Query q : list ){
 			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateDate(), null);
-//			QueryMaster master = new QueryMaster(query.getId(), query.getDisplayName(), query.getUser(), query.getCreateDate());
-//			m.marshal(master, el);
+//		QueryMaster master = new QueryMaster(query.getId(), query.getDisplayName(), query.getUser(), query.getCreateDate());
+//		m.marshal(master, el);
 		}
+
 	}
 	@Override
 	protected void getResultType(CrcResponse response) {
@@ -173,9 +182,14 @@ public class QueryToolService extends AbstractCRCService {
 
 	@Override
 	protected void deleteQueryMaster(CrcResponse response, String masterId) {
+		try {
+			manager.deleteQuery(masterId);
+		} catch (IOException e) {
+			response.setResultStatus("ERROR", e.getMessage());
+			return;
+		}
 		Element el = response.addResponseBody("master_responseType", "DONE");
 		// only contains the query_master_id of the deleted query
-		manager.deleteQuery(masterId);
 		Element qm = (Element)el.appendChild(el.getOwnerDocument().createElement("query_master"));
 		appendTextElement(qm, "query_master_id", masterId);
 	}
