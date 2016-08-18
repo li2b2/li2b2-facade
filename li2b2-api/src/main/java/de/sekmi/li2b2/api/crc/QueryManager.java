@@ -6,11 +6,11 @@ import org.w3c.dom.Element;
 
 public interface QueryManager {
 
-	Query runQuery(String userId, String groupId, Element queryDefinition, String[] result_types);
+	Query runQuery(String userId, String groupId, Element queryDefinition, String[] result_types) throws IOException;
 	
-	Query getQuery(String queryId);
+	Query getQuery(String queryId) throws IOException;
 
-	QueryExecution getExecution(String instanceId);
+//	QueryExecution getExecution(String instanceId) throws IOException;
 	
 	/**
 	 * List queries for user

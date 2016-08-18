@@ -8,22 +8,24 @@ import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.crc.Query;
 import de.sekmi.li2b2.api.crc.QueryExecution;
-import de.sekmi.li2b2.api.crc.QueryStatus;
 
-public class QueryImpl implements Query, QueryExecution{
+public class QueryImpl implements Query{
 	private String id;
 	private String userId;
 	private String groupId;
 	private String displayName;
 	private Element definition;
 	private Instant createDate;
-	private ResultImpl[] results;
+	ResultImpl[] results;
+	private VirtualExecution[] executions;
+	
 	public QueryImpl(String id, String userId, String groupId, Element definition){
 		this.id = id;
 		this.userId = userId;
 		this.groupId = groupId;
 		createDate = Instant.now();
 		this.definition = definition;
+		this.executions = new VirtualExecution[]{new VirtualExecution(this),new VirtualExecution(this)};
 	}
 	public void setResultTypes(ResultTypeImpl[] results){
 		this.results = new ResultImpl[results.length];
@@ -66,20 +68,9 @@ public class QueryImpl implements Query, QueryExecution{
 	}
 
 	@Override
-	public QueryExecution getInstance() {
-		return this;
-	}
-	@Override
-	public QueryStatus getStatus() {
-		return QueryStatus.INCOMPLETE;
-	}
-	@Override
-	public List<ResultImpl> getResults() {
-		return Arrays.asList(results);
-	}
-	@Override
-	public Query getQuery() {
-		return this;
+	public List<? extends QueryExecution> getExecutions() {
+		// multiple executions
+		return Arrays.asList(executions);
 	}
 
 }

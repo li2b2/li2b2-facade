@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.POST;
@@ -25,6 +27,7 @@ import de.sekmi.li2b2.hive.crc.CrcResponse;
 
 @Path(AbstractCRCService.SERVICE_PATH)
 public class QueryToolService extends AbstractCRCService {
+	private static final Logger log = Logger.getLogger(QueryToolService.class.getName());
 	private QueryManager manager;
 
 	public QueryToolService() throws HiveException {
@@ -47,6 +50,7 @@ public class QueryToolService extends AbstractCRCService {
 		try {
 			list = manager.listQueries(userId);
 		} catch (IOException e) {
+			log.log(Level.SEVERE, "API error", e);
 			response.setResultStatus("ERROR", e.getMessage());
 			return;
 		}
@@ -82,7 +86,14 @@ public class QueryToolService extends AbstractCRCService {
 			results[i] = ((Element)nl.item(i)).getAttribute("name");
 		}
 		// run query
-		Query q = manager.runQuery(userId, groupId, query_definition, results);
+		Query q;
+		try {
+			q = manager.runQuery(userId, groupId, query_definition, results);
+		} catch (IOException e) {
+			log.log(Level.SEVERE, "API error", e);
+			response.setResultStatus("ERROR", e.getMessage());
+			return;
+		}
 
 		// build response
 		Element el = response.addResponseBody("master_instance_result_responseType", "DONE");
@@ -91,24 +102,31 @@ public class QueryToolService extends AbstractCRCService {
 		// request_xml probably not needed, client can request it via getRequestXml
 
 		// one query_instance
-		QueryExecution qi = q.getInstance();
-		addInstance(el, q, qi);
+		// TODO see what the webclient does with multiple instances
+		int instId = 0;
+		for( QueryExecution qi : q.getExecutions() ){
+			addInstance(el, q, qi, instId);
 
-		// result types
-		int index = 0;
-		for( QueryResult qr : qi.getResults() ){
-			addResult(el, qi, qr, index);
-			index ++;
+			// TODO probably need to list all instances first and the results later
+			
+			// result types
+			int index = 0;
+			for( QueryResult qr : qi.getResults() ){
+				addResult(el, qi, qr, instId, index);
+				index ++;
+			}
+			instId ++;
 		}
 	}
 	
-	private void addInstance(Element parent, Query q, QueryExecution qi){
+	private void addInstance(Element parent, Query q, QueryExecution qi, int instId){
 		Element e = parent.getOwnerDocument().createElement("query_instance");
 		parent.appendChild(e);
-		appendTextElement(e, "query_instance_id", qi.getId());
+		appendTextElement(e, "query_instance_id", buildInstanceId(q.getId(), instId));
 		appendTextElement(e, "query_master_id", q.getId());
 		appendTextElement(e, "user_id", q.getUser());
 		appendTextElement(e, "group_id", q.getGroupId());
+		// TODO webclient appears to parse a 'message' element, which contains multiple <?xml parts each containing elements total_time_secs and name 
 		appendTextElement(e, "start_date", q.getCreateDate().toString());
 		// TODO remove and see what the webclient does
 		appendTextElement(e, "end_date", q.getCreateDate().toString());
@@ -121,12 +139,18 @@ public class QueryToolService extends AbstractCRCService {
 		appendTextElement(s, "name", status.name());
 		appendTextElement(s, "description", status.name());
 	}
-	private void addResult(Element parent, QueryExecution instance, QueryResult result, int index){
+	private String buildResultId(String queryId, int instanceIndex, int resultIndex){
+		return queryId+"/"+instanceIndex+"/"+resultIndex;
+	}
+	private String buildInstanceId(String queryId, int instanceIndex){
+		return queryId+"/"+instanceIndex;
+	}
+	private void addResult(Element parent, QueryExecution instance, QueryResult result, int instId, int index){
 		Element e = parent.getOwnerDocument().createElement("query_result_instance");
 		parent.appendChild(e);
 		// TODO try without result id
-		appendTextElement(e, "result_instance_id", instance.getId()+"/"+index);
-		appendTextElement(e, "query_instance_id", instance.getId());
+		appendTextElement(e, "result_instance_id", buildResultId(instance.getQuery().getId(), instId, index));
+		appendTextElement(e, "query_instance_id", buildInstanceId(instance.getQuery().getId(), instId));
 		// need this for the webclient
 		appendTextElement(e, "description", result.getResultType().getDescription()+" for \""+instance.getQuery().getDisplayName()+"\"");
 		// TODO use sequence number for result types
@@ -172,7 +196,14 @@ public class QueryToolService extends AbstractCRCService {
 	@Override
 	protected void getRequestXml_fromQueryMasterId(CrcResponse response, String masterId) {
 		Element el = response.addResponseBody("master_responseType", "DONE");
-		Query q = manager.getQuery(masterId);
+		Query q;
+		try {
+			q = manager.getQuery(masterId);
+		} catch (IOException e) {
+			log.log(Level.SEVERE, "API error", e);
+			response.setResultStatus("ERROR", e.getMessage());
+			return;
+		}
 		if( q != null ){
 			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), null, null, q.getDefinition());
 		}else{
@@ -197,7 +228,14 @@ public class QueryToolService extends AbstractCRCService {
 	@Override
 	protected void renameQueryMaster(CrcResponse response, String masterId, String newName) {
 		Element el = response.addResponseBody("master_responseType", "DONE");
-		Query q = manager.getQuery(masterId);
+		Query q;
+		try {
+			q = manager.getQuery(masterId);
+		} catch (IOException e) {
+			log.log(Level.WARNING, "API error", e);
+			response.setResultStatus("ERROR", e.getMessage());
+			return;
+		}
 		if( q != null ){
 			// change name
 			q.setDisplayName(newName);
@@ -215,54 +253,96 @@ public class QueryToolService extends AbstractCRCService {
 	@Override
 	protected void getQueryInstanceList_fromQueryMasterId(CrcResponse response, String masterId) {
 		Element el = response.addResponseBody("instance_responseType", "DONE");
-		Query q = manager.getQuery(masterId);
-		if( q != null ){
-			addInstance(el, q, q.getInstance());
+		Query q;
+		try {
+			q = manager.getQuery(masterId);
+		} catch (IOException e) {
+			log.log(Level.WARNING, "API error", e);
+			response.setResultStatus("ERROR", e.getMessage());
+			return;
 		}
+		if( q != null ){
+			int instId = 0;
+			for( QueryExecution e : q.getExecutions() ){
+				addInstance(el, q, e, instId);
+				instId ++;
+			}
+		}
+	}
+	
+	private String[] parseInstanceId(String instanceId){
+		int i = instanceId.indexOf('/');
+		if( i == -1 ){
+			throw new IllegalArgumentException("Illegal instance id");
+		}
+		return new String[]{instanceId.substring(0, i), instanceId.substring(i+1)};
+	}
+	private String[] parseResultId(String resultId){
+		int i = resultId.indexOf('/');
+		int j = resultId.lastIndexOf('/');
+		if( i == -1 || i == j ){
+			throw new IllegalArgumentException("Illegal result id");
+		}
+		return new String[]{resultId.substring(0, i), resultId.substring(i+1, j), resultId.substring(j+1)};
 	}
 
 	@Override
 	protected void getQueryResultInstanceList_fromQueryInstanceId(CrcResponse response, String instanceId) {
 		Element el = response.addResponseBody("result_responseType", "DONE");
-		QueryExecution qi = manager.getExecution(instanceId);
-		if( qi == null ){
+		QueryExecution qi;
+		String[] ids = parseInstanceId(instanceId);
+		int ii = Integer.parseInt(ids[1]);
+		try {
+			Query q = manager.getQuery(ids[0]);
+			qi = q.getExecutions().get(ii);
+		} catch (IOException e) {
+			log.log(Level.WARNING, "API error", e);
+			response.setResultStatus("ERROR", e.getMessage());
 			return;
 		}
-		addInstance(el, qi.getQuery(), qi);
+		if( qi == null ){
+			// instance not found -> empty response list
+			return;
+		}
+		addInstance(el, qi.getQuery(), qi, ii);
 		int index = 0;
 		for( QueryResult result : qi.getResults() ){
-			addResult(el, qi, result, index);
+			addResult(el, qi, result, ii, index);
 		}
 	}
 
 	@Override
-	protected void getResultDocument_fromResultInstanceId(CrcResponse response, String resultInstancId) {
+	protected void getResultDocument_fromResultInstanceId(CrcResponse response, String resultInstanceId) {
 		Element el = response.addResponseBody("crc_xml_result_responseType", "DONE");
 		// 
-		int sep = resultInstancId.indexOf('/');
-		if( sep < 1 ){
-			// TODO error
+		QueryExecution qi;
+		String[] ids = parseResultId(resultInstanceId);
+		int ii = Integer.parseInt(ids[1]);
+		int ri = Integer.parseInt(ids[2]);
+		try {
+			Query q = manager.getQuery(ids[0]);
+			qi = q.getExecutions().get(ii);
+		} catch (IOException e) {
+			log.log(Level.WARNING, "API error", e);
+			response.setResultStatus("ERROR", e.getMessage());
 			return;
 		}
-		
-		String ii = resultInstancId.substring(0, sep);
-		int ri = Integer.parseInt(resultInstancId.substring(sep+1));
-
-		QueryExecution qi = manager.getExecution(ii);
 		if( qi == null ){
-			// TODO error
+			String message = "Query execution not found: "+ii;
+			log.warning(message);
+			response.setResultStatus("ERROR", message);
 			return;
 		}
 		
 		QueryResult r = qi.getResults().get(ri);
-		addResult(el, qi, r, ri);
+		addResult(el, qi, r, ii, ri);
 		Iterable<? extends Entry<String, ?>> bd = r.getBreakdownData();
 		if( bd != null ){
 			// add XML result
 			Element x = el.getOwnerDocument().createElement("crc_xml_result");
 			el.appendChild(x);
-			appendTextElement(x, "xml_result_id", resultInstancId);
-			appendTextElement(x, "result_instance_id", ii);
+			appendTextElement(x, "xml_result_id", resultInstanceId);
+			appendTextElement(x, "result_instance_id", buildInstanceId(ids[0], ii));
 			
 			StringBuilder b = new StringBuilder();
 			b.append("<ns10:i2b2_result_envelope xmlns:ns10=\"http://www.i2b2.org/xsd/hive/msg/result/1.1/\">");

@@ -8,7 +8,6 @@ import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.crc.QueryManager;
 import de.sekmi.li2b2.api.crc.Query;
-import de.sekmi.li2b2.api.crc.QueryExecution;
 import de.sekmi.li2b2.api.crc.ResultType;
 
 public class QueryManagerImpl implements QueryManager{
@@ -57,6 +56,7 @@ public class QueryManagerImpl implements QueryManager{
 	public Query runQuery(String userId, String groupId, Element definition, String[] results) {
 		// TODO move definition node to private fragment
 		QueryImpl q = new QueryImpl(Integer.toString(querySeq.incrementAndGet()), userId, groupId, definition);
+		// TODO read query name from definition/query_name (first child)
 		q.setDisplayName("Query "+q.getId());
 		// TODO add properties, 
 		// read/use results
@@ -91,9 +91,9 @@ public class QueryManagerImpl implements QueryManager{
 	public void deleteQuery(String queryId) {
 		queries.removeIf( q -> queryId.equals(q.getId()) );
 	}
-	@Override
-	public QueryExecution getExecution(String instanceId) {
-		return getQuery(instanceId);
-	}
+//	@Override
+//	public QueryExecution getExecution(String instanceId) {
+//		return getQuery(instanceId);
+//	}
 
 }

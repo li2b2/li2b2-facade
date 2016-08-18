@@ -1,6 +1,7 @@
 package de.sekmi.li2b2.api.crc;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.w3c.dom.Element;
 
@@ -16,6 +17,6 @@ public interface Query {
 	 * XXX maybe add support for multiple executions later
 	 * @return execution instance
 	 */
-	QueryExecution getInstance();
+	List<? extends QueryExecution> getExecutions();
 	void setDisplayName(String name);
 }
