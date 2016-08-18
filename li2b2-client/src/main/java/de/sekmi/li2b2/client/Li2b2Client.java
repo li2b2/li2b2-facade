@@ -1,7 +1,10 @@
 package de.sekmi.li2b2.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,15 +120,26 @@ public class Li2b2Client {
 		}
 	}
 	
-	
+	/**
+	 * Set the PM service URL. The URL must be a complete URL including protocol scheme. 
+	 * @param pmService PM service URL
+	 */
 	public void setPM(URL pmService){
 		this.pm = new PMClient(this, pmService);
 	}
-	public void setONT(URL url){
-		this.ont = new OntologyClient(this, url);
+	/**
+	 * Set the Ontology Service URI. The URI is resolved using the PM service URL.
+	 * Therefore relative paths or paths without scheme are ok 
+	 * (e.g. {@code /i2b2/services/QueryToolService}).
+	 * 
+	 * @param uri URI to ontology service.
+	 * @throws MalformedURLException 
+	 */
+	public void setONT(URI uri) throws MalformedURLException{
+		this.ont = new OntologyClient(this, new URL(pm.serviceUrl, uri.toString()));
 	}
-	public void setCRC(URL url){
-		this.crc = new QueryClient(this, url);
+	public void setCRC(URI uri) throws MalformedURLException{
+		this.crc = new QueryClient(this, new URL(pm.serviceUrl, uri.toString()));
 	}
 	
 	public PMClient PM(){
@@ -146,23 +160,34 @@ public class Li2b2Client {
 		return r;
 	}
 
-	public void setServices(Cell[] cells){
+	/**
+	 * Initialize services using URIs from the provided Cell[] structure.
+	 * XXX URI/URL exceptions are not thrown. instead a warning is logged.
+	 * @param cells information about available cells
+	 */
+	public void setServices(Cell[] cells) {
 		for( int i=0; i<cells.length; i++ ){
 			try {
 				switch( cells[i].id ){
 				case "ONT":
-					setONT(new URL(cells[i].url));
+					setONT(new URI(cells[i].url));
 					break;
 				case "CRC":
-					setCRC(new URL(cells[i].url));
+					setCRC(new URI(cells[i].url));
 					break;
 				default:
 					log.info("Ignoring unsupported cell "+cells[i].id+": "+cells[i].name);
 				}
-			} catch (MalformedURLException e) {
+			} catch (MalformedURLException | URISyntaxException e) {
 				log.log(Level.WARNING,"illegal URL for cell "+cells[i].id+":"+cells[i].url, e);
 			}
 		}
 	}
-	
+	public Document parseXML(InputStream in) throws IOException{
+		try {
+			return factory.newDocumentBuilder().parse(in);
+		} catch (SAXException | ParserConfigurationException e) {
+			throw new IOException(e);
+		}
+	}
 }
