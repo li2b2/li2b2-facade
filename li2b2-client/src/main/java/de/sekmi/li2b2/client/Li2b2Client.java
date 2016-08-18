@@ -17,7 +17,6 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import de.sekmi.li2b2.client.pm.UserConfiguration;
 import de.sekmi.li2b2.client.crc.QueryClient;
 import de.sekmi.li2b2.client.ont.OntologyClient;
 import de.sekmi.li2b2.hive.Credentials;
@@ -34,7 +33,7 @@ public class Li2b2Client {
 	// information from server
 //	UserConfiguration info;
 	Credentials credentials;
-	String projectId;
+	private String projectId;
 	
 	private PMClient pm;
 	private OntologyClient ont;

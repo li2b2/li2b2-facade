@@ -105,7 +105,7 @@ public class QueryClient extends CellClient {
 			el.setAttribute("name", result_output_list[i]);
 			rol.appendChild(el);
 		}
-//		el.appendChild(el.getOwnerDocument().importNode(result_output_list, true));
+
 		// submit
 		el = submitRequestWithResponseContent(req);
 		NodeList nl = el.getElementsByTagName("query_master");
@@ -116,6 +116,14 @@ public class QueryClient extends CellClient {
 		return nl.item(0).getFirstChild().getTextContent();
 		// TODO return QueryMaster
 	}
+	/**
+	 * Retrieve previous queries.
+	 * @param userId user id
+	 * @param groupId group id. usually the project id.
+	 * @param fetchSize maximum number of queries to return
+	 * @return query list
+	 * @throws HiveException communications error
+	 */
 	public QueryMaster[] getQueryMasterList_fromUserId(String userId, String groupId, int fetchSize) throws HiveException{
 		HiveRequest req = createPSMRequest("CRC_QRY_getQueryMasterList_fromUserId");
 		// 
@@ -138,6 +146,12 @@ public class QueryClient extends CellClient {
 		}
 		return qm;
 	}
+	/**
+	 * Retrieve previous queries for the current user and project. The list is limited to 20 queries.
+	 * For more control over the request, see {@link #getQueryMasterList_fromUserId(String, String, int)}.
+	 * @return previous queries
+	 * @throws HiveException error
+	 */
 	public QueryMaster[] getQueryMasterList_fromUserId() throws HiveException{
 		return getQueryMasterList_fromUserId(client.getUserLogin(), client.getProjectId(), 20);
 	}
