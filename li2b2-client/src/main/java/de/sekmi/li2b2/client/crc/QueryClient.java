@@ -13,6 +13,7 @@ import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Li2b2Client;
+import de.sekmi.li2b2.hive.DOMUtils;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.crc.QueryMaster;
@@ -194,6 +195,16 @@ public class QueryClient extends CellClient {
 		QueryResultInstance[] qr = new QueryResultInstance[nl.getLength()];
 		unmarshalList(QueryResultInstance.class, nl, qr);
 		return qr;
+	}
+
+	public void deleteQueryMaster(String masterId) throws HiveException{
+		HiveRequest req = createPSMRequest("CRC_QRY_deleteQueryMaster");
+		// 
+		Element el = addRequestBody(req, "master_delete_requestType");
+		appendTextElement(el, "user_id", client.getUserLogin());
+		appendTextElement(el, "query_master_id", masterId);
+		el = submitRequestWithResponseContent(req);
+		DOMUtils.printDOM(el, System.err);
 	}
 	
 }

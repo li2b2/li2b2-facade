@@ -72,5 +72,7 @@ public class TestClient {
 				System.out.println("\tResult: "+qr[j].description);
 			}
 		}
+		c.CRC().deleteQueryMaster(qm.query_master_id);
+//		c.CRC().deleteQueryMaster("999999");
 	}
 }
