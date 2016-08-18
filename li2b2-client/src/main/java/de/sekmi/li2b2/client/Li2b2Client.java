@@ -32,7 +32,7 @@ public class Li2b2Client {
 	// configuration for connection
 	private URL proxy;
 	// information from server
-	UserConfiguration info;
+//	UserConfiguration info;
 	Credentials credentials;
 	String projectId;
 	
