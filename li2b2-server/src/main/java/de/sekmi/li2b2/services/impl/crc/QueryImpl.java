@@ -25,7 +25,7 @@ public class QueryImpl implements Query{
 		this.groupId = groupId;
 		createDate = Instant.now();
 		this.definition = definition;
-		this.executions = new VirtualExecution[]{new VirtualExecution(this),new VirtualExecution(this)};
+		this.executions = new VirtualExecution[]{new VirtualExecution(this, "Total"),new VirtualExecution(this, "DZL"),new VirtualExecution(this, "DKTK 1")};
 	}
 	public void setResultTypes(ResultTypeImpl[] results){
 		this.results = new ResultImpl[results.length];

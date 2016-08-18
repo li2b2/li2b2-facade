@@ -151,8 +151,21 @@ public class QueryToolService extends AbstractCRCService {
 		// TODO try without result id
 		appendTextElement(e, "result_instance_id", buildResultId(instance.getQuery().getId(), instId, index));
 		appendTextElement(e, "query_instance_id", buildInstanceId(instance.getQuery().getId(), instId));
-		// need this for the webclient
-		appendTextElement(e, "description", result.getResultType().getDescription()+" for \""+instance.getQuery().getDisplayName()+"\"");
+		// webclient as of 1.7.07c requires a the description to follow a pattern:
+		// for PATIENT_COUNT_XML, the webclient will parse '\1 for "\2"'
+		StringBuilder desc = new StringBuilder();
+		desc.append(result.getResultType().getDescription());
+		desc.append(" for \"");
+		desc.append(instance.getQuery().getDisplayName());
+		desc.append('"');
+		if( instance.getLabel() != null ){
+			// add execution label
+			desc.append(" (");
+			desc.append(instance.getLabel());
+			desc.append(')');
+		}
+		appendTextElement(e, "description", desc.toString());
+
 		// TODO use sequence number for result types
 		addResultType(e, 0, result.getResultType());
 		if( result.getSetSize() != null ){

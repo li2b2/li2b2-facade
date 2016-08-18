@@ -10,9 +10,11 @@ import de.sekmi.li2b2.api.crc.QueryStatus;
 
 public class VirtualExecution implements QueryExecution {
 	private QueryImpl query;
+	private String label;
 	
-	public VirtualExecution(QueryImpl query){
+	public VirtualExecution(QueryImpl query, String label){
 		this.query = query;
+		this.label = label;
 	}
 	@Override
 	public Query getQuery() {
@@ -21,12 +23,16 @@ public class VirtualExecution implements QueryExecution {
 
 	@Override
 	public QueryStatus getStatus() {
-		return QueryStatus.PROCESSING;
+		return QueryStatus.INCOMPLETE;
 	}
 
 	@Override
 	public List<? extends QueryResult> getResults() {
 		return Arrays.asList(query.results);
+	}
+	@Override
+	public String getLabel() {
+		return label;
 	}
 
 }
