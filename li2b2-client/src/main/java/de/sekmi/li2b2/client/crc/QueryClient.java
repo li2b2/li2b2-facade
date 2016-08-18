@@ -87,7 +87,7 @@ public class QueryClient extends CellClient {
 	private Element submitRequestWithResponseContent(HiveRequest req) throws HiveException{
 		return submitRequestWithResponseContent(req, "request", PSM_NS, "response");
 	}
-	public QueryMaster runQueryInstance_fromQueryDefinition(Element query_definition, String[] result_output_list) throws HiveException{
+	public QueryMaster runQueryInstance(Element query_definition, String[] result_output_list) throws HiveException{
 		HiveRequest req = createPSMRequest("CRC_QRY_runQueryInstance_fromQueryDefinition");
 		// set request content
 		Element el = addRequestBody(req, "query_definition_requestType");
@@ -126,7 +126,7 @@ public class QueryClient extends CellClient {
 	 * @return query list
 	 * @throws HiveException communications error
 	 */
-	public QueryMaster[] getQueryMasterList_fromUserId(String userId, String groupId, int fetchSize) throws HiveException{
+	public QueryMaster[] getQueryMasterList(String userId, String groupId, int fetchSize) throws HiveException{
 		HiveRequest req = createPSMRequest("CRC_QRY_getQueryMasterList_fromUserId");
 		// 
 		Element el = addRequestBody(req, "user_requestType");
@@ -159,8 +159,8 @@ public class QueryClient extends CellClient {
 	 * @return previous queries
 	 * @throws HiveException error
 	 */
-	public QueryMaster[] getQueryMasterList_fromUserId() throws HiveException{
-		return getQueryMasterList_fromUserId(client.getUserLogin(), client.getProjectId(), 20);
+	public QueryMaster[] getQueryMasterList() throws HiveException{
+		return getQueryMasterList(client.getUserLogin(), client.getProjectId(), 20);
 	}
 	/**
 	 * Retrieve query executions (instances) for the given query master id
@@ -168,7 +168,7 @@ public class QueryClient extends CellClient {
 	 * @return list of executions/instances
 	 * @throws HiveException error
 	 */
-	public QueryInstance[] getQueryInstanceList_fromQueryMasterId(String masterId) throws HiveException{
+	public QueryInstance[] getQueryInstanceList(String masterId) throws HiveException{
 		HiveRequest req = createPSMRequest("CRC_QRY_getQueryInstanceList_fromQueryMasterId");
 		// 
 		Element el = addRequestBody(req, "master_requestType");
@@ -182,7 +182,7 @@ public class QueryClient extends CellClient {
 		return qi;
 	}
 
-	public QueryResultInstance[] getQueryResultInstanceList_fromQueryInstanceId(String instanceId) throws HiveException{
+	public QueryResultInstance[] getQueryResultInstanceList(String instanceId) throws HiveException{
 		HiveRequest req = createPSMRequest("CRC_QRY_getQueryResultInstanceList_fromQueryInstanceId");
 		// 
 		Element el = addRequestBody(req, "instance_requestType");

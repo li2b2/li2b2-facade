@@ -52,7 +52,7 @@ public class TestClient {
 		}
 	
 		System.out.println("Requesting previous queries..");
-		QueryMaster[] qml = c.CRC().getQueryMasterList_fromUserId();
+		QueryMaster[] qml = c.CRC().getQueryMasterList();
 		for( int i=0; i<qml.length; i++ ){
 			System.out.println("Previous query: "+qml[i].name);
 		}
@@ -60,14 +60,14 @@ public class TestClient {
 		// run query
 		// load query_definition
 		Document qd = c.parseXML(TestClient.class.getResourceAsStream("/query_definition1.xml"));
-		QueryMaster qm = c.CRC().runQueryInstance_fromQueryDefinition(qd.getDocumentElement(), new String[]{"patient_count_xml"});
+		QueryMaster qm = c.CRC().runQueryInstance(qd.getDocumentElement(), new String[]{"patient_count_xml"});
 		System.out.println("Query executed, master_id="+qm.query_master_id);
 		// retrieve instances
-		QueryInstance[] qi = c.CRC().getQueryInstanceList_fromQueryMasterId(qm.query_master_id);
+		QueryInstance[] qi = c.CRC().getQueryInstanceList(qm.query_master_id);
 		for( int i=0; i<qi.length; i++ ){
 			System.out.println("Query instance: "+qi[i].query_instance_id);
 
-			QueryResultInstance[] qr = c.CRC().getQueryResultInstanceList_fromQueryInstanceId(qi[i].query_instance_id);
+			QueryResultInstance[] qr = c.CRC().getQueryResultInstanceList(qi[i].query_instance_id);
 			for( int j=0; j<qr.length; j++ ){
 				System.out.println("\tResult: "+qr[j].description);
 			}
