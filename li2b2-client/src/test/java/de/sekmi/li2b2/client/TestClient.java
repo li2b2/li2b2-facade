@@ -5,8 +5,9 @@ import java.util.Arrays;
 
 import org.w3c.dom.Document;
 
+import de.sekmi.li2b2.client.crc.QueryInstance;
+import de.sekmi.li2b2.client.crc.QueryResultInstance;
 import de.sekmi.li2b2.client.ont.Concept;
-import de.sekmi.li2b2.client.ont.QueryInstance;
 import de.sekmi.li2b2.hive.crc.QueryMaster;
 import de.sekmi.li2b2.hive.crc.QueryResultType;
 import de.sekmi.li2b2.hive.pm.UserProject;
@@ -65,6 +66,11 @@ public class TestClient {
 		QueryInstance[] qi = c.CRC().getQueryInstanceList_fromQueryMasterId(qm.query_master_id);
 		for( int i=0; i<qi.length; i++ ){
 			System.out.println("Query instance: "+qi[i].query_instance_id);
+
+			QueryResultInstance[] qr = c.CRC().getQueryResultInstanceList_fromQueryInstanceId(qi[i].query_instance_id);
+			for( int j=0; j<qr.length; j++ ){
+				System.out.println("\tResult: "+qr[j].description);
+			}
 		}
 	}
 }

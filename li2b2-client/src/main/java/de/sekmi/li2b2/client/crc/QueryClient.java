@@ -13,7 +13,6 @@ import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Li2b2Client;
-import de.sekmi.li2b2.client.ont.QueryInstance;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.crc.QueryMaster;
@@ -178,8 +177,23 @@ public class QueryClient extends CellClient {
 		el = submitRequestWithResponseContent(req);
 		// parse query master list
 		NodeList nl = el.getElementsByTagName("query_instance");
-		QueryInstance[] qm = new QueryInstance[nl.getLength()];
-		unmarshalList(QueryInstance.class, nl, qm);
-		return qm;
+		QueryInstance[] qi = new QueryInstance[nl.getLength()];
+		unmarshalList(QueryInstance.class, nl, qi);
+		return qi;
 	}
+
+	public QueryResultInstance[] getQueryResultInstanceList_fromQueryInstanceId(String instanceId) throws HiveException{
+		HiveRequest req = createPSMRequest("CRC_QRY_getQueryResultInstanceList_fromQueryInstanceId");
+		// 
+		Element el = addRequestBody(req, "instance_requestType");
+		appendTextElement(el, "query_instance_id", instanceId);
+		//
+		el = submitRequestWithResponseContent(req);
+		// parse query master list
+		NodeList nl = el.getElementsByTagName("query_result_instance");
+		QueryResultInstance[] qr = new QueryResultInstance[nl.getLength()];
+		unmarshalList(QueryResultInstance.class, nl, qr);
+		return qr;
+	}
+	
 }

@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.client.ont;
+package de.sekmi.li2b2.client.crc;
 
 import java.util.Calendar;
 
