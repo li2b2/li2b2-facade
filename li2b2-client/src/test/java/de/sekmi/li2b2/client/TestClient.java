@@ -69,6 +69,7 @@ public class TestClient {
 
 			for( QueryResultInstance qr : c.CRC().getQueryResultInstanceList(qi.query_instance_id) ){
 				System.out.println("\tResult: "+qr.description);
+				System.out.println("\tDocument: "+c.CRC().getResultDocument(qr.result_instance_id));
 			}
 		}
 		c.CRC().deleteQueryMaster(qm.query_master_id);

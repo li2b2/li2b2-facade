@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.client.CellClient;
@@ -186,5 +187,18 @@ public class QueryClient extends CellClient {
 		appendTextElement(el, "query_master_id", masterId);
 		submitRequestWithResponseContent(req);
 	}
-	
+
+	public String getResultDocument(String resultId) throws HiveException{
+		HiveRequest req = createPSMRequest("CRC_QRY_getResultDocument_fromResultInstanceId");
+		Element el = addRequestBody(req, "result_requestType");
+		appendTextElement(el, "query_result_instance_id", resultId);
+		ResponseBody rb = submitRequestWithResponseContent(req);
+		// find content
+		Node n = rb.getElement().getLastChild();
+		if( n.getNodeType() != Node.ELEMENT_NODE || !n.getNodeName().equals("crc_xml_result") ){
+			throw new HiveException("Expected crc_xml_result as last child of response element, but found "+n.getNodeName());
+		}
+		el = (Element)n;
+		return el.getLastChild().getTextContent();
+	}
 }
