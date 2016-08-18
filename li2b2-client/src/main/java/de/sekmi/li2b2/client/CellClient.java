@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.TransformerException;
@@ -28,8 +27,6 @@ import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.HiveResponse.ResultStatus;
 
 public abstract class CellClient {
-	private static final Logger log = Logger.getLogger(CellClient.class.getName());
-
 	protected Li2b2Client client;
 	protected URL serviceUrl;
 	
