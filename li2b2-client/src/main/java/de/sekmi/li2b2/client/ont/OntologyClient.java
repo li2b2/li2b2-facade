@@ -73,7 +73,7 @@ public class OntologyClient extends CellClient {
 		el.setAttribute("max", "200");
 		el.setAttribute("synonyms", "false");
 		el.setAttribute("hiddens", "false");
-		el.appendChild(el.getOwnerDocument().createElement("parent")).setTextContent(parentKey);
+		appendTextElement(el, "parent", parentKey);
 
 		el = submitRequestWithResponseContent(req, "getChildren", XMLNS, "concepts");
 		return parseConcepts(el);

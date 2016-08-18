@@ -136,15 +136,15 @@ public class PMClient extends CellClient{
 		HiveRequest req = createRequestMessage();
 		Element el = req.addBodyElement(XMLNS, "set_user");
 		el.setPrefix("pm");
-		el.appendChild(el.getOwnerDocument().createElement("user_name")).setTextContent(user_name);
+		appendTextElement(el, "user_name", user_name);
 		if (full_name != null) {
-			el.appendChild(el.getOwnerDocument().createElement("full_name")).setTextContent(full_name);
+			appendTextElement(el, "full_name", full_name);
 		}
 		if (email != null) {
-			el.appendChild(el.getOwnerDocument().createElement("email")).setTextContent(email);
+			appendTextElement(el, "email", email);
 		}
 		if (password != null) {
-			el.appendChild(el.getOwnerDocument().createElement("password")).setTextContent(password);
+			appendTextElement(el, "password", password);
 		}
 
 		// submit
@@ -198,10 +198,10 @@ public class PMClient extends CellClient{
 		Element el = req.addBodyElement(XMLNS, "get_all_role");
 		el.setPrefix("pm");
 		if (user_name != null) {
-			el.appendChild(el.getOwnerDocument().createElement("user_name")).setTextContent(user_name);
+			appendTextElement(el, "user_name", user_name);
 		}
 		if (project_id != null) {
-			el.appendChild(el.getOwnerDocument().createElement("project_id")).setTextContent(project_id);
+			appendTextElement(el, "project_id", project_id);
 		}
 
 		// submit

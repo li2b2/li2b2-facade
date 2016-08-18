@@ -168,4 +168,17 @@ public class CellClient {
 		}
 		return resp.requireBodyElement(responseNS, responseElement);
 	}
+	/**
+	 * Convenience method to append a text element to another element
+	 * @param parent parent to which the new element will be added as a child
+	 * @param name element name
+	 * @param value element value
+	 * @return the created element
+	 */
+	protected Element appendTextElement(Element parent, String name, String value){
+		Element e = parent.getOwnerDocument().createElement(name);
+		parent.appendChild(e).setTextContent(value);
+		return e;
+	}
+
 }
