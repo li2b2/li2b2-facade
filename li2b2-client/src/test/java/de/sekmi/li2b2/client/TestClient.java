@@ -3,6 +3,8 @@ package de.sekmi.li2b2.client;
 import java.net.URL;
 import java.util.Arrays;
 
+import org.w3c.dom.Document;
+
 import de.sekmi.li2b2.client.ont.Concept;
 import de.sekmi.li2b2.hive.crc.QueryResultType;
 import de.sekmi.li2b2.hive.pm.UserProject;
@@ -14,6 +16,7 @@ public class TestClient {
 		Li2b2Client c = new Li2b2Client();
 		c.setProxy(new URL("https://www.i2b2.org/webclient/index.php"));
 		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
+//		c.setPM(new URL("http://0.0.0.0:8080/i2b2/services/PMService/"));
 		c.setAuthorisation("demo", "demouser", "i2b2demo");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
 		UserProject[] projects = uc.getProjects();
@@ -42,5 +45,12 @@ public class TestClient {
 		for( QueryResultType t : types ){
 			System.out.println("Result:"+t.name);
 		}
+	
+		System.out.println("Running query..");
+		// run query
+		// load query_definition
+		Document qd = c.parseXML(TestClient.class.getResourceAsStream("/query_definition1.xml"));
+		String masterId = c.CRC().runQueryInstance_fromQueryDefinition(qd.getDocumentElement(), new String[]{"patient_count_xml"});
+		System.out.println("Query executed, master_id="+masterId);
 	}
 }
