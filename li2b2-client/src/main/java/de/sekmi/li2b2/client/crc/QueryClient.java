@@ -13,6 +13,7 @@ import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Li2b2Client;
+import de.sekmi.li2b2.client.ont.QueryInstance;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.crc.QueryMaster;
@@ -87,7 +88,7 @@ public class QueryClient extends CellClient {
 	private Element submitRequestWithResponseContent(HiveRequest req) throws HiveException{
 		return submitRequestWithResponseContent(req, "request", PSM_NS, "response");
 	}
-	public String runQueryInstance_fromQueryDefinition(Element query_definition, String[] result_output_list) throws HiveException{
+	public QueryMaster runQueryInstance_fromQueryDefinition(Element query_definition, String[] result_output_list) throws HiveException{
 		HiveRequest req = createPSMRequest("CRC_QRY_runQueryInstance_fromQueryDefinition");
 		// set request content
 		Element el = addRequestBody(req, "query_definition_requestType");
@@ -112,9 +113,11 @@ public class QueryClient extends CellClient {
 		if( nl.getLength() == 0 ){
 			throw new HiveException("No query_master element in response body");
 		}
+		QueryMaster[] qm = new QueryMaster[1];
+		unmarshalList(QueryMaster.class, nl, qm);
+		return qm[0];
 		// TODO parse response. for now, just return the query master id
-		return nl.item(0).getFirstChild().getTextContent();
-		// TODO return QueryMaster
+//		return nl.item(0).getFirstChild().getTextContent();
 	}
 	/**
 	 * Retrieve previous queries.
@@ -133,18 +136,23 @@ public class QueryClient extends CellClient {
 		appendTextElement(el, "fetch_size", Integer.toString(fetchSize));
 		//
 		el = submitRequestWithResponseContent(req);
+		// parse query master list
 		NodeList nl = el.getElementsByTagName("query_master");
 		QueryMaster[] qm = new QueryMaster[nl.getLength()];
-		// parse query master list
+		unmarshalList(QueryMaster.class, nl, qm);
+		return qm;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> void unmarshalList(Class<T> type, NodeList nl, T[] array) throws HiveException{
 		try {
-			Unmarshaller um = JAXBContext.newInstance(QueryMaster.class).createUnmarshaller();
-			for( int i=0; i<qm.length; i++ ){
-				qm[i] = (QueryMaster)um.unmarshal(nl.item(i));
+			Unmarshaller um = JAXBContext.newInstance(type).createUnmarshaller();
+			for( int i=0; i<array.length; i++ ){
+				array[i] = (T)um.unmarshal(nl.item(i));
 			}
 		} catch (JAXBException e) {
-			throw new HiveException("Unable to unmarshall query_master list");
-		}
-		return qm;
+			throw new HiveException("Unable to unmarshall list of "+type.getName());
+		}		
 	}
 	/**
 	 * Retrieve previous queries for the current user and project. The list is limited to 20 queries.
@@ -154,5 +162,24 @@ public class QueryClient extends CellClient {
 	 */
 	public QueryMaster[] getQueryMasterList_fromUserId() throws HiveException{
 		return getQueryMasterList_fromUserId(client.getUserLogin(), client.getProjectId(), 20);
+	}
+	/**
+	 * Retrieve query executions (instances) for the given query master id
+	 * @param masterId query master id
+	 * @return list of executions/instances
+	 * @throws HiveException error
+	 */
+	public QueryInstance[] getQueryInstanceList_fromQueryMasterId(String masterId) throws HiveException{
+		HiveRequest req = createPSMRequest("CRC_QRY_getQueryInstanceList_fromQueryMasterId");
+		// 
+		Element el = addRequestBody(req, "master_requestType");
+		appendTextElement(el, "query_master_id", masterId);
+		//
+		el = submitRequestWithResponseContent(req);
+		// parse query master list
+		NodeList nl = el.getElementsByTagName("query_instance");
+		QueryInstance[] qm = new QueryInstance[nl.getLength()];
+		unmarshalList(QueryInstance.class, nl, qm);
+		return qm;
 	}
 }

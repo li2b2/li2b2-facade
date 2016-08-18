@@ -6,6 +6,7 @@ import java.util.Arrays;
 import org.w3c.dom.Document;
 
 import de.sekmi.li2b2.client.ont.Concept;
+import de.sekmi.li2b2.client.ont.QueryInstance;
 import de.sekmi.li2b2.hive.crc.QueryMaster;
 import de.sekmi.li2b2.hive.crc.QueryResultType;
 import de.sekmi.li2b2.hive.pm.UserProject;
@@ -15,6 +16,8 @@ public class TestClient {
 
 	public static void main(String args[]) throws Exception{
 		Li2b2Client c = new Li2b2Client();
+		// for logging messages to the console, uncomment the following line
+//		c.setMessageLog(new ConsoleMessageLog());
 		c.setProxy(new URL("https://www.i2b2.org/webclient/index.php"));
 		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
 //		c.setPM(new URL("http://0.0.0.0:8080/i2b2/services/PMService/"));
@@ -56,7 +59,12 @@ public class TestClient {
 		// run query
 		// load query_definition
 		Document qd = c.parseXML(TestClient.class.getResourceAsStream("/query_definition1.xml"));
-		String masterId = c.CRC().runQueryInstance_fromQueryDefinition(qd.getDocumentElement(), new String[]{"patient_count_xml"});
-		System.out.println("Query executed, master_id="+masterId);
+		QueryMaster qm = c.CRC().runQueryInstance_fromQueryDefinition(qd.getDocumentElement(), new String[]{"patient_count_xml"});
+		System.out.println("Query executed, master_id="+qm.query_master_id);
+		// retrieve instances
+		QueryInstance[] qi = c.CRC().getQueryInstanceList_fromQueryMasterId(qm.query_master_id);
+		for( int i=0; i<qi.length; i++ ){
+			System.out.println("Query instance: "+qi[i].query_instance_id);
+		}
 	}
 }
