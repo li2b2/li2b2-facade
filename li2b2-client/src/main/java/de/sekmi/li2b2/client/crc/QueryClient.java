@@ -8,7 +8,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.dom.DOMSource;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -16,6 +15,7 @@ import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
+import de.sekmi.li2b2.hive.crc.QueryMaster;
 import de.sekmi.li2b2.hive.crc.QueryResultType;
 
 public class QueryClient extends CellClient {
@@ -49,22 +49,15 @@ public class QueryClient extends CellClient {
 	private Element addRequestBody(HiveRequest request, String xsiType){
 		Element el = request.addBodyElement(PSM_NS, "request");
 		el.setPrefix("ns4");
-//		Attr attr = el.getOwnerDocument().createAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "xsi:type");
-//		attr.setPrefix("xsi");
-//		attr.setValue("ns4:"+xsiType);
-//		el.setAttributeNodeNS(attr);
-		// this does not allow setting the prefix to 'xsi'
 		el.setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "xsi:type", "ns4:"+xsiType);
 		return el;
 		
 	}
 	public QueryResultType[] getResultType() throws HiveException{
-		HiveRequest req = createRequestMessage();
-		// set body
-		setPSMHeader(req, "CRC_QRY_getResultType");
+		HiveRequest req = createPSMRequest("CRC_QRY_getResultType");
 		
 		// submit
-		Element el = submitRequestWithResponseContent(req, "request", PSM_NS, "response");
+		Element el = submitRequestWithResponseContent(req);
 		NodeList nl = el.getElementsByTagName("query_result_type");
 		QueryResultType[] types = new QueryResultType[nl.getLength()];
 		// parse concepts
@@ -79,10 +72,23 @@ public class QueryClient extends CellClient {
 
 		return types;
 	}
-	public String runQueryInstance_fromQueryDefinition(Element query_definition, String[] result_output_list) throws HiveException{
+	private HiveRequest createPSMRequest(String psmRequestType){
 		HiveRequest req = createRequestMessage();
 		// set body
-		setPSMHeader(req, "CRC_QRY_runQueryInstance_fromQueryDefinition");
+		setPSMHeader(req, psmRequestType);
+		return req;
+	}
+	/**
+	 * Convenience method to submit a PSM request, which is the default for all CRC communications.
+	 * @param req PSM request
+	 * @return PSM response
+	 * @throws HiveException error
+	 */
+	private Element submitRequestWithResponseContent(HiveRequest req) throws HiveException{
+		return submitRequestWithResponseContent(req, "request", PSM_NS, "response");
+	}
+	public String runQueryInstance_fromQueryDefinition(Element query_definition, String[] result_output_list) throws HiveException{
+		HiveRequest req = createPSMRequest("CRC_QRY_runQueryInstance_fromQueryDefinition");
 		// set request content
 		Element el = addRequestBody(req, "query_definition_requestType");
 
@@ -101,12 +107,38 @@ public class QueryClient extends CellClient {
 		}
 //		el.appendChild(el.getOwnerDocument().importNode(result_output_list, true));
 		// submit
-		el = submitRequestWithResponseContent(req, "request", PSM_NS, "response");
+		el = submitRequestWithResponseContent(req);
 		NodeList nl = el.getElementsByTagName("query_master");
 		if( nl.getLength() == 0 ){
 			throw new HiveException("No query_master element in response body");
 		}
 		// TODO parse response. for now, just return the query master id
 		return nl.item(0).getFirstChild().getTextContent();
+		// TODO return QueryMaster
+	}
+	public QueryMaster[] getQueryMasterList_fromUserId(String userId, String groupId, int fetchSize) throws HiveException{
+		HiveRequest req = createPSMRequest("CRC_QRY_getQueryMasterList_fromUserId");
+		// 
+		Element el = addRequestBody(req, "user_requestType");
+		appendTextElement(el, "user_id", userId);
+		appendTextElement(el, "group_id", groupId);
+		appendTextElement(el, "fetch_size", Integer.toString(fetchSize));
+		//
+		el = submitRequestWithResponseContent(req);
+		NodeList nl = el.getElementsByTagName("query_master");
+		QueryMaster[] qm = new QueryMaster[nl.getLength()];
+		// parse query master list
+		try {
+			Unmarshaller um = JAXBContext.newInstance(QueryMaster.class).createUnmarshaller();
+			for( int i=0; i<qm.length; i++ ){
+				qm[i] = (QueryMaster)um.unmarshal(nl.item(i));
+			}
+		} catch (JAXBException e) {
+			throw new HiveException("Unable to unmarshall query_master list");
+		}
+		return qm;
+	}
+	public QueryMaster[] getQueryMasterList_fromUserId() throws HiveException{
+		return getQueryMasterList_fromUserId(client.getUserLogin(), client.getProjectId(), 20);
 	}
 }

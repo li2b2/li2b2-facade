@@ -6,6 +6,7 @@ import java.util.Arrays;
 import org.w3c.dom.Document;
 
 import de.sekmi.li2b2.client.ont.Concept;
+import de.sekmi.li2b2.hive.crc.QueryMaster;
 import de.sekmi.li2b2.hive.crc.QueryResultType;
 import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
@@ -46,6 +47,11 @@ public class TestClient {
 			System.out.println("Result:"+t.name);
 		}
 	
+		System.out.println("Requesting previous queries..");
+		QueryMaster[] qml = c.CRC().getQueryMasterList_fromUserId();
+		for( int i=0; i<qml.length; i++ ){
+			System.out.println("Previous query: "+qml[i].name);
+		}
 		System.out.println("Running query..");
 		// run query
 		// load query_definition
