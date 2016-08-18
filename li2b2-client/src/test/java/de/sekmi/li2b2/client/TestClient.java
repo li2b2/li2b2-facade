@@ -2,9 +2,11 @@ package de.sekmi.li2b2.client;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 
 import org.w3c.dom.Document;
 
+import de.sekmi.li2b2.client.crc.CRCException;
 import de.sekmi.li2b2.client.crc.QueryInstance;
 import de.sekmi.li2b2.client.crc.QueryResultInstance;
 import de.sekmi.li2b2.client.ont.Concept;
@@ -46,15 +48,14 @@ public class TestClient {
 		System.out.println("Found "+cats.length+" concepts");
 
 		System.out.println("Retrieving result types");
-		QueryResultType[] types = c.CRC().getResultType();
-		for( QueryResultType t : types ){
+		for( QueryResultType t :  c.CRC().getResultType() ){
 			System.out.println("Result:"+t.name);
 		}
 	
 		System.out.println("Requesting previous queries..");
-		QueryMaster[] qml = c.CRC().getQueryMasterList();
-		for( int i=0; i<qml.length; i++ ){
-			System.out.println("Previous query: "+qml[i].name);
+		List<QueryMaster> qml = c.CRC().getQueryMasterList();
+		for( int i=0; i<qml.size(); i++ ){
+			System.out.println("Previous query: "+qml.get(i).name);
 		}
 		System.out.println("Running query..");
 		// run query
@@ -63,16 +64,20 @@ public class TestClient {
 		QueryMaster qm = c.CRC().runQueryInstance(qd.getDocumentElement(), new String[]{"patient_count_xml"});
 		System.out.println("Query executed, master_id="+qm.query_master_id);
 		// retrieve instances
-		QueryInstance[] qi = c.CRC().getQueryInstanceList(qm.query_master_id);
-		for( int i=0; i<qi.length; i++ ){
-			System.out.println("Query instance: "+qi[i].query_instance_id);
+		for( QueryInstance qi : c.CRC().getQueryInstanceList(qm.query_master_id) ){
+			System.out.println("Query instance: "+qi.query_instance_id);
 
-			QueryResultInstance[] qr = c.CRC().getQueryResultInstanceList(qi[i].query_instance_id);
-			for( int j=0; j<qr.length; j++ ){
-				System.out.println("\tResult: "+qr[j].description);
+			for( QueryResultInstance qr : c.CRC().getQueryResultInstanceList(qi.query_instance_id) ){
+				System.out.println("\tResult: "+qr.description);
 			}
 		}
 		c.CRC().deleteQueryMaster(qm.query_master_id);
-//		c.CRC().deleteQueryMaster("999999");
+		
+		// non-existing query will produce a CRCException
+		try{
+			c.CRC().deleteQueryMaster("999999");
+		}catch( CRCException e ){
+			System.err.println("Tried to delete query 999999: "+e.getMessage());
+		}
 	}
 }
