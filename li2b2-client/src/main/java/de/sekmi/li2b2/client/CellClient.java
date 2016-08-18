@@ -27,7 +27,7 @@ import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.HiveResponse.ResultStatus;
 
-public class CellClient {
+public abstract class CellClient {
 	private static final Logger log = Logger.getLogger(CellClient.class.getName());
 
 	protected Li2b2Client client;
@@ -125,8 +125,9 @@ public class CellClient {
 		}
 		
 		try( OutputStream out = c.getOutputStream() ){
-			log.info("Submitting to "+requestUrl);
-			DOMUtils.printDOM(request, System.out);
+			if( client.getMessageLog() != null ){
+				client.getMessageLog().logRequest(this, request.getDOM());
+			}
 			DOMUtils.printDOM(request.getDOM(), out, getOutputCharset());
 		}catch (TransformerException e) {
 			throw new HiveException("DOM compilation failed",e);
@@ -144,8 +145,10 @@ public class CellClient {
 		} catch (SAXException | IOException | XPathExpressionException e) {
 			throw new HiveException("Unable to parse HiveResponse",e);
 		}
-		log.info("Received HiveResponse:");
-		DOMUtils.printDOM(resp, System.out);
+		if( client.getMessageLog() != null ){
+			// log response
+			client.getMessageLog().logResponse(this, resp, request.getDOM());
+		}
 		return new HiveResponse(resp);
 	}
 

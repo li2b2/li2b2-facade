@@ -43,6 +43,7 @@ public class Li2b2Client {
 	private DocumentBuilderFactory factory;
 	
 	private String outputEncoding;
+	private MessageLogger messageLog;
 	
 	/**
 	 * Construct a new client instance.
@@ -95,7 +96,12 @@ public class Li2b2Client {
 	public String getUserDomain(){
 		return credentials.getDomain();
 	}
-	
+	public MessageLogger getMessageLog(){
+		return messageLog;
+	}
+	public void setMessageLog(MessageLogger log){
+		this.messageLog = log;
+	}
 	public void setAuthorisation(String user, String password, String domain, boolean isToken){
 		setAuthorisation(new Credentials(domain, user, password, isToken));
 	}
