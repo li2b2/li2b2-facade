@@ -89,28 +89,28 @@ public class QueryToolService extends AbstractCRCService {
 		Query q;
 		try {
 			q = manager.runQuery(userId, groupId, query_definition, results);
+
+			// build response
+			Element el = response.addResponseBody("master_instance_result_responseType", "DONE");
+			// one query_master
+			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateDate(), null);
+			// request_xml probably not needed, client can request it via getRequestXml
+	
+			// return only first query instance
+			int primaryInstanceId = 0;
+			QueryExecution qi = q.getExecutions().get(primaryInstanceId);
+			addInstance(el, q, qi, primaryInstanceId);
+				
+			// result types
+			int index = 0;
+			for( QueryResult qr : qi.getResults() ){
+				addResult(el, qi, qr, primaryInstanceId, index);
+				index ++;
+			}
 		} catch (IOException e) {
 			log.log(Level.SEVERE, "API error", e);
 			response.setResultStatus("ERROR", e.getMessage());
 			return;
-		}
-
-		// build response
-		Element el = response.addResponseBody("master_instance_result_responseType", "DONE");
-		// one query_master
-		appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateDate(), null);
-		// request_xml probably not needed, client can request it via getRequestXml
-
-		// return only first query instance
-		int primaryInstanceId = 0;
-		QueryExecution qi = q.getExecutions().get(primaryInstanceId);
-		addInstance(el, q, qi, primaryInstanceId);
-			
-		// result types
-		int index = 0;
-		for( QueryResult qr : qi.getResults() ){
-			addResult(el, qi, qr, primaryInstanceId, index);
-			index ++;
 		}
 	}
 	
@@ -205,17 +205,20 @@ public class QueryToolService extends AbstractCRCService {
 	protected void getRequestXml_fromQueryMasterId(CrcResponse response, String masterId) {
 		Element el = response.addResponseBody("master_responseType", "DONE");
 		Query q;
+		Element def;
 		try {
 			q = manager.getQuery(masterId);
+			if( q != null ){
+				def = q.getDefinition();
+				appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), null, null, def);
+			}else{
+				// TODO send error response/empty master using PSM response status condition
+				response.setResultStatus("ERROR", "unknown query master id: "+masterId);
+			}
 		} catch (IOException e) {
 			log.log(Level.SEVERE, "API error", e);
 			response.setResultStatus("ERROR", e.getMessage());
 			return;
-		}
-		if( q != null ){
-			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), null, null, q.getDefinition());
-		}else{
-			// TODO send error response/empty master?			
 		}
 	}
 
@@ -239,23 +242,22 @@ public class QueryToolService extends AbstractCRCService {
 		Query q;
 		try {
 			q = manager.getQuery(masterId);
+			if( q != null ){
+				// change name
+				q.setDisplayName(newName);
+				// write response
+				Element qm = (Element)el.appendChild(el.getOwnerDocument().createElement("query_master"));
+				appendTextElement(qm, "query_master_id", masterId);
+				appendTextElement(qm, "name", q.getDisplayName());
+				appendTextElement(qm, "user_id", q.getUser());
+			}else{
+				// fail?
+			}
 		} catch (IOException e) {
 			log.log(Level.WARNING, "API error", e);
 			response.setResultStatus("ERROR", e.getMessage());
 			return;
 		}
-		if( q != null ){
-			// change name
-			q.setDisplayName(newName);
-			// write response
-			Element qm = (Element)el.appendChild(el.getOwnerDocument().createElement("query_master"));
-			appendTextElement(qm, "query_master_id", masterId);
-			appendTextElement(qm, "name", q.getDisplayName());
-			appendTextElement(qm, "user_id", q.getUser());
-		}else{
-			// fail?
-		}
-		
 	}
 
 	@Override
@@ -264,17 +266,17 @@ public class QueryToolService extends AbstractCRCService {
 		Query q;
 		try {
 			q = manager.getQuery(masterId);
+			if( q != null ){
+				int instId = 0;
+				for( QueryExecution e : q.getExecutions() ){
+					addInstance(el, q, e, instId);
+					instId ++;
+				}
+			}
 		} catch (IOException e) {
 			log.log(Level.WARNING, "API error", e);
 			response.setResultStatus("ERROR", e.getMessage());
 			return;
-		}
-		if( q != null ){
-			int instId = 0;
-			for( QueryExecution e : q.getExecutions() ){
-				addInstance(el, q, e, instId);
-				instId ++;
-			}
 		}
 	}
 	
@@ -303,19 +305,19 @@ public class QueryToolService extends AbstractCRCService {
 		try {
 			Query q = manager.getQuery(ids[0]);
 			qi = q.getExecutions().get(ii);
+			if( qi == null ){
+				// instance not found -> empty response list (or error?)
+				return;
+			}
+			addInstance(el, qi.getQuery(), qi, ii);
+			int index = 0;
+			for( QueryResult result : qi.getResults() ){
+				addResult(el, qi, result, ii, index);
+			}
 		} catch (IOException e) {
 			log.log(Level.WARNING, "API error", e);
 			response.setResultStatus("ERROR", e.getMessage());
 			return;
-		}
-		if( qi == null ){
-			// instance not found -> empty response list
-			return;
-		}
-		addInstance(el, qi.getQuery(), qi, ii);
-		int index = 0;
-		for( QueryResult result : qi.getResults() ){
-			addResult(el, qi, result, ii, index);
 		}
 	}
 
@@ -324,12 +326,16 @@ public class QueryToolService extends AbstractCRCService {
 		Element el = response.addResponseBody("crc_xml_result_responseType", "DONE");
 		// 
 		QueryExecution qi;
+		QueryResult r = null;
 		String[] ids = parseResultId(resultInstanceId);
 		int ii = Integer.parseInt(ids[1]);
 		int ri = Integer.parseInt(ids[2]);
 		try {
 			Query q = manager.getQuery(ids[0]);
 			qi = q.getExecutions().get(ii);
+			if( qi != null ){
+				r = qi.getResults().get(ri);
+			}
 		} catch (IOException e) {
 			log.log(Level.WARNING, "API error", e);
 			response.setResultStatus("ERROR", e.getMessage());
@@ -342,7 +348,6 @@ public class QueryToolService extends AbstractCRCService {
 			return;
 		}
 		
-		QueryResult r = qi.getResults().get(ri);
 		addResult(el, qi, r, ii, ri);
 		Iterable<? extends Entry<String, ?>> bd = r.getBreakdownData();
 		if( bd != null ){

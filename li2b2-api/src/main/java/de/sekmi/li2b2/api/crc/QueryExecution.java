@@ -1,5 +1,6 @@
 package de.sekmi.li2b2.api.crc;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface QueryExecution {
@@ -18,6 +19,6 @@ public interface QueryExecution {
 	 * the same instance)
 	 * @return result list
 	 */
-	List<? extends QueryResult> getResults();
+	List<? extends QueryResult> getResults() throws IOException;
 	
 }
