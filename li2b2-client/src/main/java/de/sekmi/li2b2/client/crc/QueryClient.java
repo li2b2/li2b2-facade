@@ -10,7 +10,6 @@ import javax.xml.bind.Unmarshaller;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Li2b2Client;
@@ -80,7 +79,7 @@ public class QueryClient extends CellClient {
 		rb.requireConditionDone();
 		return rb;
 	}
-	public QueryMaster runQueryInstance(Element query_definition, String[] result_output_list) throws HiveException{
+	public MasterInstanceResult runQueryInstance(Element query_definition, String[] result_output_list) throws HiveException{
 		HiveRequest req = createPSMRequest("CRC_QRY_runQueryInstance_fromQueryDefinition");
 		// set request content
 		Element el = addRequestBody(req, "query_definition_requestType");
@@ -101,15 +100,13 @@ public class QueryClient extends CellClient {
 
 		// submit
 		ResponseBody rb = submitRequestWithResponseContent(req);
-		NodeList nl = rb.getElement().getElementsByTagName("query_master");
-		if( nl.getLength() == 0 ){
-			throw new HiveException("No query_master element in response body");
+		// parse response
+		try {
+			Unmarshaller um = JAXBContext.newInstance(MasterInstanceResult.class).createUnmarshaller();
+			return um.unmarshal(rb.getElement(), MasterInstanceResult.class).getValue();
+		} catch (JAXBException e) {
+			throw new HiveException("Unable to unmarshal MasterInstanceResult", e);
 		}
-		QueryMaster[] qm = new QueryMaster[1];
-		unmarshalList(QueryMaster.class, nl, qm);
-		return qm[0];
-		// TODO parse response. for now, just return the query master id
-//		return nl.item(0).getFirstChild().getTextContent();
 	}
 	/**
 	 * Retrieve previous queries.
@@ -132,17 +129,6 @@ public class QueryClient extends CellClient {
 		return rb.unmarshalBodyElements(QueryMaster.class, "query_master");
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> void unmarshalList(Class<T> type, NodeList nl, T[] array) throws HiveException{
-		try {
-			Unmarshaller um = JAXBContext.newInstance(type).createUnmarshaller();
-			for( int i=0; i<array.length; i++ ){
-				array[i] = (T)um.unmarshal(nl.item(i));
-			}
-		} catch (JAXBException e) {
-			throw new HiveException("Unable to unmarshall list of "+type.getName());
-		}		
-	}
 	/**
 	 * Retrieve previous queries for the current user and project. The list is limited to 20 queries.
 	 * For more control over the request, see {@link #getQueryMasterList_fromUserId(String, String, int)}.
@@ -188,10 +174,21 @@ public class QueryClient extends CellClient {
 		submitRequestWithResponseContent(req);
 	}
 
-	public String getResultDocument(String resultId) throws HiveException{
+	/**
+	 * Retrieve the result document for the given result id. 
+	 * A document is only available for some result types. 
+	 * Typically those with a display type {@code CATNUM}.
+	 * 
+	 * @param query_result_instance_id result id
+	 * @return String result document 
+	 *    Usually XML document with root element {@code i2b2_result_envelope} 
+	 *    in namespace {@code http://www.i2b2.org/xsd/hive/msg/result/1.1/}
+	 * @throws HiveException error
+	 */
+	public String getResultDocument(String query_result_instance_id) throws HiveException{
 		HiveRequest req = createPSMRequest("CRC_QRY_getResultDocument_fromResultInstanceId");
 		Element el = addRequestBody(req, "result_requestType");
-		appendTextElement(el, "query_result_instance_id", resultId);
+		appendTextElement(el, "query_result_instance_id", query_result_instance_id);
 		ResponseBody rb = submitRequestWithResponseContent(req);
 		// find content
 		Node n = rb.getElement().getLastChild();

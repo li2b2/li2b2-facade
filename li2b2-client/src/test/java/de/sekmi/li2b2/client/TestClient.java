@@ -7,6 +7,7 @@ import java.util.List;
 import org.w3c.dom.Document;
 
 import de.sekmi.li2b2.client.crc.CRCException;
+import de.sekmi.li2b2.client.crc.MasterInstanceResult;
 import de.sekmi.li2b2.client.crc.QueryInstance;
 import de.sekmi.li2b2.client.crc.QueryResultInstance;
 import de.sekmi.li2b2.client.ont.Concept;
@@ -58,21 +59,26 @@ public class TestClient {
 			System.out.println("Previous query: "+qml.get(i).name);
 		}
 		System.out.println("Running query..");
-		// run query
 		// load query_definition
 		Document qd = c.parseXML(TestClient.class.getResourceAsStream("/query_definition1.xml"));
-		QueryMaster qm = c.CRC().runQueryInstance(qd.getDocumentElement(), new String[]{"patient_count_xml"});
-		System.out.println("Query executed, master_id="+qm.query_master_id);
+		// run query
+		MasterInstanceResult qm = c.CRC().runQueryInstance(qd.getDocumentElement(), new String[]{"patientset","patient_count_xml","patient_gender_count_xml"});
+		// print response
+		System.out.println("Query executed, master_id="+qm.getMasterId());
+		qm.query_result_instance.forEach( qri -> System.out.println("\tResult "+qri.query_result_type.name+" setSize="+qri.set_size));
 		// retrieve instances
-		for( QueryInstance qi : c.CRC().getQueryInstanceList(qm.query_master_id) ){
+		System.out.println("Retrieving instance list result lists..");
+		for( QueryInstance qi : c.CRC().getQueryInstanceList(qm.getMasterId()) ){
 			System.out.println("Query instance: "+qi.query_instance_id);
 
 			for( QueryResultInstance qr : c.CRC().getQueryResultInstanceList(qi.query_instance_id) ){
 				System.out.println("\tResult: "+qr.description);
-				System.out.println("\tDocument: "+c.CRC().getResultDocument(qr.result_instance_id));
+				if( qr.query_result_type.display_type.equals("CATNUM") ){
+					System.out.println("\tDocument: "+c.CRC().getResultDocument(qr.result_instance_id));					
+				}
 			}
 		}
-		c.CRC().deleteQueryMaster(qm.query_master_id);
+		c.CRC().deleteQueryMaster(qm.getMasterId());
 		
 		// non-existing query will produce a CRCException
 		try{
