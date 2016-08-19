@@ -101,21 +101,16 @@ public class QueryToolService extends AbstractCRCService {
 		appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateDate(), null);
 		// request_xml probably not needed, client can request it via getRequestXml
 
-		// one query_instance
-		// TODO see what the webclient does with multiple instances
-		int instId = 0;
-		for( QueryExecution qi : q.getExecutions() ){
-			addInstance(el, q, qi, instId);
-
-			// TODO probably need to list all instances first and the results later
+		// return only first query instance
+		int primaryInstanceId = 0;
+		QueryExecution qi = q.getExecutions().get(primaryInstanceId);
+		addInstance(el, q, qi, primaryInstanceId);
 			
-			// result types
-			int index = 0;
-			for( QueryResult qr : qi.getResults() ){
-				addResult(el, qi, qr, instId, index);
-				index ++;
-			}
-			instId ++;
+		// result types
+		int index = 0;
+		for( QueryResult qr : qi.getResults() ){
+			addResult(el, qi, qr, primaryInstanceId, index);
+			index ++;
 		}
 	}
 	
