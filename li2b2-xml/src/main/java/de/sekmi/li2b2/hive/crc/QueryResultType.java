@@ -7,6 +7,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="query_result_type")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class QueryResultType {
+	public static final String I2B2_DISPLAY_CATNUM = "CATNUM";
+	public static final String I2B2_DISPLAY_LIST= "LIST";
+	
 	public Integer result_type_id;
 	public String name;
 	public String display_type;
