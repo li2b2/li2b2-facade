@@ -3,6 +3,7 @@ package de.sekmi.li2b2.services;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,16 +97,20 @@ public class QueryToolService extends AbstractCRCService {
 			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateDate(), null);
 			// request_xml probably not needed, client can request it via getRequestXml
 	
-			// return only first query instance
-			int primaryInstanceId = 0;
-			QueryExecution qi = q.getExecutions().get(primaryInstanceId);
-			addInstance(el, q, qi, primaryInstanceId);
-				
-			// result types
-			int index = 0;
-			for( QueryResult qr : qi.getResults() ){
-				addResult(el, qi, qr, primaryInstanceId, index);
-				index ++;
+			List<? extends QueryExecution> execs = q.getExecutions();
+			// we may have no executions at all. in this case, only return the query master
+			if( !execs.isEmpty() ){
+				// return only first query instance
+				int primaryInstanceId = 0;
+				QueryExecution qi = execs.get(primaryInstanceId);
+				addInstance(el, q, qi, primaryInstanceId);
+					
+				// result types
+				int index = 0;
+				for( QueryResult qr : qi.getResults() ){
+					addResult(el, qi, qr, primaryInstanceId, index);
+					index ++;
+				}
 			}
 		} catch (IOException e) {
 			log.log(Level.SEVERE, "API error", e);
