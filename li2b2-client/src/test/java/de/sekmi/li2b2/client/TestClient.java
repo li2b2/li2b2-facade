@@ -65,7 +65,9 @@ public class TestClient {
 		MasterInstanceResult qm = c.CRC().runQueryInstance(qd.getDocumentElement(), new String[]{"patientset","patient_count_xml","patient_gender_count_xml"});
 		// print response
 		System.out.println("Query executed, master_id="+qm.getMasterId());
-		qm.query_result_instance.forEach( qri -> System.out.println("\tResult "+qri.query_result_type.name+" setSize="+qri.set_size));
+		for( QueryResultInstance qri : qm.query_result_instance ){
+			System.out.println("\tResult "+qri.query_result_type.name+" setSize="+qri.set_size);			
+		}		
 		// retrieve instances
 		System.out.println("Retrieving instance list result lists..");
 		for( QueryInstance qi : c.CRC().getQueryInstanceList(qm.getMasterId()) ){
