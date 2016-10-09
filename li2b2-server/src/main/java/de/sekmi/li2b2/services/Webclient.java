@@ -20,6 +20,8 @@ public class Webclient {
 		if( path.equals("i2b2_config_data.js") ){
 			// send test config data
 			return Response.ok(getClass().getResourceAsStream("/i2b2_config_data.js")).build();
+		}else if( path.equals("") ){
+			path = "default.htm";
 		}
 
 		InputStream in = getClass().getResourceAsStream("/webclient/"+path);
