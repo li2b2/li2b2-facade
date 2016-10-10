@@ -1,5 +1,6 @@
 package de.sekmi.li2b2.services.impl;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -55,5 +56,8 @@ public class OntologyImpl implements Ontology {
 
 	public static OntologyImpl parse(URL location){
 		return JAXB.unmarshal(location, OntologyImpl.class);
+	}
+	public static OntologyImpl parse(InputStream xml){
+		return JAXB.unmarshal(xml, OntologyImpl.class);
 	}
 }
