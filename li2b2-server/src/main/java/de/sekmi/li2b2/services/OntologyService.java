@@ -89,7 +89,11 @@ public class OntologyService extends AbstractService{
 		el.setPrefix("ns6");
 		for( Concept concept : concepts ){
 			Element c = (Element)el.appendChild(el.getOwnerDocument().createElement("concept"));
-//			appendTextElement(c, "level", lev);
+			// client will accept missing level element, 
+			// but a constructed query will contain <hlevel>undefined</hlevel> 
+			// which will cause the original CRC cell to fail.
+			// therefore, set the level to any integer
+			appendTextElement(c, "level", "0");
 			appendTextElement(c, "key", concept.getKey());
 			appendTextElement(c, "name", concept.getDisplayName());
 			appendTextElement(c, "synonym_cd", "N");
