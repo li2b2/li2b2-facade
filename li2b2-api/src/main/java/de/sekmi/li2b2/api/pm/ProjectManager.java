@@ -1,5 +1,7 @@
 package de.sekmi.li2b2.api.pm;
 
+import java.util.List;
+
 /**
  * User authorisation and association of projects
  * 
@@ -12,4 +14,7 @@ public interface ProjectManager {
 	Project getProjectById(String projectId);
 	User addUser(String userId, String domain);
 	Project addProject(String id, String name);
+	List<? extends User> getUsers();
+	void deleteUser(String userId, String domain);
+	
 }

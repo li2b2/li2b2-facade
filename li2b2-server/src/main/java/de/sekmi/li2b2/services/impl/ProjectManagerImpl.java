@@ -1,8 +1,10 @@
 package de.sekmi.li2b2.services.impl;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Singleton;
 
@@ -59,5 +61,22 @@ public class ProjectManagerImpl implements ProjectManager {
 		}
 		return up;
 	}
+	@Override
+	public List<UserImpl> getUsers() {
+		return users;
+	}
+	@Override
+	public void deleteUser(String userId, String domain) {
+		Iterator<UserImpl> iter = users.iterator();
+		while( iter.hasNext() ){
+			UserImpl user = iter.next();
+			if( userId.equals(user.getName()) && Objects.equals(domain, user.getDomain()) ){
+				iter.remove();
+				break;
+			}
+		}
+		// TODO throw error if not found
+	}
+	
 
 }
