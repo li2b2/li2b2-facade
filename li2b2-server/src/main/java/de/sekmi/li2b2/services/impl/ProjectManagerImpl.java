@@ -22,7 +22,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
 	public ProjectManagerImpl(){
 		this.users = new ArrayList<>();
-		projects = new ArrayList<>(3);
+		this.projects = new ArrayList<>(3);
 	}
 	@Override
 	public User getUserById(String userId, String domain) {
@@ -35,8 +35,12 @@ public class ProjectManagerImpl implements ProjectManager {
 	}
 
 	@Override
-	public Project getProjectById(String projectId) {
-		// TODO Auto-generated method stub
+	public ProjectImpl getProjectById(String projectId) {
+		for( ProjectImpl p : projects ){
+			if( projectId.equals(p.getId()) ){
+				return p;
+			}
+		}
 		return null;
 	}
 
