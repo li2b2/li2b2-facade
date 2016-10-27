@@ -79,6 +79,20 @@ public abstract class AbstractPMService extends AbstractService{
 			String projectId = HiveMessage.optionalElementContent(body, "project_id");
 			getAllRoles(response, projectId, userId);
 
+		}else if( type.equals("delete_role") ){
+			// XXX might be sufficient to use children 0, 1, 2 instead of names
+			String userId = HiveMessage.optionalElementContent(body, "user_name");
+			String role = HiveMessage.optionalElementContent(body, "role");
+			String projectId = HiveMessage.optionalElementContent(body, "project_id");
+			deleteRole(response, userId, role, projectId);
+
+		}else if( type.equals("set_role") ){
+			// XXX might be sufficient to use children 0, 1, 2 instead of names
+			String userId = HiveMessage.optionalElementContent(body, "user_name");
+			String role = HiveMessage.optionalElementContent(body, "role");
+			String projectId = HiveMessage.optionalElementContent(body, "project_id");
+			setRole(response, userId, role, projectId);
+
 		}else if( type.equals("get_all_project_param") ){
 			// called for the node 'params' within a project
 			String projectId = body.getTextContent();
@@ -145,6 +159,8 @@ public abstract class AbstractPMService extends AbstractService{
 		}
 	}
 
+	protected abstract void setRole(HiveResponse response, String userId, String role, String projectId);
+	protected abstract void deleteRole(HiveResponse response, String userId, String role, String projectId);
 	protected abstract void setProject(HiveResponse response, String id, String name, String key, String wiki, String description,String path);
 	protected abstract void setUser(HiveResponse response, String userId, String fullName, String email, boolean admin, String password);
 	protected abstract void getAllProject(HiveResponse response);

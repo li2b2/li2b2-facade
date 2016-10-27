@@ -82,20 +82,22 @@ public class PMService extends AbstractPMService{
 	}
 
 	private static void appendProject(Element parent, Project project){
+//		Element el = parent.getOwnerDocument().createElementNS("","project");
 		Element el = parent.getOwnerDocument().createElement("project");
 		parent.appendChild(el);
 		el.setAttribute("id", project.getId());
 		appendTextElement(el, "name", project.getName());
-		appendTextElement(el, "key", "K_"+project.getId()); // XXX what for?
-		//appendTextElement(el, "wiki", "li2b2");
-		appendTextElement(el, "description", "About "+project.getName());
+//		appendTextElement(el, "key", "K_"+project.getId()); // XXX what for?
+		appendTextElement(el, "wiki", "https://github.org/rwm/li2b2");
+//		appendTextElement(el, "description", "About "+project.getName());
 		appendTextElement(el, "path", project.getPath());
-		appendTextElement(el, "user_name", "demo"); // XXX what for?
+//		appendTextElement(el, "user_name", "demo"); // XXX what for?
 	}
 
 	@Override
 	protected void getAllProject(HiveResponse response) {
 		Element el = response.addBodyElement(I2b2Constants.PM_NS, "projects");
+		el.setPrefix("ns4");
 		for( Project project : manager.getProjects() ){
 			appendProject(el, project);
 		}
@@ -112,6 +114,7 @@ public class PMService extends AbstractPMService{
 
 	private static void appendRole(Element parent, String project, String user, String role){
 		Element el = parent.getOwnerDocument().createElement("role");
+		//el.setPrefix("ns4");
 		parent.appendChild(el);
 		appendTextElement(el, "project_id", project);
 		appendTextElement(el, "user_name", user);
@@ -125,6 +128,7 @@ public class PMService extends AbstractPMService{
 	@Override
 	protected void getAllRoles(HiveResponse response, String projectId, String userId) {
 		Element el = response.addBodyElement(I2b2Constants.PM_NS, "roles");
+		el.setPrefix("ns4");
 		if( projectId == null ){
 			// roles for all projects
 			if( userId == null ){
@@ -169,7 +173,8 @@ public class PMService extends AbstractPMService{
 		JAXBContext jaxb = JAXBContext.newInstance(Cell.class);
 		Marshaller marshaller = jaxb.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-		Element el = response.addBodyElement(I2b2Constants.PM_NS, "cell_datas");
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "cells");
+		el.setPrefix("ns4");
 		for( Cell cell : otherCells ){
 			marshaller.marshal(cell, el);
 		}
@@ -196,6 +201,7 @@ public class PMService extends AbstractPMService{
 	@Override
 	protected void getAllUsers(HiveResponse response) {
 		Element el = response.addBodyElement(I2b2Constants.PM_NS, "users");
+		el.setPrefix("ns4");
 		for( User user : manager.getUsers() ){
 			appendUser(el, user);
 		}
@@ -206,6 +212,7 @@ public class PMService extends AbstractPMService{
 	protected void getUser(HiveResponse response, String userId) {
 		// TODO does the official server send a 'users' wrapper?
 		Element el = response.addBodyElement(I2b2Constants.PM_NS, "users");
+		el.setPrefix("ns4");
 		User user = manager.getUserById(userId);
 		if( user != null ){
 			appendUser(el, user);
@@ -325,5 +332,44 @@ public class PMService extends AbstractPMService{
 		}
 		// TODO set other attributes
 		user.setPassword(password.toCharArray());
+	}
+
+
+	@Override
+	protected void setRole(HiveResponse response, String userId, String role, String projectId) {
+		User user = manager.getUserById(userId);
+		Project project = manager.getProjectById(projectId);
+		if( user == null || project == null ){
+			response.setResultStatus("ERROR", "Project or user not found");
+			return;
+		}
+		// TODO some roles will automatically remove other roles because only one role per group is active
+		// e.g. one of MANAGER/USER,  
+		// e.g. one of DATA_OBFSC/DATA_LDS/DATA_AGG/DATA_DEID/DATA_PROT
+		project.getUserRoles(user).add(role);
+		log.info("Role added for project "+projectId+": "+userId+" -> "+role);
+		log.info("Current roles: "+project.getUserRoles(user).toString());
+		appendResponseText(response, "1 records");
+	}
+
+
+	private void appendResponseText(HiveResponse response, String text){
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "response");
+		el.setPrefix("ns4");
+		el.setTextContent(text);
+	}
+	@Override
+	protected void deleteRole(HiveResponse response, String userId, String role, String projectId) {
+		User user = manager.getUserById(userId);
+		Project project = manager.getProjectById(projectId);
+		if( user == null || project == null ){
+			response.setResultStatus("ERROR", "Project or user not found");
+			return;
+		}
+		project.getUserRoles(user).remove(role);
+		log.info("Role removed for project "+projectId+": "+userId+" -> "+role);
+		log.info("Remaining roles: "+project.getUserRoles(user).toString());
+		// TODO error if role not there
+		appendResponseText(response, "1 records");
 	}
 }

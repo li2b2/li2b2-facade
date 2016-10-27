@@ -1,7 +1,6 @@
 package de.sekmi.li2b2.services.impl;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,22 +31,16 @@ public class ProjectImpl implements Project{
  
 	@Override
 	public void addUserRoles(User user, String ...roles) {
-		Set<String> list = userRoles.get(user);
-		if( list == null ){
-			// user didn't have access to project yet
-			// add user
-			list = new HashSet<>();
-			userRoles.put(user, list);
-			// add role
-		}
-		list.addAll(Arrays.asList(roles));
+		getUserRoles(user).addAll(Arrays.asList(roles));
 	}
 
 	@Override
 	public Set<String> getUserRoles(User user) {
 		Set<String> roles = userRoles.get(user);
 		if( roles == null ){
-			roles = Collections.emptySet();
+			// add role set
+			roles = new HashSet<>();
+			userRoles.put(user, roles);
 		}
 		return roles;
 	}
