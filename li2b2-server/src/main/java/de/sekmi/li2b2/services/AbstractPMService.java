@@ -10,7 +10,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
+import de.sekmi.li2b2.hive.Credentials;
 import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveMessage;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
@@ -53,6 +55,13 @@ public abstract class AbstractPMService extends AbstractService{
 			String projectId = body.getElementsByTagName("project").item(0).getTextContent();
 			getUserConfiguration(request, response, projectId);
 
+		}else if( type.equals("set_password") ){
+			// called if the user wants to change his password
+			String password = body.getTextContent();
+			// webclient will add spaces around the password, trim the password
+			password = password.trim();
+			setPassword(response, request.getSecurity(), password);
+
 		}else if( type.equals("get_all_project") ){
 			// called to list all projects
 			getAllProject(response);
@@ -66,8 +75,9 @@ public abstract class AbstractPMService extends AbstractService{
 		}else if( type.equals("get_all_role") ){
 			// called for the node 'users' within a project
 			// get all user roles for the given project id
-			String projectId = body.getElementsByTagName("project_id").item(0).getTextContent();
-			getAllRoles(response, projectId);
+			String userId = HiveMessage.optionalElementContent(body, "user_name");
+			String projectId = HiveMessage.optionalElementContent(body, "project_id");
+			getAllRoles(response, projectId, userId);
 
 		}else if( type.equals("get_all_project_param") ){
 			// called for the node 'params' within a project
@@ -97,26 +107,59 @@ public abstract class AbstractPMService extends AbstractService{
 			getAllUsers(response);
 
 		}else if( type.equals("get_user") ){
+			// called to display user details
 			String userId = body.getTextContent();
 			getUser(response, userId);
+
+		}else if( type.equals("set_user") ){
+			// called to add/update user
+			String userId = HiveMessage.optionalElementContent(body, "user_name");
+			String fullName = HiveMessage.optionalElementContent(body, "full_name");
+			String email = HiveMessage.optionalElementContent(body, "email");
+			if( email != null && email.length() == 0 ){
+				email = null;
+			}
+			String isAdmin = HiveMessage.optionalElementContent(body, "is_admin");
+			boolean admin = false;
+			if( isAdmin != null && isAdmin.equals("true") ){
+				admin = true;
+			}
+			String password = HiveMessage.optionalElementContent(body, "password");
+			
+			setUser(response, userId, fullName, email, admin, password);
+			
+		}else if( type.equals("set_project") ){
+			// called to add/update project
+			String id = body.getAttribute("id");
+			String name = HiveMessage.optionalElementContent(body, "name");
+			String key = HiveMessage.optionalElementContent(body, "key");
+			String wiki = HiveMessage.optionalElementContent(body, "wiki");
+			String description = HiveMessage.optionalElementContent(body, "description");
+			String path = HiveMessage.optionalElementContent(body, "path");
+			
+			setProject(response, id, name, key, wiki, description, path);
+			
 		}else{
 			// return error
 			response.setResultStatus("ERROR", "Method '"+type+"' not supported (yet)");
 		}
 	}
 
+	protected abstract void setProject(HiveResponse response, String id, String name, String key, String wiki, String description,String path);
+	protected abstract void setUser(HiveResponse response, String userId, String fullName, String email, boolean admin, String password);
 	protected abstract void getAllProject(HiveResponse response);
 	protected abstract void getProject(HiveResponse response, String projectId, String path);
-	protected abstract void getAllRoles(HiveResponse response, String projectId);
+	protected abstract void getAllRoles(HiveResponse response, String projectId, String userId);
 	protected abstract void getAllProjectParams(HiveResponse response, String projectId);
 
 	protected abstract void getAllHive(HiveResponse response);
-	protected abstract void getAllCells(HiveResponse response, String projectId);
+	protected abstract void getAllCells(HiveResponse response, String projectId) throws JAXBException;
 	protected abstract void getCell(HiveResponse response, String id, String path);
 
 	protected abstract void getAllUsers(HiveResponse response);
 	protected abstract void getUser(HiveResponse response, String userId);
 
+	protected abstract void setPassword(HiveResponse Response, Credentials user, String newPassword);
 	@Override
 	public String getCellId() {
 		return "PM";

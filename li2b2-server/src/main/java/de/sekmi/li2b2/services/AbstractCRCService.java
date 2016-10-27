@@ -21,8 +21,7 @@ public abstract class AbstractCRCService extends AbstractService{
 
 	private static final Logger log = Logger.getLogger(AbstractCRCService.class.getName());
 	public static final String SERVICE_PATH="/i2b2/services/QueryToolService/";
-	
-	
+
 	public AbstractCRCService() throws HiveException {
 		super();
 		// TODO Auto-generated constructor stub

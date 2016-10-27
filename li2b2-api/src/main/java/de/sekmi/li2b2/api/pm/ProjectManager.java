@@ -10,11 +10,12 @@ import java.util.List;
  */
 public interface ProjectManager {
 
-	User getUserById(String userId, String domain);
+	User getUserById(String userId);
 	Project getProjectById(String projectId);
-	User addUser(String userId, String domain);
+	User addUser(String userId);
 	Project addProject(String id, String name);
 	List<? extends User> getUsers();
-	void deleteUser(String userId, String domain);
+	List<? extends Project> getProjects();
+	void deleteUser(String userId);
 	
 }

@@ -18,10 +18,10 @@ public class UserImpl implements User {
 	private String domain;
 	private char[] password;
 	
-	public UserImpl(ProjectManagerImpl pm, String login, String domain){
+	public UserImpl(ProjectManagerImpl pm, String login){
 		this.pm = pm;
 		this.login = login;
-		this.domain = domain;
+		//this.domain = domain;
 	}
 	@Override
 	public String getName() {

@@ -49,7 +49,6 @@ public class PMService extends AbstractPMService{
 		registerCell(new Cell("ONT", "OntologyService", OntologyService.SERVICE_PATH));
 		registerCell(new Cell("WORK", "WorkplaceSevice", WorkplaceService.SERVICE_PATH));
 		registerCell(new Cell("CRC", "QueryToolService", AbstractCRCService.SERVICE_PATH));
-		
 	}
 	
 
@@ -82,10 +81,24 @@ public class PMService extends AbstractPMService{
 		return "PM";
 	}
 
+	private static void appendProject(Element parent, Project project){
+		Element el = parent.getOwnerDocument().createElement("project");
+		parent.appendChild(el);
+		el.setAttribute("id", project.getId());
+		appendTextElement(el, "name", project.getName());
+		appendTextElement(el, "key", "K_"+project.getId()); // XXX what for?
+		//appendTextElement(el, "wiki", "li2b2");
+		appendTextElement(el, "description", "About "+project.getName());
+		appendTextElement(el, "path", project.getPath());
+		appendTextElement(el, "user_name", "demo"); // XXX what for?
+	}
 
 	@Override
 	protected void getAllProject(HiveResponse response) {
-		// TODO Auto-generated method stub
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "projects");
+		for( Project project : manager.getProjects() ){
+			appendProject(el, project);
+		}
 		
 	}
 
@@ -97,10 +110,43 @@ public class PMService extends AbstractPMService{
 	}
 
 
+	private static void appendRole(Element parent, String project, String user, String role){
+		Element el = parent.getOwnerDocument().createElement("role");
+		parent.appendChild(el);
+		appendTextElement(el, "project_id", project);
+		appendTextElement(el, "user_name", user);
+		appendTextElement(el, "role", role);
+	}
+	private static void appendRoles(Element parent, Project project, User user){
+		for( String role : project.getUserRoles(user) ){
+			appendRole(parent, project.getId(), user.getName(), role);
+		}		
+	}
 	@Override
-	protected void getAllRoles(HiveResponse response, String projectId) {
-		// TODO Auto-generated method stub
-		
+	protected void getAllRoles(HiveResponse response, String projectId, String userId) {
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "roles");
+		if( projectId == null ){
+			// roles for all projects
+			if( userId == null ){
+				// all projects and all users
+				
+			}else{
+				// all projects for specific users
+			}
+		}else{
+			// roles for specific project
+			Project project = manager.getProjectById(projectId);
+			if( userId == null ){
+				// roles for all users in the specified project
+				for( User user : manager.getUsers() ){
+					appendRoles(el, project, user);
+				}
+			}else{
+				// roles for specific user in project
+				User user = manager.getUserById(userId);
+				appendRoles(el, project, user);
+			}
+		}
 	}
 
 
@@ -119,9 +165,14 @@ public class PMService extends AbstractPMService{
 
 
 	@Override
-	protected void getAllCells(HiveResponse response, String projectId) {
-		// TODO Auto-generated method stub
-		
+	protected void getAllCells(HiveResponse response, String projectId) throws JAXBException {
+		JAXBContext jaxb = JAXBContext.newInstance(Cell.class);
+		Marshaller marshaller = jaxb.createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "cell_datas");
+		for( Cell cell : otherCells ){
+			marshaller.marshal(cell, el);
+		}
 	}
 
 
@@ -131,18 +182,34 @@ public class PMService extends AbstractPMService{
 		
 	}
 
+	private void appendUser(Element parent, User user){
+		// TODO compare to official response (elements and order)
+		Element el = parent.getOwnerDocument().createElementNS("","user");
+		parent.appendChild(el);
+		appendTextElement(el, "full_name", user.getFullName());
+		appendTextElement(el, "user_name", user.getName());
+		appendTextElement(el, "email", "not@supported.yet");
+		appendTextElement(el, "domain", user.getDomain());
+		appendTextElement(el, "is_admin", "true");
+	}
 
 	@Override
 	protected void getAllUsers(HiveResponse response) {
-		// TODO Auto-generated method stub
-		
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "users");
+		for( User user : manager.getUsers() ){
+			appendUser(el, user);
+		}
 	}
 
 
 	@Override
 	protected void getUser(HiveResponse response, String userId) {
-		// TODO Auto-generated method stub
-		
+		// TODO does the official server send a 'users' wrapper?
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "users");
+		User user = manager.getUserById(userId);
+		if( user != null ){
+			appendUser(el, user);
+		}
 	}
 
 
@@ -155,7 +222,7 @@ public class PMService extends AbstractPMService{
 			user = null;
 		}else if( manager != null ){
 			// check user manager
-			user = manager.getUserById(cred.getUser(), cred.getDomain());
+			user = manager.getUserById(cred.getUser());
 			if( user != null && user.hasPassword(cred.getPassword().toCharArray()) ){
 				// user authenticated
 				log.info("Valid user login: "+cred.getUser());
@@ -163,10 +230,16 @@ public class PMService extends AbstractPMService{
 			}else{
 				// user or password not valid
 				log.info("Invalid credentials: "+cred.getUser());
+				user = null;
 			}
 		}else{
 			user = null;
 			// no user manager
+		}
+		if( user == null ){
+			// login failed
+			resp.setResultStatus("ERROR", "Authentication failed");
+			return;
 		}
 		JAXBContext jaxb = JAXBContext.newInstance(Cell.class,UserProject.class);
 		Marshaller marshaller = jaxb.createMarshaller();
@@ -216,5 +289,41 @@ public class PMService extends AbstractPMService{
 //		for( Cell cell : this.otherCells ){
 //			marshaller.marshal(cell, cells);
 //		}
+	}
+
+
+	@Override
+	protected void setPassword(HiveResponse response, Credentials cred, String newPassword) {
+		User user = manager.getUserById(cred.getUser());
+		if( user == null ){
+			response.setResultStatus("ERROR", "User not found");
+		}
+		user.setPassword(newPassword.toCharArray());
+	}
+
+
+	@Override
+	protected void setProject(HiveResponse response, String id, String name, String key, String wiki,
+			String description, String path) {
+		Project project = manager.getProjectById(id);
+		if( project == null ){
+			// create project
+			manager.addProject(id, name);
+		}else{
+			// TODO set path
+		}
+		// TODO set other attributes
+	}
+
+
+	@Override
+	protected void setUser(HiveResponse response, String userId, String fullName, String email, boolean admin,
+			String password) {
+		User user = manager.getUserById(userId);
+		if( user == null ){
+			user = manager.addUser(userId);
+		}
+		// TODO set other attributes
+		user.setPassword(password.toCharArray());
 	}
 }

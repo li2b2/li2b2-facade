@@ -115,4 +115,20 @@ public abstract class HiveMessage {
 		Element bod = getMessageBody();
 		return (Element)bod.appendChild(bod.getOwnerDocument().createElementNS(namespaceURI, qualifiedName));
 	}
+	public static String optionalElementContent(Element parent, String name){
+		NodeList nl = parent.getElementsByTagName(name);
+		if( nl.getLength() ==  0 ){
+			return null;
+		}else{
+			return nl.item(0).getTextContent();
+		}
+	}
+	public static Element appendTextElement(Element parent, String name, String content){
+		Element el = (Element)parent.getOwnerDocument().createElement(name);
+		parent.appendChild(el);
+		if( content != null ){
+			el.setTextContent(content);
+		}
+		return el;
+	}
 }

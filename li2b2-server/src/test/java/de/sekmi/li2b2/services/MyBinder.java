@@ -19,7 +19,7 @@ public class MyBinder extends AbstractBinder{
 		
 		// project manager
 		ProjectManagerImpl pm = new ProjectManagerImpl();
-		User user = pm.addUser("demo", "i2b2demo");
+		User user = pm.addUser("demo");//, "i2b2demo");
 		user.setPassword("demouser".toCharArray());
 		pm.addProject("Demo", "li2b2 Demo").addUserRoles(user, "USER","EDITOR","DATA_AGG","DATA_DEID","DATA_OBFSC","DATA_LDS","DATA_PROT");
 		//pm.addProject("Demo2", "li2b2 Demo2").addUserRoles(user, "USER");

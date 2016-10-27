@@ -16,6 +16,7 @@ import org.xml.sax.SAXException;
 
 import de.sekmi.li2b2.hive.DOMUtils;
 import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveMessage;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
 
@@ -155,13 +156,7 @@ public abstract class AbstractService extends AbstractCell{
 		
 		return dom;
 	}*/
-	Element appendTextElement(Element parent, String name, String content){
-		Element el = (Element)parent.getOwnerDocument().createElement(name);
-		parent.appendChild(el);
-		if( content != null ){
-			el.setTextContent(content);
-		}
-		return el;
+	static void appendTextElement(Element parent, String name, String content){
+		HiveMessage.appendTextElement(parent, name, content);
 	}
-
 }
