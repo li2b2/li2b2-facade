@@ -100,6 +100,7 @@ public class TestServer {
 		// start server
 		TestServer server = new TestServer();
 		server.register(Webclient.class);
+		server.register(Webadmin.class);
 		try{
 			server.start(new InetSocketAddress(port));
 			if( checkWebclient() ){

@@ -19,7 +19,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Element;
 
@@ -38,7 +37,7 @@ import de.sekmi.li2b2.hive.pm.UserProject;
 
 @Singleton
 @Path(PMService.SERVICE_URL)
-public class PMService extends AbstractService{
+public class PMService extends AbstractPMService{
 	private static final Logger log = Logger.getLogger(PMService.class.getName());
 	public static final String SERVICE_URL = "/i2b2/services/PMService/";
 
@@ -75,7 +74,80 @@ public class PMService extends AbstractService{
 	@Path("getServices")
 	@Produces(MediaType.APPLICATION_XML)
 	public Response getServices(InputStream requestBody, @Context UriInfo uri) throws HiveException, ParserConfigurationException, JAXBException{
-		HiveRequest req = parseRequest(requestBody);
+		return super.handleRequest(requestBody);
+	}
+
+	@Override
+	public String getCellId() {
+		return "PM";
+	}
+
+
+	@Override
+	protected void getAllProject(HiveResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void getProject(HiveResponse response, String projectId, String path) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void getAllRoles(HiveResponse response, String projectId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void getAllProjectParams(HiveResponse response, String projectId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void getAllHive(HiveResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void getAllCells(HiveResponse response, String projectId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void getCell(HiveResponse response, String id, String path) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void getAllUsers(HiveResponse response) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void getUser(HiveResponse response, String userId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	protected void getUserConfiguration(HiveRequest req, HiveResponse resp, String projectId) throws JAXBException {
 		Credentials cred = req.getSecurity();
 		User user;
 		if( cred.isToken() ){
@@ -99,8 +171,8 @@ public class PMService extends AbstractService{
 		JAXBContext jaxb = JAXBContext.newInstance(Cell.class,UserProject.class);
 		Marshaller marshaller = jaxb.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+
 		// webclient only users configure/[full_name|is_admin], project/[name|path}
-		HiveResponse resp = createResponse(newDocumentBuilder(), req);
 		Element el = resp.addBodyElement(I2b2Constants.PM_NS, "configure");
 		appendTextElement(el, "environment", "DEVELOPMENT");
 		appendTextElement(el, "helpURL", "https://github.com/rwm/li2b2");
@@ -144,23 +216,5 @@ public class PMService extends AbstractService{
 //		for( Cell cell : this.otherCells ){
 //			marshaller.marshal(cell, cells);
 //		}
-		return Response.ok(new DOMSource(resp.getDOM().getDocumentElement())).build();
-		// TODO return new DOMSource(resp.getDOM())
-//		StringWriter w = new StringWriter(2048);
-//		Map<String, String> map = new HashMap<>();
-//		map.put("timestamp", Instant.now().toString());
-//		try {
-//			Template t = config.getFreemarkerConfiguration().getTemplate("getServices.xml");
-//			t.process(map, w);
-//		} catch (IOException | TemplateException e) {
-//			log.log(Level.SEVERE, "Template error", e);
-//		}
-//		
-//		return Response.ok(w.toString()).build();
-	}
-
-	@Override
-	public String getCellId() {
-		return "PM";
 	}
 }
