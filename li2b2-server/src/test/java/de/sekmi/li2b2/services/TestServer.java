@@ -105,6 +105,7 @@ public class TestServer {
 			server.start(new InetSocketAddress(port));
 			if( checkWebclient() ){
 				System.err.println("Webclient at: "+server.jetty.getURI().resolve("/webclient/default.htm"));
+				System.err.println("Webadmin at: "+server.jetty.getURI().resolve("/admin/default.htm"));
 			}
 			System.err.println("PM service at: "+server.getPMServiceURI());
 			server.join();

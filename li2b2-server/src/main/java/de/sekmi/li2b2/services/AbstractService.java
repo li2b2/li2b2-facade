@@ -91,6 +91,7 @@ public abstract class AbstractService extends AbstractCell{
 		
 		// set sending application
 		response.setSendingApplication(getName(), getVersion());
+		// TODO set receiving application
 		
 		// set message id
 		Element requestId = request.getMessageId();
@@ -159,4 +160,5 @@ public abstract class AbstractService extends AbstractCell{
 	static void appendTextElement(Element parent, String name, String content){
 		HiveMessage.appendTextElement(parent, name, content);
 	}
+	
 }
