@@ -320,6 +320,7 @@ public class PMService extends AbstractPMService{
 			// TODO set path
 		}
 		// TODO set other attributes
+		appendResponseText(response, "1 records");
 	}
 
 
@@ -332,6 +333,7 @@ public class PMService extends AbstractPMService{
 		}
 		// TODO set other attributes
 		user.setPassword(password.toCharArray());
+		appendResponseText(response, "1 records");
 	}
 
 
@@ -370,6 +372,16 @@ public class PMService extends AbstractPMService{
 		log.info("Role removed for project "+projectId+": "+userId+" -> "+role);
 		log.info("Remaining roles: "+project.getUserRoles(user).toString());
 		// TODO error if role not there
+		appendResponseText(response, "1 records");
+	}
+
+
+	@Override
+	protected void deleteUser(HiveResponse response, String userId) {
+		if( manager.getUserById(userId) == null ){
+			response.setResultStatus("ERROR", "User not found: "+userId);
+		}
+		manager.deleteUser(userId);
 		appendResponseText(response, "1 records");
 	}
 }

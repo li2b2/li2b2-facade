@@ -84,6 +84,18 @@ public class ProjectManagerImpl implements ProjectManager {
 	public List<ProjectImpl> getProjects() {
 		return projects;
 	}
+	@Override
+	public void deleteProject(String projectId) {
+		Iterator<ProjectImpl> iter = projects.iterator();
+		while( iter.hasNext() ){
+			ProjectImpl project = iter.next();
+			if( projectId.equals(project.getId()) ){
+				iter.remove();
+				break;
+			}
+		}
+		// TODO throw error if not found
+	}
 	
 
 }

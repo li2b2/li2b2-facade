@@ -49,6 +49,30 @@ public class TestPMService{
 		Assert.assertNotNull(uc);
 		// TODO verify additional configuration settings, projects
 	}
+
+	@Test
+	public void verifyCreateUserSetRoles() throws Exception{
+		Li2b2Client client = new Li2b2Client();
+		client.setPM(getPM_URL());
+		client.setAuthorisation("demo", "demouser", "i2b2demo");
+		UserConfiguration uc = client.PM().requestUserConfiguration();
+		Assert.assertNotNull(uc);
+		Assert.assertEquals(1, client.PM().getUsers().length);
+		// add user
+		client.PM().createUser("aaa", "AAA", "e@ma.il", "aaa");
+		Assert.assertEquals(2, client.PM().getUsers().length);
+		Assert.assertEquals(0, client.PM().getRoles("aaa", "Demo").length);
+		// add role
+		client.PM().setRole("aaa", "USER", "Demo");
+		Assert.assertEquals(1, client.PM().getRoles("aaa", "Demo").length);
+		// delete role
+		client.PM().deleteRole("aaa", "USER", "Demo");
+		Assert.assertEquals(0, client.PM().getRoles("aaa", "Demo").length);
+		// delete user
+		client.PM().deleteUser("aaa");
+		Assert.assertEquals(1, client.PM().getUsers().length);
+	}
+
 	@After
 	public void stopServer() throws Exception {
 		server.stop();

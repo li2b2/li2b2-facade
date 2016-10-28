@@ -125,6 +125,11 @@ public abstract class AbstractPMService extends AbstractService{
 			String userId = body.getTextContent();
 			getUser(response, userId);
 
+		}else if( type.equals("delete_user") ){
+			// called to display user details
+			String userId = body.getTextContent();
+			deleteUser(response, userId);
+
 		}else if( type.equals("set_user") ){
 			// called to add/update user
 			String userId = HiveMessage.optionalElementContent(body, "user_name");
@@ -159,6 +164,7 @@ public abstract class AbstractPMService extends AbstractService{
 		}
 	}
 
+	protected abstract void deleteUser(HiveResponse response, String userId);
 	protected abstract void setRole(HiveResponse response, String userId, String role, String projectId);
 	protected abstract void deleteRole(HiveResponse response, String userId, String role, String projectId);
 	protected abstract void setProject(HiveResponse response, String id, String name, String key, String wiki, String description,String path);
