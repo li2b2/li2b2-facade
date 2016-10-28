@@ -21,10 +21,14 @@ public abstract class AbstractPMService extends AbstractService{
 
 	private static final Logger log = Logger.getLogger(AbstractPMService.class.getName());
 	public static final String SERVICE_PATH="/i2b2/services/PMService/";
-	
+	private boolean indentOutput;
 	
 	public AbstractPMService() throws HiveException {
 		super();
+	}
+
+	public void setIndentOutput(boolean indent){
+		this.indentOutput = indent;
 	}
 	protected Response handleRequest(InputStream requestBody) throws HiveException, ParserConfigurationException{
 		HiveRequest req = parseRequest(requestBody);
@@ -41,7 +45,11 @@ public abstract class AbstractPMService extends AbstractService{
 		} catch (DOMException | JAXBException e) {
 			resp.setResultStatus("ERROR", e.toString());
 		}
-		return Response.ok(resp.getDOM()).build();
+		if( indentOutput ){
+			return Response.ok(XMLUtils.formatDOM(resp.getDOM(),"UTF-8"),"application/xml;charset=UTF-8").build();
+		}else{
+			return Response.ok(resp.getDOM()).build();
+		}
 	}
 	private HiveResponse createResponse(HiveRequest request) throws ParserConfigurationException{
 		return createResponse(newDocumentBuilder(), request);
