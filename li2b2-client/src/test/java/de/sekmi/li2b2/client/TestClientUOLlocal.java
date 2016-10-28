@@ -44,7 +44,7 @@ public class TestClientUOLlocal {
 				
   		// get roles test
 		roles = c.PM().getRoles();
-		roles = c.PM().getRoles("i2b2", "Demo");
+		c.PM().getRoles("i2b2", "Demo");
 		roles = c.PM().getRoles("Demo");
 		for( Role r : roles ){
 			System.out.println(r.toString());

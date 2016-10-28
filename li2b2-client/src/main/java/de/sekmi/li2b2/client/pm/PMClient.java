@@ -186,12 +186,21 @@ public class PMClient extends CellClient{
 	 * @throws HiveException unexpected response body
 	 */
 	public Role[] getRoles() throws HiveException{
-		return getRoles(null, null);
+		return getAllRoles(null, null);
 	}
 	public Role[] getRoles(String project_id) throws HiveException{
-		return getRoles(null, project_id);
+		return getAllRoles(null, project_id);
 	}
-	public Role[] getRoles(String user_name, String project_id) throws HiveException {
+	
+	public String[] getRoles(String userId, String projectId) throws HiveException{
+		Role[] roles = getAllRoles(userId, projectId);
+		String[] str = new String[roles.length];
+		for( int i=0; i<roles.length; i++ ){
+			str[i] = roles[i].getRole();
+		}
+		return str;
+	}
+	private Role[] getAllRoles(String user_name, String project_id) throws HiveException {
 
 		HiveRequest req = createRequestMessage();
 
