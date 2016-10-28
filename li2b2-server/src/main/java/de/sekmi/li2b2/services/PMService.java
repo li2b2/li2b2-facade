@@ -46,6 +46,7 @@ public class PMService extends AbstractPMService{
 	
 	public PMService() throws HiveException{
 		otherCells = new ArrayList<>(4);
+		setIndentOutput(true);
 		registerCell(new Cell("ONT", "OntologyService", OntologyService.SERVICE_PATH));
 		registerCell(new Cell("WORK", "WorkplaceSevice", WorkplaceService.SERVICE_PATH));
 		registerCell(new Cell("CRC", "QueryToolService", AbstractCRCService.SERVICE_PATH));
@@ -133,14 +134,17 @@ public class PMService extends AbstractPMService{
 			// roles for all projects
 			if( userId == null ){
 				// all projects and all users
-				
+				throw new UnsupportedOperationException("Not implemented yet");				
 			}else{
 				// all projects for specific users
+				throw new UnsupportedOperationException("Not implemented yet");
 			}
 		}else{
 			// roles for specific project
 			Project project = manager.getProjectById(projectId);
-			if( userId == null ){
+			if( project == null ){
+				// non-existing project -> no roles
+			}else if( userId == null ){
 				// roles for all users in the specified project
 				for( User user : manager.getUsers() ){
 					appendRoles(el, project, user);
@@ -148,7 +152,10 @@ public class PMService extends AbstractPMService{
 			}else{
 				// roles for specific user in project
 				User user = manager.getUserById(userId);
-				appendRoles(el, project, user);
+				if( user != null ){
+					appendRoles(el, project, user);					
+				}
+				// otherwise: non-existing user -> no roles
 			}
 		}
 	}
@@ -257,6 +264,7 @@ public class PMService extends AbstractPMService{
 		appendTextElement(el, "environment", "DEVELOPMENT");
 		appendTextElement(el, "helpURL", "https://github.com/rwm/li2b2");
 		// user info
+		// TODO namespaces are not clean, 
 		Element ue = (Element)el.appendChild(el.getOwnerDocument().createElementNS("","user"));
 		appendTextElement(ue, "full_name", user.getFullName());
 		appendTextElement(ue, "user_name", user.getName());

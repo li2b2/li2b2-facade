@@ -71,6 +71,9 @@ public class TestPMService{
 		// delete user
 		client.PM().deleteUser("aaa");
 		Assert.assertEquals(1, client.PM().getUsers().length);
+		// get roles for nonexisting user or projects
+		Assert.assertEquals(0, client.PM().getRoles("demo", "non-existing").length);
+		Assert.assertEquals(0, client.PM().getRoles("non-existing", "Demo").length);		
 	}
 
 	@After
