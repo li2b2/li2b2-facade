@@ -14,17 +14,17 @@ import org.w3c.dom.Node;
 
 public class XMLUtils {
 	public static void printDOM(Node node, OutputStream out, String encoding) throws TransformerException{
-		    TransformerFactory tf = TransformerFactory.newInstance();
-		    Transformer transformer;
-				transformer = tf.newTransformer();
-		    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		    transformer.setOutputProperty(OutputKeys.ENCODING, encoding);
-		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-	
-		    transformer.transform(new DOMSource(node), 
-		         new StreamResult(out));
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer;
+		transformer = tf.newTransformer();
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty(OutputKeys.ENCODING, encoding);
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+		
+		transformer.transform(new DOMSource(node), 
+				new StreamResult(out));
 	}
 
 	public static void printDOM(Node node, OutputStream out){
