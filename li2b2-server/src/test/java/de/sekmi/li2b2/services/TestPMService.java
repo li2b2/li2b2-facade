@@ -59,7 +59,7 @@ public class TestPMService{
 		Assert.assertNotNull(uc);
 		Assert.assertEquals(1, client.PM().getUsers().length);
 		// add user
-		client.PM().createUser("aaa", "AAA", "e@ma.il", "aaa");
+		client.PM().setUser("aaa", "AAA", "e@ma.il", "aaa", false);
 		Assert.assertEquals(2, client.PM().getUsers().length);
 		Assert.assertEquals(0, client.PM().getRoles("aaa", "Demo").length);
 		// add role

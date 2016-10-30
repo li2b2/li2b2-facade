@@ -25,46 +25,12 @@ public class User {
 	    </user>
 	 */
 	
-	private String full_name;
-	private String user_name;
-	private String email;
-	private String password;
-	private boolean is_admin;
+	public String full_name;
+	public String user_name;
+	public String email;
+	public String password;
+	public boolean is_admin;
 	
-	public String getFullName() {
-		return full_name;
-	}
-	public void setFullName(String full_name) {
-		this.full_name = full_name;
-	}
-	public String getUserName() {
-		return user_name;
-	}
-	public void setUserName(String user_name) {
-		this.user_name = user_name;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	public boolean isAdmin() {
-		return is_admin;
-	}
-	public void setIsAdmin(boolean is_admin) {
-		this.is_admin = is_admin;
-	}
-	public void setIsAdmin(String is_admin) {
-		this.is_admin = (is_admin == "true");
-	}
-
 	private void parseUserElement (Element element) {
 		if (element.getElementsByTagName("full_name").getLength() > 0)
 			full_name = element.getElementsByTagName("full_name").item(0).getTextContent();

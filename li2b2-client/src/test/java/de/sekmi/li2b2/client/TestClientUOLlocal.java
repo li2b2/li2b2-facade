@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import javax.xml.bind.JAXB;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.sekmi.li2b2.hive.pm.UserProject;
@@ -19,7 +20,8 @@ public class TestClientUOLlocal {
 
 	public static void main(String args[]) throws Exception{
 		Li2b2Client c = new Li2b2Client();
-		c.setProxy(new URL("http://134.106.36.86:2080/webclient/index.php"));
+//		c.setProxy(new URL("http://134.106.36.86:2080/webclient/index.php"));
+		c.setProxy(new URL("http://192.168.33.10/webclient/index.php"));
 		c.setPM(new URL("http://127.0.0.1:9090/i2b2/services/PMService/"));
 		c.setAuthorisation("i2b2", "demouser", "i2b2demo");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
@@ -34,7 +36,7 @@ public class TestClientUOLlocal {
 		// initialise other cells
 		c.setServices(uc.getCells());
 
-		// testRoles (c);
+		testRoles (c);
 		testUsers(c);
 		
 	}
@@ -100,14 +102,15 @@ public class TestClientUOLlocal {
 		for( User u : users ){
 			System.out.println(u.toString());
 		}
+		c.setMessageLog(FormattedMessageLogger.consoleLogger());
 
-		c.PM().createUser("test1", "dito123");
+		c.PM().setUser("test1", null, null, "asdf", false);
 		users = c.PM().getUsers();
 		for( User u : users ){
 			System.out.println(u.toString());
 		}
 		// change user
-		c.PM().createUser("test1", "test user 1", "test@aktin.org", null);
+		c.PM().setUser("test1", "test user 1", "test@aktin.org", "asdf", false);
 		users = c.PM().getUsers();
 		for( User u : users ){
 			System.out.println(u.toString());
@@ -117,6 +120,14 @@ public class TestClientUOLlocal {
 		users = c.PM().getUsers();
 		for( User u : users ){
 			System.out.println(u.toString());
+		}
+		// should throw error
+		c.PM().deleteUser("test1"); // official server does not throw any error
+		try{
+			c.PM().deleteUser("neverthere");
+			Assert.fail("Deleting non-existend user should fail");
+		}catch( ErrorResponseException e ){
+			Assert.assertEquals("User not updated, does it exist?", e.getHiveMessage());
 		}
 		
 	}
@@ -134,14 +145,14 @@ public class TestClientUOLlocal {
 	@Test
 	public void outPutUser () {
 		User testUser = new User();
-		testUser.setUserName("demo");
-		testUser.setFullName("demo user");
-		testUser.setEmail("demo@aktin.org");
-		testUser.setIsAdmin(false);
+		testUser.user_name = "demo";
+		testUser.full_name = "demo user";
+		testUser.email = "demo@aktin.org";
+		testUser.is_admin = false;
 		
 		JAXB.marshal(testUser, System.out);
 		
-		testUser.setPassword("halsdkjlqwejliqhweli");
+		testUser.password = "halsdkjlqwejliqhweli";
 		
 		JAXB.marshal(testUser, System.out);
 	}

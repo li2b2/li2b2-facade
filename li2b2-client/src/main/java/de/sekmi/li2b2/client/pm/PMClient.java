@@ -1,6 +1,7 @@
 package de.sekmi.li2b2.client.pm;
 
 import java.net.URL;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.w3c.dom.Element;
@@ -109,30 +110,23 @@ public class PMClient extends CellClient{
 		// parse concepts
 		return user;
 	}
-	
-	/**
-	 * Create one user using username and password 
-	 * 
-	 * @param user_name String username of the new user, have to be unique
-	 * @param password String password for the new user
-	 * @return
-	 * @throws HiveException
-	 */
-	public void createUser (String user_name, String password) throws HiveException {
-		createUser(user_name, null, null, password);
+
+	public void setUser(User user) throws HiveException{
+		setUser(user.user_name, user.full_name, user.email, user.password, user.is_admin);
 	}
 	/**
-	 * Create one user using username, fullname, email and password 
+	 * Update or create user with username, fullname, email and password 
 	 * 
-	 * @param user_name String username of the new user, have to be unique
+	 * @param user_name String username of the new user, non-null
 	 * @param full_name String. Full name for the new user, descriptive (optional)
 	 * @param email String. email of the new user, for contact (optional)
-	 * @param password String password for the new user
-	 * @return
-	 * @throws HiveException
+	 * @param password String password for the new user, non-null
+	 * @throws HiveException for unexpected response
+	 * @throws NullPointerException if user_name or password is null
 	 */
-	public void createUser (String user_name, String full_name, String email, String password) throws HiveException {
-
+	public void setUser (String user_name, String full_name, String email, String password, boolean is_admin) throws HiveException {
+		Objects.requireNonNull(user_name, "User name must be non-null");
+		Objects.requireNonNull(password, "password must be non-null");
 		HiveRequest req = createRequestMessage();
 		Element el = req.addBodyElement(XMLNS, "set_user");
 		el.setPrefix("pm");
@@ -146,6 +140,7 @@ public class PMClient extends CellClient{
 		if (password != null) {
 			appendTextElement(el, "password", password);
 		}
+		appendTextElement(el, "is_admin", Boolean.toString(is_admin));
 
 		// submit
 		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
@@ -159,8 +154,9 @@ public class PMClient extends CellClient{
 	 * @param user_name
 	 * @return 
 	 * @throws HiveException unexpected response body
+	 * @throws ErrorResponseException delete failed. If the user does not exist, then the official Server will use status type {@code ERROR} and message {@code User not updated, does it exist?}.
 	 */
-	public void deleteUser(String user_name) throws HiveException{
+	public void deleteUser(String user_name) throws HiveException, ErrorResponseException{
 		HiveRequest req = createRequestMessage();
 		// set body
 		// <ont:get_schemes  type="default"/>
