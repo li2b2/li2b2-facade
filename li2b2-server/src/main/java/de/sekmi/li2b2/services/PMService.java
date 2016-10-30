@@ -387,7 +387,8 @@ public class PMService extends AbstractPMService{
 	@Override
 	protected void deleteUser(HiveResponse response, String userId) {
 		if( manager.getUserById(userId) == null ){
-			response.setResultStatus("ERROR", "User not found: "+userId);
+			// return same result status as the original server
+			response.setResultStatus("ERROR", "User not updated, does it exist?");
 		}
 		manager.deleteUser(userId);
 		appendResponseText(response, "1 records");
