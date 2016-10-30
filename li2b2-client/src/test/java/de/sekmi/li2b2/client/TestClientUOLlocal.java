@@ -134,10 +134,7 @@ public class TestClientUOLlocal {
 	
 	@Test
 	public void outPutRole () {
-		Role testRole = new Role();
-		testRole.setProjectId("Demo");
-		testRole.setUserName("demo");
-		testRole.setRole("User");
+		Role testRole = new Role("Demo","demo","User");
 		
 		JAXB.marshal(testRole, System.out);
 	}

@@ -192,7 +192,7 @@ public class PMClient extends CellClient{
 		Role[] roles = getAllRoles(userId, projectId);
 		String[] str = new String[roles.length];
 		for( int i=0; i<roles.length; i++ ){
-			str[i] = roles[i].getRole();
+			str[i] = roles[i].role;
 		}
 		return str;
 	}
@@ -202,12 +202,8 @@ public class PMClient extends CellClient{
 
 		Element el = req.addBodyElement(XMLNS, "get_all_role");
 		el.setPrefix("pm");
-		if (user_name != null) {
-			appendTextElement(el, "user_name", user_name);
-		}
-		if (project_id != null) {
-			appendTextElement(el, "project_id", project_id);
-		}
+		appendOptionalElement(el, "user_name", user_name);
+		appendOptionalElement(el, "project_id", project_id);
 
 		// submit
 		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "roles");

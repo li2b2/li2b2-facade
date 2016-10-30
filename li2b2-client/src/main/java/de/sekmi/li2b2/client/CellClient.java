@@ -184,5 +184,18 @@ public abstract class CellClient {
 		parent.appendChild(e).setTextContent(value);
 		return e;
 	}
+	/**
+	 * Convenience method to append a text element to another element
+	 * if and only if the supplied value is not {@code null}.
+	 * @param parent parent to which the new element will be added as a child
+	 * @param name element name
+	 * @param value element value. If the value is null, the element is not created/appended
+	 * @return the created element or {@code null} if the value was {@code null}
+	 */
+	protected Element appendOptionalElement(Element parent, String name, String value){
+		Element e = parent.getOwnerDocument().createElement(name);
+		parent.appendChild(e).setTextContent(value);
+		return e;
+	}
 
 }

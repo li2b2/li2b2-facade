@@ -17,29 +17,21 @@ import de.sekmi.li2b2.hive.HiveException;
 @XmlAccessorType(XmlAccessType.FIELD) // FIELD NONE ... @XmlElement
 public class Role {
 	
-	private String project_id;
-	private String user_name;
-	private String role;
-	
-	public String getProjectId() {
-		return project_id;
-	}
-	public void setProjectId(String project_id) {
-		this.project_id = project_id;
-	}
-	public String getUserName() {
-		return user_name;
-	}
-	public void setUserName(String user_name) {
-		this.user_name = user_name;
-	}
-	public String getRole() {
-		return role;
-	}
-	public void setRole(String role) {
-		this.role = role;
+	public String project_id;
+	public String user_name;
+	public String role;
+
+	/**
+	 * Empty constructor for JAXB
+	 */
+	protected Role(){
 	}
 
+	public Role(String project, String user, String role){
+		this.project_id = project;
+		this.user_name = user;
+		this.role = role;
+	}
 	public static Role[] parse(Element rolesElement) throws HiveException {
 		NodeList userNodes = rolesElement.getChildNodes();
 		Role [] roles = new Role[userNodes.getLength()];
