@@ -9,6 +9,7 @@ import de.sekmi.li2b2.api.pm.User;
 import de.sekmi.li2b2.services.impl.OntologyImpl;
 import de.sekmi.li2b2.services.impl.ProjectManagerImpl;
 import de.sekmi.li2b2.services.impl.crc.QueryManagerImpl;
+import de.sekmi.li2b2.services.token.TokenManager;
 
 public class MyBinder extends AbstractBinder{
 
@@ -22,7 +23,7 @@ public class MyBinder extends AbstractBinder{
 		User user = pm.addUser("demo");//, "i2b2demo");
 		user.setPassword("demouser".toCharArray());
 		pm.addProject("Demo", "li2b2 Demo").addUserRoles(user, "USER","EDITOR","DATA_OBFSC");
-		//pm.addProject("Demo2", "li2b2 Demo2").addUserRoles(user, "USER");
+		pm.addProject("Demo2", "li2b2 Demo2").addUserRoles(user, "USER");
 		bind(pm).to(ProjectManager.class);
 		
 		
@@ -36,6 +37,7 @@ public class MyBinder extends AbstractBinder{
 		crc.addResultType("MULT_SITE_COUNT", "CATNUM", "Number of patients per site");//"Patient count (simple)");
 		bind(crc).to(QueryManager.class);
 
+		bind(new TokenManagerImpl()).to(TokenManager.class);
 		//bind(PMService.class).to(AbstractCell.class);
 		//bind(WorkplaceService.class).to(AbstractCell.class);
 	}

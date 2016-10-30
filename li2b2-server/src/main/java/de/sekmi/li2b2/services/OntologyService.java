@@ -19,12 +19,14 @@ import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
+import de.sekmi.li2b2.services.token.TokenManager;
 
 @Path(OntologyService.SERVICE_PATH)
 public class OntologyService extends AbstractService{
 	public static final String SERVICE_PATH="/i2b2/services/OntologyService/";
 	private static final Logger log = Logger.getLogger(OntologyService.class.getName());
 	private Ontology ontology;
+	private TokenManager tokens;
 	
 	public OntologyService() throws HiveException {
 		super();
@@ -35,7 +37,16 @@ public class OntologyService extends AbstractService{
 	public void setOntology(Ontology ontology){
 		this.ontology = ontology;
 	}
-	
+
+	@Inject
+	public void setTokenManager(TokenManager manager){
+		this.tokens = manager;
+	}
+	@Override
+	public TokenManager getTokenManager(){
+		return this.tokens;
+	}
+
 	/**
 	 * Returns a list of terminology schemas which can be searched
 	 * via code with {@code getCodeInfo}.

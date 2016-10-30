@@ -1,6 +1,8 @@
 package de.sekmi.li2b2.services;
 
 import javax.ws.rs.Path;
+
+import de.sekmi.li2b2.services.token.TokenManager;
 public abstract class AbstractCell{
 	/**
 	 * Service name (for communication to client).
@@ -38,5 +40,4 @@ public abstract class AbstractCell{
 		}
 		return path.value();
 	}
-	
 }

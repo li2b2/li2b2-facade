@@ -25,11 +25,13 @@ import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.api.crc.ResultType;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.crc.CrcResponse;
+import de.sekmi.li2b2.services.token.TokenManager;
 
 @Path(AbstractCRCService.SERVICE_PATH)
 public class QueryToolService extends AbstractCRCService {
 	private static final Logger log = Logger.getLogger(QueryToolService.class.getName());
 	private QueryManager manager;
+	private TokenManager tokens;
 
 	public QueryToolService() throws HiveException {
 		super();
@@ -40,6 +42,14 @@ public class QueryToolService extends AbstractCRCService {
 		this.manager = manager;
 	}
 
+	@Inject
+	public void setTokenManager(TokenManager manager){
+		this.tokens = manager;
+	}
+	@Override
+	public TokenManager getTokenManager(){
+		return this.tokens;
+	}
 	@POST
 	@Path("request")
 	public Response request(InputStream httpBody) throws HiveException, ParserConfigurationException{

@@ -14,11 +14,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import de.sekmi.li2b2.hive.Credentials;
 import de.sekmi.li2b2.hive.DOMUtils;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveMessage;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
+import de.sekmi.li2b2.services.token.Token;
+import de.sekmi.li2b2.services.token.TokenManager;
 
 public abstract class AbstractService extends AbstractCell{
 	private static final Logger log = Logger.getLogger(AbstractService.class.getName());
@@ -157,8 +160,49 @@ public abstract class AbstractService extends AbstractCell{
 		
 		return dom;
 	}*/
-	static void appendTextElement(Element parent, String name, String content){
-		HiveMessage.appendTextElement(parent, name, content);
+	static Element appendTextElement(Element parent, String name, String content){
+		return HiveMessage.appendTextElement(parent, name, content);
 	}
-	
+	protected abstract TokenManager getTokenManager();
+
+
+
+	/**
+	 * Get the username of the authenticated user for the specified message.
+	 * <p>
+	 * This method will also renew the corresponding session, if applicable.
+	 * </p>
+	 * @param request hive request message
+	 * @return user name or {@code null} if the authentication is not valid
+	 */
+	protected String getAuthenticatedUser(HiveRequest request){
+		Credentials cred = request.getSecurity();
+		if( !cred.isToken() ){
+			// only token authentication allowed for now
+			log.warning("Only session authentication allowed.");
+			return null;
+		}
+		Token<?> token = getTokenManager().lookupToken(cred.getPassword());
+		if( token == null ){
+			// not found or expired
+			log.warning("Invalid or expired token for user "+cred.getUser()+": "+cred.getPassword());
+			return null;
+		}
+		// verify user
+		if( !cred.getUser().equals(token.getPayload().getName()) ){
+			log.warning("Message user '"+cred.getUser()+"' does not match token user: "+token.getPayload().getName());
+			return null;
+		}
+		// renew token
+		token.renew();
+		return token.getPayload().getName();
+	}
+	/**
+	 * Verify that the sender of the message is authenticated correctly.
+	 * @param request hive request message
+	 * @return {@code true} for valid authentication. {@code false} otherwise.
+	 */
+	protected boolean verifyMessageAuthentication(HiveRequest request){
+		return getAuthenticatedUser(request) != null;
+	}
 }

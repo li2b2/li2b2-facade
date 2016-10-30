@@ -12,6 +12,7 @@ import org.xml.sax.SAXException;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
+import de.sekmi.li2b2.services.token.TokenManager;
 
 import static org.junit.Assert.*;
 
@@ -68,5 +69,11 @@ public class TestAbstractService extends AbstractService{
 	@Override
 	public String getURLPath() {
 		return "/i2b2/services/Test";
+	}
+
+	@Override
+	protected TokenManager getTokenManager() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

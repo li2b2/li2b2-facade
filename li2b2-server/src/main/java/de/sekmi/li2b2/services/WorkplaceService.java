@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -17,15 +18,27 @@ import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
+import de.sekmi.li2b2.services.token.TokenManager;
 
 @Path(WorkplaceService.SERVICE_PATH)
 public class WorkplaceService extends AbstractService{
+	private static final Logger log = Logger.getLogger(WorkplaceService.class.getName());
 	public static final String SERVICE_PATH="/i2b2/services/WorkplaceService/";
+
+	private TokenManager tokens;
+
 	public WorkplaceService() throws HiveException {
 		super();
 	}
 
-	private static final Logger log = Logger.getLogger(WorkplaceService.class.getName());
+	@Inject
+	public void setTokenManager(TokenManager manager){
+		this.tokens = manager;
+	}
+	@Override
+	public TokenManager getTokenManager(){
+		return this.tokens;
+	}
 
 	private String visualAttributesForItem(WorkplaceItem item){
 		if( item.isFolder() ){

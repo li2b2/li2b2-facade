@@ -34,6 +34,7 @@ import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.hive.pm.Param;
 import de.sekmi.li2b2.hive.pm.UserProject;
+import de.sekmi.li2b2.services.token.TokenManager;
 
 @Singleton
 @Path(PMService.SERVICE_URL)
@@ -43,6 +44,7 @@ public class PMService extends AbstractPMService{
 
 	private List<Cell> otherCells;
 	private ProjectManager manager;
+	private TokenManager tokens;
 	
 	public PMService() throws HiveException{
 		otherCells = new ArrayList<>(4);
@@ -56,6 +58,14 @@ public class PMService extends AbstractPMService{
 	@Inject
 	public void setProjectManager(ProjectManager manager){
 		this.manager = manager;
+	}
+	@Inject
+	public void setTokenManager(TokenManager manager){
+		this.tokens = manager;
+	}
+	@Override
+	public TokenManager getTokenManager(){
+		return this.tokens;
 	}
 	public void registerCell(Cell cell){
 		otherCells.add(cell);
@@ -231,8 +241,12 @@ public class PMService extends AbstractPMService{
 	protected void getUserConfiguration(HiveRequest req, HiveResponse resp, String projectId) throws JAXBException {
 		Credentials cred = req.getSecurity();
 		User user;
+		String sessionKey = null;
 		if( cred.isToken() ){
 			// need session manager
+			sessionKey = cred.getPassword(); // remove SessionKey: prefix
+			// TODO check for valid session
+			
 			user = null;
 		}else if( manager != null ){
 			// check user manager
@@ -240,7 +254,8 @@ public class PMService extends AbstractPMService{
 			if( user != null && user.hasPassword(cred.getPassword().toCharArray()) ){
 				// user authenticated
 				log.info("Valid user login: "+cred.getUser());
-				// TODO create session
+				// create session
+				sessionKey = getTokenManager().registerPrincipal(cred.getUser());
 			}else{
 				// user or password not valid
 				log.info("Invalid credentials: "+cred.getUser());
@@ -269,7 +284,9 @@ public class PMService extends AbstractPMService{
 		appendTextElement(ue, "full_name", user.getFullName());
 		appendTextElement(ue, "user_name", user.getName());
 		// TODO session/password
-		appendTextElement(ue, "password", "SessionKey:XXXX");
+		Element p = appendTextElement(ue, "password", "SessionKey:"+sessionKey);
+		p.setAttribute("is_token", Boolean.TRUE.toString());
+		p.setAttribute("token_ms_timeout", Long.toString(getTokenManager().getExpirationMillis()));
 		appendTextElement(ue, "domain", user.getDomain());
 		appendTextElement(ue, "is_admin", "true");
 		// add projects
@@ -331,10 +348,24 @@ public class PMService extends AbstractPMService{
 		appendResponseText(response, "1 records");
 	}
 
+	// TODO use this method
+	private boolean verifyAdmin(HiveRequest request){
+		String name = getAuthenticatedUser(request);
+		if( name == null ){
+			return false;
+		}
+		User user = manager.getUserById(name);
+		if( user != null && user.isAdmin() ){
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 	@Override
 	protected void setUser(HiveResponse response, String userId, String fullName, String email, boolean admin,
 			String password) {
+		// verify that the current user has admin privileges
 		User user = manager.getUserById(userId);
 		if( user == null ){
 			user = manager.addUser(userId);
