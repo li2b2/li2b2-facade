@@ -193,9 +193,11 @@ public abstract class CellClient {
 	 * @return the created element or {@code null} if the value was {@code null}
 	 */
 	protected Element appendOptionalElement(Element parent, String name, String value){
-		Element e = parent.getOwnerDocument().createElement(name);
-		parent.appendChild(e).setTextContent(value);
-		return e;
+		if( value == null ){
+			return null;
+		}else{
+			return appendTextElement(parent, name, value);
+		}
 	}
 
 }
