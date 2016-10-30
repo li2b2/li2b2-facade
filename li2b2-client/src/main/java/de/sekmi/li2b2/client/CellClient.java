@@ -34,12 +34,16 @@ public abstract class CellClient {
 		this.client = client;
 		this.serviceUrl = serviceUrl;
 	}
+
+	public URL getServiceURL(){
+		return serviceUrl;
+	}
 	protected String getOutputCharset(){
 		return client.getOutputEncoding();
 	}
 	
 	protected URL createRequest(String path) throws MalformedURLException{
-		return new URL(serviceUrl, path);
+		return new URL(getServiceURL(), path);
 	}
 	protected DocumentBuilder newBuilder(){
 		return client.newBuilder();
@@ -123,7 +127,7 @@ public abstract class CellClient {
 		
 		try( OutputStream out = c.getOutputStream() ){
 			if( client.getMessageLog() != null ){
-				client.getMessageLog().logRequest(this, request.getDOM());
+				client.getMessageLog().logRequest(this, requestUrl, request.getDOM());
 			}
 			DOMUtils.printDOM(request.getDOM(), out, getOutputCharset());
 		}catch (TransformerException e) {
@@ -144,7 +148,7 @@ public abstract class CellClient {
 		}
 		if( client.getMessageLog() != null ){
 			// log response
-			client.getMessageLog().logResponse(this, resp, request.getDOM());
+			client.getMessageLog().logResponse(this, requestUrl, resp, request.getDOM());
 		}
 		return new HiveResponse(resp);
 	}
