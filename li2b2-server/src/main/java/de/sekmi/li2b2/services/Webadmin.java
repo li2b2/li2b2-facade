@@ -25,7 +25,7 @@ public class Webadmin {
 			path = "default.htm";
 		}
 
-		InputStream in = getClass().getResourceAsStream("/webclient/"+path);
+		InputStream in = getClass().getResourceAsStream(Webclient.WEBCLIENT_SOURCES_RESOURCE_PATH+path);
 		if( in == null ){
 			// not found
 			log.warning(path+" not found");

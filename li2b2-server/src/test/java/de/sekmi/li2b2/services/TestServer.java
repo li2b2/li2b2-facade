@@ -64,7 +64,7 @@ public class TestServer {
 	}
 
 	public static boolean checkWebclient(){
-		if( null != TestServer.class.getResource("/webclient/default.htm") ){
+		if( null != TestServer.class.getResource(Webclient.WEBCLIENT_SOURCES_RESOURCE_PATH+"default.htm") ){
 			// webclient source found, everything all right
 			return true;
 		}
