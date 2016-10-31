@@ -52,7 +52,7 @@ public abstract class AbstractCRCService extends AbstractService{
 		} catch (DOMException | JAXBException e) {
 			resp.setResultStatus("ERROR", e.toString());
 		}
-		return Response.ok(resp.getDOM()).build();
+		return Response.ok(compileResponseDOM(resp)).build();
 	}
 	private CrcResponse createResponse(HiveRequest request) throws ParserConfigurationException{
 		CrcResponse resp = new CrcResponse(createResponse(newDocumentBuilder()));

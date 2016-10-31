@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
@@ -28,6 +29,7 @@ public abstract class AbstractService extends AbstractCell{
 	public static final String HIVE_NS="http://www.i2b2.org/xsd/hive/msg/1.1/";
 
 	protected Document responseTemplate;
+	private boolean indentOutput;
 	
 	protected AbstractService() throws HiveException{
 		DocumentBuilder b;
@@ -36,9 +38,14 @@ public abstract class AbstractService extends AbstractCell{
 		} catch (ParserConfigurationException e) {
 			throw new HiveException(e);
 		}
+		indentOutput = true;
 		responseTemplate = createResponseTemplate(b);
 	}
 
+	public void setIndentOutput(boolean indent){
+		this.indentOutput = indent;
+	}
+	
 	/**
 	 * Service name (for communication to client).
 	 * <p>
@@ -204,5 +211,18 @@ public abstract class AbstractService extends AbstractCell{
 	 */
 	protected boolean verifyMessageAuthentication(HiveRequest request){
 		return getAuthenticatedUser(request) != null;
+	}
+
+	protected Object compileResponseDOM(HiveResponse response){
+		if( indentOutput ){
+			try {
+				return XMLUtils.formatDOM(response.getDOM());
+			} catch (TransformerException e) {
+				log.log(Level.WARNING,"Failed to format response XML", e);
+				return response.getDOM();
+			}
+		}else{
+			return response.getDOM();
+		}
 	}
 }

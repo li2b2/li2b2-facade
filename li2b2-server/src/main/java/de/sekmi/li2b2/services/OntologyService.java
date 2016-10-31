@@ -7,9 +7,10 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Element;
 
@@ -58,15 +59,17 @@ public class OntologyService extends AbstractService{
 	 * @throws ParserConfigurationException other error
 	 */
 	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("getSchemes")
 	public Response getSchemes(InputStream requestBody) throws HiveException, ParserConfigurationException{
 		HiveRequest req = parseRequest(requestBody);
 		// TODO session, authentication, project info
 		HiveResponse resp = createResponse(newDocumentBuilder(), req);
 		addConceptsBody(resp, Collections.emptyList());
-		return Response.ok(new DOMSource(resp.getDOM())).build();
+		return Response.ok(compileResponseDOM(resp)).build();
 	}
 	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("getCategories")
 	public Response getCategories(InputStream requestBody) throws HiveException, ParserConfigurationException{
 		HiveRequest req = parseRequest(requestBody);
@@ -74,9 +77,10 @@ public class OntologyService extends AbstractService{
 		HiveResponse resp = createResponse(newDocumentBuilder(), req);
 		addConceptsBody(resp, ontology.getCategories());
 		//return Response.ok(getClass().getResourceAsStream("/templates/ont/getCategories2.xml")).build();
-		return Response.ok(new DOMSource(resp.getDOM())).build();
+		return Response.ok(compileResponseDOM(resp)).build();
 	}
 	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("getChildren")
 	public Response getChildren(InputStream requestBody) throws HiveException, ParserConfigurationException{
 		HiveRequest req = parseRequest(requestBody);
@@ -93,7 +97,7 @@ public class OntologyService extends AbstractService{
 		// TODO session, authentication, project info
 		HiveResponse resp = createResponse(newDocumentBuilder(), req);
 		addConceptsBody(resp, children);
-		return Response.ok(new DOMSource(resp.getDOM())).build();
+		return Response.ok(compileResponseDOM(resp)).build();
 	}
 	private void addConceptsBody(HiveResponse response, Iterable<? extends Concept> concepts){
 		Element el = response.addBodyElement(I2b2Constants.ONT_NS, "concepts");
@@ -113,6 +117,7 @@ public class OntologyService extends AbstractService{
 		}		
 	}
 	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("getTermInfo")
 	public Response getTermInfo(){
 		log.info("termInfo");

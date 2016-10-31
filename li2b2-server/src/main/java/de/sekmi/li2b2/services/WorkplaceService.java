@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.dom.DOMSource;
@@ -84,6 +86,7 @@ public class WorkplaceService extends AbstractService{
 	}
 
 	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("getFoldersByUserId")
 	public Response getFoldersByUserId(InputStream requestBody) throws HiveException, ParserConfigurationException{
 		HiveRequest req = parseRequest(requestBody);
@@ -137,7 +140,7 @@ public class WorkplaceService extends AbstractService{
 			public String getDescription() {
 				return "Example description";
 			}}));
-		return Response.ok(new DOMSource(resp.getDOM())).build();
+		return Response.ok(compileResponseDOM(resp)).build();
 	}
 	// TODO getChildren
 	// TODO addChild

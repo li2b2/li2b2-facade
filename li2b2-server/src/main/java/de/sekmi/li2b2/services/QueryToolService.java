@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -51,6 +53,7 @@ public class QueryToolService extends AbstractCRCService {
 		return this.tokens;
 	}
 	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("request")
 	public Response request(InputStream httpBody) throws HiveException, ParserConfigurationException{
 		return super.handleRequest(httpBody);

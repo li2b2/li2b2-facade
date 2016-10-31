@@ -2,6 +2,7 @@ package de.sekmi.li2b2.services;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -38,5 +39,19 @@ public class XMLUtils {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
 		printDOM(node, out);
 		return out.toByteArray();
+	}
+	public static String formatDOM(Node node) throws TransformerException {
+		StringWriter writer = new StringWriter();
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer;
+		transformer = tf.newTransformer();
+		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		// encoding doesn't matter since we stick with strings
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+		
+		transformer.transform(new DOMSource(node), new StreamResult(writer));
+		return writer.toString();
 	}
 }
