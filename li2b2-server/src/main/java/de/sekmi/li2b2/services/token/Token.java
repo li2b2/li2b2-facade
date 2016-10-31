@@ -16,7 +16,13 @@ public class Token<T extends Principal> {
 	public void renew(){
 		this.renewed = System.currentTimeMillis();
 	}
-	
+	/**
+	 * Epoch milliseconds when the token was issued.
+	 * @return epoch milliseconds
+	 */
+	public long issuedTimeMillis(){
+		return issued;
+	}
 	public T getPayload(){
 		return this.payload;
 	}

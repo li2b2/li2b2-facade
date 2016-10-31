@@ -27,7 +27,7 @@ public abstract class AbstractTokenManager<T extends Principal> implements Token
 
 	public abstract T createPrincipal(String name);
 
-	protected String registerToken(T data){
+	public String registerPrincipal(T data){
 		Token<T> token = new Token<T>(data);
 		UUID uuid = UUID.randomUUID();
 
@@ -111,7 +111,7 @@ public abstract class AbstractTokenManager<T extends Principal> implements Token
 	}
 	@Override
 	public String registerPrincipal(String name) {
-		return registerToken(createPrincipal(name));
+		return registerPrincipal(createPrincipal(name));
 	}
 	@Override
 	public void renew(String uuid) {
