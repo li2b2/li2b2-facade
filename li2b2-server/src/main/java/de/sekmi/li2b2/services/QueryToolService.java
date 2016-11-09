@@ -331,6 +331,7 @@ public class QueryToolService extends AbstractCRCService {
 			int index = 0;
 			for( QueryResult result : qi.getResults() ){
 				addResult(el, qi, result, ii, index);
+				index ++;
 			}
 		} catch (IOException e) {
 			log.log(Level.WARNING, "API error", e);
