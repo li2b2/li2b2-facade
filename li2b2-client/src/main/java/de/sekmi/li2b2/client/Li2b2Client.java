@@ -96,20 +96,44 @@ public class Li2b2Client {
 	public String getUserDomain(){
 		return credentials.getDomain();
 	}
+	/**
+	 * Get the message logger. If no message
+	 * logger is defined, {@code null} is returned.
+	 * @return message logger or {@code null} if undefined.
+	 */
 	public MessageLogger getMessageLog(){
 		return messageLog;
 	}
+	/**
+	 * Set a message logger which will receive all sent and received messages.
+	 * For console output, use {@link FormattedMessageLogger#consoleLogger()}.
+	 *
+	 * @param log message logger
+	 */
 	public void setMessageLog(MessageLogger log){
 		this.messageLog = log;
 	}
+	/**
+	 * Set login credentials for password based authentication.
+	 * 
+	 * @param user user name
+	 * @param password password
+	 * @param domain server domain name. The official i2b2 server exects this parameter to
+	 *  match the domain name specified at the server.
+	 * @param isToken whether specified password argument is a server session token or a password.
+	 *  Set this to {@code false} if you are using a real password.
+	 */
 	public void setAuthorisation(String user, String password, String domain, boolean isToken){
 		setAuthorisation(new Credentials(domain, user, password, isToken));
 	}
 	/**
 	 * Set login credentials for password based authentication.
+	 * This method is the same as {@link #setAuthorisation(String, String, String, boolean)} with
+	 * the last argument set to {@code false}.
+	 * 
 	 * @param user user name
 	 * @param password password
-	 * @param domain domain (for user)
+	 * @param domain server domain name
 	 */
 	public void setAuthorisation(String user, String password, String domain){
 		setAuthorisation(user, password, domain, false);
