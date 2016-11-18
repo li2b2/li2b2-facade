@@ -9,12 +9,12 @@
 	to run a custom i2b2 server.
 	</description>
 
-	<groupId>de.sekmi.li2b2</groupId>
+	<groupId>de.li2b2.facade</groupId>
 	<artifactId>li2b2-api</artifactId>
 	<version>0.1-SNAPSHOT</version>
 
 	<parent>
-		<groupId>de.sekmi.li2b2</groupId>
+		<groupId>de.li2b2.facade</groupId>
 		<artifactId>pom</artifactId>
 		<version>0.1-SNAPSHOT</version>
 	</parent>
