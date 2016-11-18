@@ -3,7 +3,7 @@
 	<packaging>pom</packaging>
 	
 	<groupId>de.li2b2.facade</groupId>
-	<artifactId>pom</artifactId>
+	<artifactId>li2b2-facade</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	
 	<name>li2b2</name>
