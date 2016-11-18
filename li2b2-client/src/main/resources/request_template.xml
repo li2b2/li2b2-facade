@@ -23,12 +23,12 @@
         </receiving_facility>
         <datetime_of_message>2016-07-20T12:22:50+02:00</datetime_of_message>
 		<security>
-			<domain>i2b2demo</domain>
-			<username>demo</username>
-			<password></password>
+			<domain/>
+			<username/>
+			<password/>
 		</security>
         <message_control_id>
-            <message_num>8b5M3z5lb2nU1g6Zq2QSm</message_num>
+            <message_num>changeme</message_num>
             <instance_num>0</instance_num>
         </message_control_id>
         <processing_id>
