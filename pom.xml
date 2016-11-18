@@ -9,7 +9,7 @@
 	<name>li2b2</name>
 	<description>lightweight i2b2 server and client</description>
 	
-	<url>https://github.com/rwm/li2b2</url>
+	<url>https://github.com/li2b2/li2b2-facade</url>
 	
   	<inceptionYear>2013</inceptionYear>
   	<organization>
@@ -24,10 +24,10 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:git@github.com:rwm/li2b2.git</connection>
-		<developerConnection>scm:git:git@github.com:rwm/li2b2.git</developerConnection>
+		<connection>scm:git:git@github.com:li2b2/li2b2-facade.git</connection>
+		<developerConnection>scm:git:git@github.com:rwm/li2b2-facade.git</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/rwm/li2b2</url>
+		<url>https://github.com/li2b2/li2b2-facade</url>
 	</scm>
 	<distributionManagement>
 		<repository>
