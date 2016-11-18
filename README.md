@@ -29,4 +29,4 @@ then `mvn eclipse:eclipse` to generate Eclipse project files.
 Open in Eclipse any workspace you want and import the projects
 by choosing `File/Import...` and then `General/Existing Projects into Workspace`.
 If you navigate the file browser to the top level directory, you should
-see three projects which can be imported.
+see four projects which can be imported.
