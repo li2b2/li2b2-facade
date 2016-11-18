@@ -3,11 +3,7 @@ package de.sekmi.li2b2.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,7 +22,7 @@ import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.client.pm.PMClient;
 
 public class Li2b2Client {
-	private static final Logger log = Logger.getLogger(Li2b2Client.class.getName());
+//	private static final Logger log = Logger.getLogger(Li2b2Client.class.getName());
 
 	// configuration for connection
 	private URL proxy;
@@ -164,11 +160,11 @@ public class Li2b2Client {
 	 * @param uri URI to ontology service.
 	 * @throws MalformedURLException 
 	 */
-	public void setONT(URI uri) throws MalformedURLException{
-		this.ont = new OntologyClient(this, new URL(pm.serviceUrl, uri.toString()));
+	public void setONT(String uri) throws MalformedURLException{
+		this.ont = new OntologyClient(this, new URL(pm.serviceUrl, uri));
 	}
-	public void setCRC(URI uri) throws MalformedURLException{
-		this.crc = new QueryClient(this, new URL(pm.serviceUrl, uri.toString()));
+	public void setCRC(String uri) throws MalformedURLException{
+		this.crc = new QueryClient(this, new URL(pm.serviceUrl, uri));
 	}
 	
 	public PMClient PM(){
@@ -194,21 +190,17 @@ public class Li2b2Client {
 	 * XXX URI/URL exceptions are not thrown. instead a warning is logged.
 	 * @param cells information about available cells
 	 */
-	public void setServices(Cell[] cells) {
+	public void setServices(Cell[] cells) throws MalformedURLException{
 		for( int i=0; i<cells.length; i++ ){
-			try {
-				switch( cells[i].id ){
-				case "ONT":
-					setONT(new URI(cells[i].url));
-					break;
-				case "CRC":
-					setCRC(new URI(cells[i].url));
-					break;
-				default:
-					log.info("Ignoring unsupported cell "+cells[i].id+": "+cells[i].name);
-				}
-			} catch (MalformedURLException | URISyntaxException e) {
-				log.log(Level.WARNING,"illegal URL for cell "+cells[i].id+":"+cells[i].url, e);
+			switch( cells[i].id ){
+			case "ONT":
+				setONT(cells[i].url);
+				break;
+			case "CRC":
+				setCRC(cells[i].url);
+				break;
+			default:
+//				log.info("Ignoring unsupported cell "+cells[i].id+": "+cells[i].name);
 			}
 		}
 	}
