@@ -43,10 +43,8 @@ public class Li2b2Client {
 	
 	/**
 	 * Construct a new client instance.
-	 * TODO use more appropriate exception: IOException sounds like io occurs at construction
-	 * @throws IOException
 	 */
-	public Li2b2Client() throws IOException{
+	public Li2b2Client(){
 		factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
 		this.outputEncoding = "UTF-8";
@@ -55,8 +53,8 @@ public class Li2b2Client {
 			b = factory.newDocumentBuilder();
 			requestTemplate = b.parse(getClass().getResourceAsStream("/request_template.xml"));
 			DOMUtils.stripWhitespace(requestTemplate.getDocumentElement());
-		} catch (ParserConfigurationException | SAXException | XPathExpressionException e) {
-			throw new IOException(e);
+		} catch (ParserConfigurationException | SAXException | XPathExpressionException | IOException e) {
+			throw new RuntimeException("Unable to load resource /request_template.xml", e);
 		}
 		// null project ID not allowed by hive.
 		// it expects 'undefined' e.g. during login
@@ -158,7 +156,7 @@ public class Li2b2Client {
 	 * (e.g. {@code /i2b2/services/QueryToolService}).
 	 * 
 	 * @param uri URI to ontology service.
-	 * @throws MalformedURLException 
+	 * @throws MalformedURLException for invalid URL strings
 	 */
 	public void setONT(String uri) throws MalformedURLException{
 		this.ont = new OntologyClient(this, new URL(pm.serviceUrl, uri));
@@ -189,6 +187,7 @@ public class Li2b2Client {
 	 * Initialize services using URIs from the provided Cell[] structure.
 	 * XXX URI/URL exceptions are not thrown. instead a warning is logged.
 	 * @param cells information about available cells
+	 * @throws MalformedURLException for invalid cell URL strings
 	 */
 	public void setServices(Cell[] cells) throws MalformedURLException{
 		for( int i=0; i<cells.length; i++ ){

@@ -122,8 +122,10 @@ public abstract class AbstractCRCService extends AbstractService{
 	/**
 	 * Run the specified query
 	 * @param response response returned to the client
+	 * @param psm_header supplied PSM header
 	 * @param query_definition {@code query_definition} element
 	 * @param result_output_list {@code result_output_list} element
+	 * @throws JAXBException JAXP parsing error
 	 */
 	protected abstract void runQueryInstance_fromQueryDefinition(CrcResponse response, Element psm_header, Element query_definition, Element result_output_list)throws JAXBException;
 	protected abstract void getRequestXml_fromQueryMasterId(CrcResponse response, String masterId);

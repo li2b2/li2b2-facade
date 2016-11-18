@@ -14,9 +14,9 @@ public interface Query {
 	Element getDefinition() throws IOException;
 	Instant getCreateDate();
 	/**
-	 * Get the instance/execution for the query.
-	 * XXX maybe add support for multiple executions later
+	 * Get the instance/executions for the query.
 	 * @return execution instance
+	 * @throws IOException IO error retrieving the executions
 	 */
 	List<? extends QueryExecution> getExecutions() throws IOException;
 	void setDisplayName(String name) throws IOException;

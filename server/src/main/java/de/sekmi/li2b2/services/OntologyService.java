@@ -51,7 +51,7 @@ public class OntologyService extends AbstractService{
 	/**
 	 * Returns a list of terminology schemas which can be searched
 	 * via code with {@code getCodeInfo}.
-	 * The webclient displays the schemas in Find -> by Code.
+	 * The webclient displays the schemas in Find / by Code.
 	 *
 	 * @param requestBody xml body
 	 * @return response

@@ -91,9 +91,10 @@ public class PMClient extends CellClient{
 		return users;
 	}
 	/**
-	 * Quest one user specified with user_name
-	 * @return
-	 * @throws HiveException
+	 * Request one user specified with user_name
+	 * @param user_name user name
+	 * @return user information
+	 * @throws HiveException server error
 	 */
 	public User getUser(String user_name) throws HiveException{
 		HiveRequest req = createRequestMessage();
@@ -121,6 +122,7 @@ public class PMClient extends CellClient{
 	 * @param full_name String. Full name for the new user, descriptive (optional)
 	 * @param email String. email of the new user, for contact (optional)
 	 * @param password String password for the new user, non-null
+	 * @param is_admin whether the user receives administrative privileges
 	 * @throws HiveException for unexpected response
 	 * @throws NullPointerException if user_name or password is null
 	 */
@@ -151,8 +153,7 @@ public class PMClient extends CellClient{
 	/**
 	 * Delete one existing user
 	 * 
-	 * @param user_name
-	 * @return 
+	 * @param user_name user name
 	 * @throws HiveException unexpected response body
 	 * @throws ErrorResponseException delete failed. If the user does not exist, then the official Server will use status type {@code ERROR} and message {@code User not updated, does it exist?}.
 	 */
@@ -175,9 +176,7 @@ public class PMClient extends CellClient{
 	 * Request the roles for a user for one project 
 	 * or all roles for one project 
 	 * or all roles of all users for all projects.
-	 * 
-	 * @param user_name
-	 * @param project_id
+	 *
 	 * @return array of roles
 	 * @throws HiveException unexpected response body
 	 */
@@ -216,9 +215,9 @@ public class PMClient extends CellClient{
 	 * Set one Role for a user for one project.
 	 * user_name and project can be "@" to set for all users
 	 *  
-	 * @param user_name 
-	 * @param role
-	 * @param project_id
+	 * @param user_name user name
+	 * @param role role
+	 * @param project_id project id
 	 * @throws HiveException unexpected response body
 	 * @throws ErrorResponseException if current user does not have sufficient rights (has to be admin / manager)
 	 */
@@ -242,9 +241,9 @@ public class PMClient extends CellClient{
 	 * Delete one single Role for a specific user for one project.
 	 * user_name and project can be "@" to set for all users 
 	 *  
-	 * @param user_name 
-	 * @param role
-	 * @param project_id
+	 * @param user_name user name
+	 * @param role role
+	 * @param project_id project id
 	 * @throws HiveException unexpected response body
 	 * @throws ErrorResponseException if user-role-project combination does not exist
 	 */

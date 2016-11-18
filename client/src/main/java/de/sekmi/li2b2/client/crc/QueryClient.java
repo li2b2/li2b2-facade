@@ -131,7 +131,7 @@ public class QueryClient extends CellClient {
 
 	/**
 	 * Retrieve previous queries for the current user and project. The list is limited to 20 queries.
-	 * For more control over the request, see {@link #getQueryMasterList_fromUserId(String, String, int)}.
+	 * For more control over the request, see {@link #getQueryMasterList(String, String, int)}.
 	 * @return previous queries
 	 * @throws HiveException error
 	 */

@@ -8,15 +8,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents the i2b2 query_master object
- * <pre><![CDATA[
-<query_master>
+ * {@code
     <query_master_id>23050</query_master_id>
     <name>CEU:N/W-mild de@14:18:02</name>
     <user_id>demo</user_id>
     <group_id>Demo</group_id>
     <create_date>2016-08-03T11:18:10.000Z</create_date>
 </query_master>
-]]></pre>
+}
  * @author R.W.Majeed
  *
  */

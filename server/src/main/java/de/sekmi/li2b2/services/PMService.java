@@ -70,20 +70,14 @@ public class PMService extends AbstractPMService{
 	public void registerCell(Cell cell){
 		otherCells.add(cell);
 	}
-	/**
-	 * Information used by the official webclient (as of v1.7.07c):
-	 * project/[id,role='DATA_AGG',]
-	 * cell_data[id,name,project_path,url], cell_data/param
-	 * @param requestBody
-	 * @return
-	 * @throws HiveException
-	 * @throws ParserConfigurationException
-	 * @throws JAXBException 
-	 */
+
 	@POST
 	@Path("getServices")
 	@Produces(MediaType.APPLICATION_XML)
 	public Response getServices(InputStream requestBody, @Context UriInfo uri) throws HiveException, ParserConfigurationException, JAXBException{
+		// Information used by the official webclient (as of v1.7.07c):
+		// project/[id,role='DATA_AGG',]
+		// cell_data[id,name,project_path,url], cell_data/param
 		return super.handleRequest(requestBody);
 	}
 
