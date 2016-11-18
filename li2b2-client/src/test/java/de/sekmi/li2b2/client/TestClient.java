@@ -21,7 +21,7 @@ public class TestClient {
 	public static void main(String args[]) throws Exception{
 		Li2b2Client c = new Li2b2Client();
 		// for logging messages to the console, uncomment the following line
-//		c.setMessageLog(new ConsoleMessageLog());
+//		c.setMessageLog(FormattedMessageLogger.consoleLogger());
 		c.setProxy(new URL("https://www.i2b2.org/webclient/index.php"));
 		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
 //		c.setPM(new URL("http://0.0.0.0:8080/i2b2/services/PMService/"));
@@ -40,9 +40,8 @@ public class TestClient {
 		Concept[] cats;
 		cats = c.ONT().getCategories();
 		System.out.println("Found "+cats.length+" concepts");
+
 		// retrieve visit details child concepts
-		
-		// TODO getting timeout error for getChildren
 		System.out.println("Retrieving child concepts (visit details)");
 //		cats = c.ONT().getSchemes();
 		cats = c.ONT().getChildren("\\\\i2b2_VISIT\\i2b2\\Visit Details\\");
