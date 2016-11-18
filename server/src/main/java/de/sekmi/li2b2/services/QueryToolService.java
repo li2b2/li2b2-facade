@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -392,7 +393,7 @@ public class QueryToolService extends AbstractCRCService {
 					// TODO what other types are supported by the webclient?
 					t = null;
 				}
-				b.append("<data type=\""+t+"\" column=\""+e.getKey()+"\">"+v.toString()+"</data>\n");
+				b.append("<data type=\""+t+"\" column=\""+e.getKey()+"\">"+Objects.toString(v)+"</data>\n");
 			}
 			b.append("</ns10:result></body></ns10:i2b2_result_envelope>\n");
 			appendTextElement(x, "xml_value", b.toString());
