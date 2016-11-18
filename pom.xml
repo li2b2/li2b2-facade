@@ -50,10 +50,10 @@
 	</licenses>
 
 	<modules>
-		<module>li2b2-xml</module>
-		<module>li2b2-client</module>
-		<module>li2b2-api</module>
-		<module>li2b2-server</module>
+		<module>xml</module>
+		<module>client</module>
+		<module>api</module>
+		<module>server</module>
 	</modules>
 
 	<build>
