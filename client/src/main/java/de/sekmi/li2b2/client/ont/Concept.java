@@ -10,4 +10,5 @@ public class Concept {
 	public Integer level;
 	public String key;
 	public String name;
+	public String tooltip;
 }

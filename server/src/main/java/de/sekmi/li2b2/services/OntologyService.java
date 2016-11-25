@@ -111,6 +111,7 @@ public class OntologyService extends AbstractService{
 			appendTextElement(c, "level", "0");
 			appendTextElement(c, "key", concept.getKey());
 			appendTextElement(c, "name", concept.getDisplayName());
+			appendTextElement(c, "tooltip", concept.getTooltip());
 			appendTextElement(c, "synonym_cd", "N");
 			appendTextElement(c, "visualattributes", concept.hasNarrower()?"FA":"LA");
 //			appendTextElement(c, "totalnum", "").setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil", "true");;
