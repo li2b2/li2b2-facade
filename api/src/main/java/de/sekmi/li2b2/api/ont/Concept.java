@@ -1,9 +1,18 @@
 package de.sekmi.li2b2.api.ont;
 
 public interface Concept {
+	/**
+	 * Get the unique key (or ID) for the concept. Must not be null.
+	 * @return unique key
+	 */
 	String getKey();
+
 	String getDisplayName();
-	String getTooltip();
+	/**
+	 * Get the tooltip text for the concept.
+	 * @return tooltip text or {@code null} if not defined.
+	 */
+	default String getTooltip(){return null;}
 
 	default Integer getTotalNum(){return null;}
 	default Concept getSynonymTarget(){return null;}
