@@ -16,11 +16,41 @@ import de.sekmi.li2b2.services.token.TokenManager;
 
 public class MyBinder extends AbstractBinder{
 
+	/**
+	 * Get the URL for the ontology XML data.
+	 * Searches for system property ontology.url or 
+	 * environment variable i2b2ONTSERV_ONTURL.
+	 * If neither is specified, the included test ontology 
+	 * is used.
+	 *
+	 * @return ontology URL
+	 */
+	private static URL getOntologyURL(){
+		URL url = null;
+		// search system property first
+		String other = System.getProperty("ontology.url");
+		// search environment variable second
+		if( other == null ){
+			other = System.getenv("i2b2ONTSERV_ONTURL");
+		}
+		if( other != null ){
+			// allow any type of local/remote URL
+			try {
+				url = new URL(other);
+			} catch (MalformedURLException e) {
+				System.err.println("URL cannot be parsed: "+other);
+				other = null;
+			}
+		}
+		
+		if( other == null ){
+			// no other URL specified or parse error
+			url = MyBinder.class.getResource("/ontology.xml");
+		}
+		return url;
+	}
 	@Override
 	protected void configure() {
-//		bind(Impl.class).to(Inter.class);
-		// singleton
-		
 		// project manager
 		ProjectManagerImpl pm = new ProjectManagerImpl();
 		User user = pm.addUser("demo");//, "i2b2demo");
@@ -31,18 +61,7 @@ public class MyBinder extends AbstractBinder{
 		
 		
 		// ontology
-		Ontology ont = null;
-		String onturl = System.getenv("i2b2ONTSERV_ONTURL");
-		if (onturl != null && onturl.matches("(?!file\\b)\\w+?:\\/\\/.*")) {
-			try {
-				URL url = new URL(onturl);
-				ont = OntologyImpl.parse(url);
-			} catch (MalformedURLException e) {
-				System.err.println("URL cannot be parsed! Maybe the wrong format?");
-			}
-		}
-		else
-			ont = OntologyImpl.parse(getClass().getResource("/ontology.xml"));
+		Ontology ont = OntologyImpl.parse(getOntologyURL());
 		bind(ont).to(Ontology.class);
 		
 		// crc
