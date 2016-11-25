@@ -3,6 +3,7 @@ package de.sekmi.li2b2.api.ont;
 public interface Concept {
 	String getKey();
 	String getDisplayName();
+	String getTooltip();
 
 	default Integer getTotalNum(){return null;}
 	default Concept getSynonymTarget(){return null;}

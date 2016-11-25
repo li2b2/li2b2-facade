@@ -1,18 +1,22 @@
 <ontology>
 	<concept key="diag">
 		<name>Diagnosen (leer)</name>
+		<tooltip>Ein Konzept für die Sammlung von Diagnosen</tooltip>
 		<!-- narrower without concepts indicates an empty folder -->
 		<narrower/>
 	</concept>
 	<concept key="example">
 		<name>Beispiel</name>
+		<tooltip>Ein weiteres beispielhaftes Konzept</tooltip>
 		<narrower>
 			<concept key="examplesub">
 				<name>Sub</name>
+				<tooltip>Ein Beispiel für ein Unterkonzept</tooltip>
 				<!-- no narrower element indicates leaf -->
 			</concept>
 			<concept key="usw">
 				<name>Und so weiter</name>
+				<tooltip>Und so weiter</tooltip>
 			</concept>
 		</narrower>
 	</concept>

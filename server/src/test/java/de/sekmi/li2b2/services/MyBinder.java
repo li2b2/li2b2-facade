@@ -1,5 +1,8 @@
 package de.sekmi.li2b2.services;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import de.sekmi.li2b2.api.crc.QueryManager;
@@ -28,7 +31,18 @@ public class MyBinder extends AbstractBinder{
 		
 		
 		// ontology
-		Ontology ont = OntologyImpl.parse(getClass().getResource("/ontology.xml"));
+		Ontology ont = null;
+		String onturl = System.getenv("i2b2ONTSERV_ONTURL");
+		if (onturl != null && onturl.matches("(?!file\\b)\\w+?:\\/\\/.*")) {
+			try {
+				URL url = new URL(onturl);
+				ont = OntologyImpl.parse(url);
+			} catch (MalformedURLException e) {
+				System.err.println("URL cannot be parsed! Maybe the wrong format?");
+			}
+		}
+		else
+			ont = OntologyImpl.parse(getClass().getResource("/ontology.xml"));
 		bind(ont).to(Ontology.class);
 		
 		// crc

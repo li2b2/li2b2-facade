@@ -18,6 +18,8 @@ public class ConceptImpl implements Concept{
 	private String key;
 	@XmlElement
 	private String name;
+	@XmlElement
+	private String tooltip;
 	@XmlElementWrapper(name="narrower")
 	@XmlElement(name="concept")
 	private List<ConceptImpl> concepts;
@@ -30,6 +32,12 @@ public class ConceptImpl implements Concept{
 	@Override
 	public String getDisplayName() {
 		return name;
+	}
+	
+	
+	@Override
+	public String getTooltip() {
+		return tooltip;
 	}
 
 	@Override
