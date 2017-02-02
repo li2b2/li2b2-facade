@@ -5,9 +5,26 @@ li2b2 - Lightweight i2b2 server and client libraries
 This project is meant to be used by other software projects. Except for demos,
 you can not run the software on its own.
 
+Examples
+--------
+TODO code examples
+
+Users
+-----
+The li2b2-facade library is used by the following projects:
+- AKTIN https://aktin.org/
+- DZL https://www.dzl.de/
+- GBN http://www.bbmri.de/
+
+If you are using our software or know others who do, please let us know.
+
+
+For Developers
+==============
+
 Compiling/Building the source code
 ----------------------------------
-li2b2 is written in Java and needs a Java 8 Runtime Environment.
+li2b2 is written in Java and requires a Java 8 Runtime Environment.
 To build the project from source, you need to have 
 [maven](https://maven.apache.org/) installed.
 
