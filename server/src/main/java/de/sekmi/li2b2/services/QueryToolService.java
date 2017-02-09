@@ -387,7 +387,9 @@ public class QueryToolService extends AbstractCRCService {
 			for( Entry<String,?> e : bd ){
 				Object v = e.getValue();
 				String t;
-				if( v instanceof Integer ){
+				if( v == null ){
+					t = null;
+				}else if( v instanceof Integer ){
 					t = "int";
 				}else{
 					// TODO what other types are supported by the webclient?
