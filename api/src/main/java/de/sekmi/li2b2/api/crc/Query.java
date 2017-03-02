@@ -7,7 +7,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 public interface Query {
-	String getId();
+	int getId();
 	String getDisplayName();
 	String getUser();
 	String getGroupId();

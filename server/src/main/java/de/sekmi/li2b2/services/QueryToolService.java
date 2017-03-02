@@ -137,7 +137,7 @@ public class QueryToolService extends AbstractCRCService {
 		Element e = parent.getOwnerDocument().createElement("query_instance");
 		parent.appendChild(e);
 		appendTextElement(e, "query_instance_id", buildInstanceId(q.getId(), instId));
-		appendTextElement(e, "query_master_id", q.getId());
+		appendTextElement(e, "query_master_id", Integer.toString(q.getId()));
 		appendTextElement(e, "user_id", q.getUser());
 		appendTextElement(e, "group_id", q.getGroupId());
 		// TODO webclient appears to parse a 'message' element, which contains multiple <?xml parts each containing elements total_time_secs and name 
@@ -153,10 +153,10 @@ public class QueryToolService extends AbstractCRCService {
 		appendTextElement(s, "name", status.name());
 		appendTextElement(s, "description", status.name());
 	}
-	private String buildResultId(String queryId, int instanceIndex, int resultIndex){
+	private String buildResultId(int queryId, int instanceIndex, int resultIndex){
 		return queryId+"/"+instanceIndex+"/"+resultIndex;
 	}
-	private String buildInstanceId(String queryId, int instanceIndex){
+	private String buildInstanceId(int queryId, int instanceIndex){
 		return queryId+"/"+instanceIndex;
 	}
 	private void addResult(Element parent, QueryExecution instance, QueryResult result, int instId, int index){
@@ -200,10 +200,10 @@ public class QueryToolService extends AbstractCRCService {
 		appendTextElement(e, "visual_attribute_type", "LA");
 		appendTextElement(e, "description", type.getDescription());
 	}
-	private void appendQueryMaster(Element parent, String id, String name, String userId, String groupId, Instant createDate, Element queryDef){
+	private void appendQueryMaster(Element parent, int id, String name, String userId, String groupId, Instant createDate, Element queryDef){
 		Element e = parent.getOwnerDocument().createElement("query_master");
 		parent.appendChild(e);
-		appendTextElement(e, "query_master_id", id);
+		appendTextElement(e, "query_master_id", Integer.toString(id));
 		appendTextElement(e, "name", name);
 		appendTextElement(e, "user_id", userId);
 		if( groupId != null ){
@@ -226,7 +226,7 @@ public class QueryToolService extends AbstractCRCService {
 		Query q;
 		Element def;
 		try {
-			q = manager.getQuery(masterId);
+			q = manager.getQuery(parseQueryMasterId(masterId));
 			if( q != null ){
 				def = q.getDefinition();
 				appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), null, null, def);
@@ -244,7 +244,7 @@ public class QueryToolService extends AbstractCRCService {
 	@Override
 	protected void deleteQueryMaster(CrcResponse response, String masterId) {
 		try {
-			manager.deleteQuery(masterId);
+			manager.deleteQuery(parseQueryMasterId(masterId));
 		} catch (IOException e) {
 			response.setResultStatus("ERROR", e.getMessage());
 			return;
@@ -260,7 +260,7 @@ public class QueryToolService extends AbstractCRCService {
 		Element el = response.addResponseBody("master_responseType", "DONE");
 		Query q;
 		try {
-			q = manager.getQuery(masterId);
+			q = manager.getQuery(parseQueryMasterId(masterId));
 			if( q != null ){
 				// change name
 				q.setDisplayName(newName);
@@ -284,7 +284,7 @@ public class QueryToolService extends AbstractCRCService {
 		Element el = response.addResponseBody("instance_responseType", "DONE");
 		Query q;
 		try {
-			q = manager.getQuery(masterId);
+			q = manager.getQuery(parseQueryMasterId(masterId));
 			if( q != null ){
 				int instId = 0;
 				for( QueryExecution e : q.getExecutions() ){
@@ -299,39 +299,53 @@ public class QueryToolService extends AbstractCRCService {
 		}
 	}
 	
-	private String[] parseInstanceId(String instanceId){
+	private int parseQueryMasterId(String masterId){
+		return Integer.parseInt(masterId);
+	}
+	/**
+	 * Split the external instance id into query id and instance id
+	 * @param instanceId external instance id
+	 * @return array with query and instance id
+	 */
+	private int[] parseInstanceId(String instanceId){
 		int i = instanceId.indexOf('/');
 		if( i == -1 ){
 			throw new IllegalArgumentException("Illegal instance id");
 		}
-		return new String[]{instanceId.substring(0, i), instanceId.substring(i+1)};
+		return new int[]{
+				Integer.parseInt(instanceId.substring(0, i)),
+				Integer.parseInt(instanceId.substring(i+1))
+		};
 	}
-	private String[] parseResultId(String resultId){
+	private int[] parseResultId(String resultId){
 		int i = resultId.indexOf('/');
 		int j = resultId.lastIndexOf('/');
 		if( i == -1 || i == j ){
 			throw new IllegalArgumentException("Illegal result id");
 		}
-		return new String[]{resultId.substring(0, i), resultId.substring(i+1, j), resultId.substring(j+1)};
+		return new int[]{
+				Integer.parseInt(resultId.substring(0, i)),
+				Integer.parseInt(resultId.substring(i+1, j)),
+				Integer.parseInt(resultId.substring(j+1))
+		};
 	}
 
 	@Override
 	protected void getQueryResultInstanceList_fromQueryInstanceId(CrcResponse response, String instanceId) {
 		Element el = response.addResponseBody("result_responseType", "DONE");
 		QueryExecution qi;
-		String[] ids = parseInstanceId(instanceId);
-		int ii = Integer.parseInt(ids[1]);
+		int[] ids = parseInstanceId(instanceId);
 		try {
 			Query q = manager.getQuery(ids[0]);
-			qi = q.getExecutions().get(ii);
+			qi = q.getExecutions().get(ids[1]);
 			if( qi == null ){
 				// instance not found -> empty response list (or error?)
 				return;
 			}
-			addInstance(el, qi.getQuery(), qi, ii);
+			addInstance(el, qi.getQuery(), qi, ids[1]);
 			int index = 0;
 			for( QueryResult result : qi.getResults() ){
-				addResult(el, qi, result, ii, index);
+				addResult(el, qi, result, ids[1], index);
 				index ++;
 			}
 		} catch (IOException e) {
@@ -347,9 +361,9 @@ public class QueryToolService extends AbstractCRCService {
 		// 
 		QueryExecution qi;
 		QueryResult r = null;
-		String[] ids = parseResultId(resultInstanceId);
-		int ii = Integer.parseInt(ids[1]);
-		int ri = Integer.parseInt(ids[2]);
+		int[] ids = parseResultId(resultInstanceId);
+		int ii = ids[1];
+		int ri = ids[2];
 		try {
 			Query q = manager.getQuery(ids[0]);
 			qi = q.getExecutions().get(ii);

@@ -10,7 +10,7 @@ import de.sekmi.li2b2.api.crc.Query;
 import de.sekmi.li2b2.api.crc.QueryExecution;
 
 public class QueryImpl implements Query{
-	private String id;
+	private int id;
 	private String userId;
 	private String groupId;
 	private String displayName;
@@ -19,7 +19,7 @@ public class QueryImpl implements Query{
 	ResultImpl[] results;
 	private VirtualExecution[] executions;
 	
-	public QueryImpl(String id, String userId, String groupId, Element definition){
+	public QueryImpl(int id, String userId, String groupId, Element definition){
 		this.id = id;
 		this.userId = userId;
 		this.groupId = groupId;
@@ -34,7 +34,7 @@ public class QueryImpl implements Query{
 		}
 	}
 	@Override
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 	@Override

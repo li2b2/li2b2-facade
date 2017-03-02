@@ -55,7 +55,7 @@ public class QueryManagerImpl implements QueryManager{
 	@Override
 	public Query runQuery(String userId, String groupId, Element definition, String[] results) {
 		// TODO move definition node to private fragment
-		QueryImpl q = new QueryImpl(Integer.toString(querySeq.incrementAndGet()), userId, groupId, definition);
+		QueryImpl q = new QueryImpl(querySeq.incrementAndGet(), userId, groupId, definition);
 		// TODO read query name from definition/query_name (first child)
 		q.setDisplayName("Query "+q.getId());
 		// TODO add properties, 
@@ -66,10 +66,10 @@ public class QueryManagerImpl implements QueryManager{
 	}
 
 	@Override
-	public QueryImpl getQuery(String queryId) {
+	public QueryImpl getQuery(int queryId) {
 		for( int i=0; i<queries.size(); i++ ){
 			QueryImpl q = queries.get(i);
-			if( queryId.equals(q.getId()) ){
+			if( queryId == q.getId() ){
 				return q;
 			}
 		}
@@ -88,8 +88,8 @@ public class QueryManagerImpl implements QueryManager{
 		return types;
 	}
 	@Override
-	public void deleteQuery(String queryId) {
-		queries.removeIf( q -> queryId.equals(q.getId()) );
+	public void deleteQuery(int queryId) {
+		queries.removeIf( q -> queryId == q.getId() );
 	}
 //	@Override
 //	public QueryExecution getExecution(String instanceId) {

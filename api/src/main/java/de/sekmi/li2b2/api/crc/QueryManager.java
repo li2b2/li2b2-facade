@@ -8,7 +8,7 @@ public interface QueryManager {
 
 	Query runQuery(String userId, String groupId, Element queryDefinition, String[] result_types) throws IOException;
 	
-	Query getQuery(String queryId) throws IOException;
+	Query getQuery(int queryId) throws IOException;
 
 //	QueryExecution getExecution(String instanceId) throws IOException;
 	
@@ -25,5 +25,5 @@ public interface QueryManager {
 	 * @return result types
 	 */
 	Iterable<? extends ResultType> getResultTypes();
-	void deleteQuery(String queryId) throws IOException;
+	void deleteQuery(int queryId) throws IOException;
 }
