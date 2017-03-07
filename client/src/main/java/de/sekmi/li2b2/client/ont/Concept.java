@@ -19,6 +19,6 @@ public class Concept {
 	public boolean isFolder(){
 		return visualattributes != null 
 				&& visualattributes.length() > 1 
-				&& visualattributes.charAt(0) == 'F';
+				&& (visualattributes.charAt(0) == 'F' || visualattributes.charAt(0) == 'C');
 	}
 }
