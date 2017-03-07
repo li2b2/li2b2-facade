@@ -3,7 +3,6 @@ package de.sekmi.li2b2.client.ont;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.xml.stream.FactoryConfigurationError;
