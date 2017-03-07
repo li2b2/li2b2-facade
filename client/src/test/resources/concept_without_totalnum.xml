@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<concept>
+	<level>2</level>
+	<key>\\i2b2_DIAG\i2b2\Diagnoses\Circulatory system (390-459)\</key>
+	<name>Circulatory system</name>
+	<synonym_cd>N</synonym_cd>
+	<visualattributes>FA </visualattributes>
+	<totalnum xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:nil="true" />
+	<facttablecolumn>concept_cd</facttablecolumn>
+	<tablename>concept_dimension</tablename>
+	<columnname>concept_path</columnname>
+	<columndatatype>T</columndatatype>
+	<operator>LIKE</operator>
+	<dimcode>\i2b2\Diagnoses\Circulatory system (390-459)\</dimcode>
+	<tooltip>Diagnoses \ Circulatory system</tooltip>
+</concept>
+            

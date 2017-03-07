@@ -1,6 +1,7 @@
 
 package de.sekmi.li2b2.client;
 
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -10,6 +11,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.sekmi.li2b2.hive.pm.UserProject;
+import de.sekmi.li2b2.client.ont.Concept;
+import de.sekmi.li2b2.client.ont.OntologyClient;
+import de.sekmi.li2b2.client.ont.XMLExport;
 import de.sekmi.li2b2.client.pm.Role;
 import de.sekmi.li2b2.client.pm.User;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
@@ -21,7 +25,8 @@ public class TestClientUOLlocal {
 	public static void main(String args[]) throws Exception{
 		Li2b2Client c = new Li2b2Client();
 //		c.setProxy(new URL("http://134.106.36.86:2080/webclient/index.php"));
-		c.setProxy(new URL("http://192.168.33.10/webclient/index.php"));
+//		c.setProxy(new URL("http://192.168.33.10/webclient/index.php"));
+		c.setProxy(new URL("http://localhost/webclient/index.php"));
 		c.setPM(new URL("http://127.0.0.1:9090/i2b2/services/PMService/"));
 		c.setAuthorisation("i2b2", "demouser", "i2b2demo");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
@@ -35,12 +40,41 @@ public class TestClientUOLlocal {
 		}
 		// initialise other cells
 		c.setServices(uc.getCells());
-
-		testRoles (c);
-		testUsers(c);
+//		printOntology(c.ONT());
+		XMLExport x = new XMLExport(c.ONT(), new OutputStreamWriter(System.out));
+		x.exportAll();
+//		testRoles (c);
+//		testUsers(c);
 		
 	}
-	
+
+	public static void printOntology(OntologyClient ont) throws HiveException{
+		Concept[] c = ont.getCategories();
+		for( int i=0; i<c.length; i++ ){
+			printOntologyChildren(ont, c[i], 0);
+		}
+	}
+
+	private static void printOntologyChildren(OntologyClient ont, Concept concept, int level) throws HiveException{
+		StringBuilder b = new StringBuilder();
+		for( int i=0; i<level; i++ ){
+			b.append('\t');
+		}
+		if( concept.isFolder() ){
+			b.append('+');
+		}else{
+			b.append('-');
+		}
+		b.append(concept.name);
+		System.out.println(b.toString());
+		// recurse
+		if( concept.isFolder() ){
+			Concept[] c = ont.getChildren(concept.key);
+			for( int i=0; i<c.length; i++ ){
+				printOntologyChildren(ont, c[i], level+1);
+			}
+		}
+	}
 	public static void testRoles (Li2b2Client c) throws HiveException {
 		Role[] roles;
 				
