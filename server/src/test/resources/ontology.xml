@@ -14,7 +14,7 @@
 				<tooltip>Ein Beispiel für ein Unterkonzept</tooltip>
 				<!-- no narrower element indicates leaf -->
 			</concept>
-			<concept key="usw">
+			<concept key="usw" patient-count="42">
 				<name>Und so weiter</name>
 				<tooltip>Und so weiter</tooltip>
 			</concept>

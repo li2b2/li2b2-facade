@@ -295,8 +295,9 @@ public class PMService extends AbstractPMService{
 			roles.toArray(up.role);
 			// param demo
 			up.params = new Param[]{
-					new Param("announcement","This is a demo of the <span style='color:orange;font-weight:bold'>li2b2 server</span>.")
-					,new Param("Software","<span style='color:orange;font-weight:bold'>li2b2 server</span>")
+					// TODO allow configuration of announcements by project manager
+					new Param("announcement","This is a demo of the <span style='color:orange;font-weight:bold'>li2b2 server</span>."),
+					new Param("Software","<span style='color:orange;font-weight:bold'>li2b2 server</span>")
 			};
 			// append
 			marshaller.marshal(up, ue);

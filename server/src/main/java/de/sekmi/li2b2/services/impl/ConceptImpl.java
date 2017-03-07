@@ -16,6 +16,9 @@ public class ConceptImpl implements Concept{
 
 	@XmlAttribute
 	private String key;
+	@XmlAttribute(name="patient-count")
+	private Integer patientCount;
+	
 	@XmlElement
 	private String name;
 	@XmlElement
@@ -60,4 +63,8 @@ public class ConceptImpl implements Concept{
 		return Collections.emptyList();
 	}
 
+	@Override
+	public Integer getTotalNum(){
+		return patientCount;
+	}
 }

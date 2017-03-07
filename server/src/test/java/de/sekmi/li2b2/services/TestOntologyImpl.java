@@ -20,7 +20,11 @@ public class TestOntologyImpl {
 		Assert.assertEquals(2, count);
 		
 		Concept c = ont.getConceptByKey("examplesub");
+		Assert.assertNull(c.getTotalNum());
 		Assert.assertNotNull(c);
 		Assert.assertEquals("Sub", c.getDisplayName());
+
+		c = ont.getConceptByKey("usw");
+		Assert.assertEquals((Integer)42, c.getTotalNum());
 	}
 }

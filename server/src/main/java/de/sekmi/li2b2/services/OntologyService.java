@@ -114,6 +114,9 @@ public class OntologyService extends AbstractService{
 			appendTextElement(c, "tooltip", concept.getTooltip());
 			appendTextElement(c, "synonym_cd", "N");
 			appendTextElement(c, "visualattributes", concept.hasNarrower()?"FA":"LA");
+			if( concept.getTotalNum() != null ){
+				appendTextElement(c, "totalnum", concept.getTotalNum().toString());				
+			}
 //			appendTextElement(c, "totalnum", "").setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil", "true");;
 		}		
 	}
