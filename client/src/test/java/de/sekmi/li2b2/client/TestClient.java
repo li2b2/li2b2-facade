@@ -22,7 +22,7 @@ public class TestClient {
 		Li2b2Client c = new Li2b2Client();
 		// for logging messages to the console, uncomment the following line
 //		c.setMessageLog(FormattedMessageLogger.consoleLogger());
-		c.setProxy(new URL("https://www.i2b2.org/webclient/index.php"));
+//		c.setProxy(new URL("https://www.i2b2.org/webclient/index.php"));
 		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
 //		c.setPM(new URL("http://0.0.0.0:8080/i2b2/services/PMService/"));
 		c.setAuthorisation("demo", "demouser", "i2b2demo");
