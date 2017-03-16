@@ -168,6 +168,7 @@ public abstract class CellClient {
 		HiveResponse resp = submitRequest(HiveRequest, restMethod);
 		ResultStatus rs = resp.getResultStatus();
 		if( !rs.getCode().equals("DONE") ){
+			// TODO allow different subtypes of ErrorResponseException to be generated here, depending on reponse type and message
 			throw new ErrorResponseException(rs);
 		}
 		return resp.requireBodyElement(responseNS, responseElement);

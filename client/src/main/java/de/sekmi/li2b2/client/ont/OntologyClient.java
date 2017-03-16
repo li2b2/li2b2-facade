@@ -70,7 +70,8 @@ public class OntologyClient extends CellClient {
 		el.setPrefix("ns4");
 		el.setAttribute("blob", "false");
 		el.setAttribute("type", "core");
-		el.setAttribute("max", "200");
+		// don't limit number of child concepts. maybe add member variable for limit.
+		//el.setAttribute("max", "200");
 		el.setAttribute("synonyms", "false");
 		el.setAttribute("hiddens", "false");
 		appendTextElement(el, "parent", parentKey);

@@ -26,8 +26,9 @@ public class TestClientUOLlocal {
 		Li2b2Client c = new Li2b2Client();
 //		c.setProxy(new URL("http://134.106.36.86:2080/webclient/index.php"));
 //		c.setProxy(new URL("http://192.168.33.10/webclient/index.php"));
-		c.setProxy(new URL("http://localhost/webclient/index.php"));
-		c.setPM(new URL("http://127.0.0.1:9090/i2b2/services/PMService/"));
+//		c.setProxy(new URL("http://localhost/webclient/index.php"));
+//		c.setPM(new URL("http://127.0.0.1:9090/i2b2/services/PMService/"));
+		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
 		c.setAuthorisation("i2b2", "demouser", "i2b2demo");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
 		UserProject[] projects = uc.getProjects();
