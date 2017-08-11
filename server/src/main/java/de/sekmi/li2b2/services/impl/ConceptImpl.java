@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import de.sekmi.li2b2.api.ont.Concept;
 import de.sekmi.li2b2.api.ont.Modifier;
+import de.sekmi.li2b2.api.ont.ValueType;
 @XmlRootElement(name="concept")
 
 public class ConceptImpl implements Concept{
@@ -18,7 +19,9 @@ public class ConceptImpl implements Concept{
 	private String key;
 	@XmlAttribute(name="patient-count")
 	private Integer patientCount;
-	
+	@XmlAttribute
+	private ValueType type;
+
 	@XmlElement
 	private String name;
 	@XmlElement

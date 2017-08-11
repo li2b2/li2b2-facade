@@ -9,7 +9,7 @@
 		<name>Beispiel</name>
 		<tooltip>Ein weiteres beispielhaftes Konzept</tooltip>
 		<narrower>
-			<concept key="examplesub">
+			<concept key="examplesub" type="Integer">
 				<name>Sub</name>
 				<tooltip>Ein Beispiel für ein Unterkonzept</tooltip>
 				<!-- no narrower element indicates leaf -->

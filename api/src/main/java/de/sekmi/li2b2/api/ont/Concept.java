@@ -17,6 +17,8 @@ public interface Concept {
 	default Integer getTotalNum(){return null;}
 	default Concept getSynonymTarget(){return null;}
 
+	default ValueType getValueType(){return null;}
+
 	boolean hasNarrower();
 	Iterable<? extends Concept> getNarrower();
 
