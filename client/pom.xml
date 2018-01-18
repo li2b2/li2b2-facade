@@ -10,12 +10,12 @@
 
 	<groupId>de.li2b2.facade</groupId>
 	<artifactId>li2b2-client</artifactId>
-	<version>0.4-SNAPSHOT</version>
+	<version>0.4</version>
 
 	<parent>
 		<groupId>de.li2b2.facade</groupId>
 		<artifactId>li2b2-facade</artifactId>
-		<version>0.4-SNAPSHOT</version>
+		<version>0.4</version>
 	</parent>
 
 	<build>
@@ -36,7 +36,7 @@
 		<dependency>
 			<groupId>de.li2b2.facade</groupId>
 			<artifactId>li2b2-xml</artifactId>
-			<version>0.4-SNAPSHOT</version>
+			<version>0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
