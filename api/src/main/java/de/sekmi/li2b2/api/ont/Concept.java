@@ -19,6 +19,9 @@ public interface Concept {
 
 	default ValueType getValueType(){return null;}
 
+	// TODO more value restrictions like enum values, integer min/max
+	// TODO units
+	
 	boolean hasNarrower();
 	Iterable<? extends Concept> getNarrower();
 
