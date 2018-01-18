@@ -10,12 +10,12 @@
 
 	<groupId>de.li2b2.facade</groupId>
 	<artifactId>li2b2-xml</artifactId>
-	<version>0.4</version>
+	<version>0.5-SNAPSHOT</version>
 
 	<parent>
 		<groupId>de.li2b2.facade</groupId>
 		<artifactId>li2b2-facade</artifactId>
-		<version>0.4</version>
+		<version>0.5-SNAPSHOT</version>
 	</parent>
 
 	<build>
