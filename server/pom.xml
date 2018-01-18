@@ -30,7 +30,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-dependency-plugin</artifactId>
-						<version>2.10</version>
+						<version>3.0.2</version>
 						<executions>
 							<execution>
 								<id>unpack</id>
@@ -45,7 +45,7 @@
 										<artifactItem>
 											<groupId>org.i2b2</groupId>
 											<artifactId>webclient</artifactId>
-											<version>1.7.08</version>
+											<version>1.7.09c</version>
 											<type>zip</type>
 										</artifactItem>
 									</artifactItems>

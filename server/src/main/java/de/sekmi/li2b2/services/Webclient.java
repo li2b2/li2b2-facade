@@ -13,7 +13,12 @@ import javax.ws.rs.core.Response.Status;
 @Path("/webclient")
 public class Webclient {
 	private static final Logger log = Logger.getLogger(Webclient.class.getName());
-	public static final String WEBCLIENT_SOURCES_RESOURCE_PATH = "/dev-i2b2-webclient-master/";
+	/**
+	 * Folder where the webclient's sources are stored (e.g. in the i2b2webclient-*.zip release file)
+	 * This may need to be adjusted with new webclient releases, because the i2b2 maintainers change
+	 * the folder name between releases.
+	 */
+	public static final String WEBCLIENT_SOURCES_RESOURCE_PATH = "/i2b2-webclient-master/";
 	@GET
 	@Path("{path: .*}")
 	public Response test(@PathParam("path") String path){
