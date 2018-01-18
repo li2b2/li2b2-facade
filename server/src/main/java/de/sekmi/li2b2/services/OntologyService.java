@@ -2,6 +2,7 @@ package de.sekmi.li2b2.services;
 
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -12,10 +13,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.ont.Concept;
 import de.sekmi.li2b2.api.ont.Ontology;
+import de.sekmi.li2b2.api.ont.ValueType;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
@@ -65,7 +68,7 @@ public class OntologyService extends AbstractService{
 		HiveRequest req = parseRequest(requestBody);
 		// TODO session, authentication, project info
 		HiveResponse resp = createResponse(newDocumentBuilder(), req);
-		addConceptsBody(resp, Collections.emptyList());
+		addConceptsBody(resp, Collections.emptyList(), new ShortConceptWriter());
 		return Response.ok(compileResponseDOM(resp)).build();
 	}
 	@POST
@@ -75,7 +78,7 @@ public class OntologyService extends AbstractService{
 		HiveRequest req = parseRequest(requestBody);
 		// TODO session, authentication, project info
 		HiveResponse resp = createResponse(newDocumentBuilder(), req);
-		addConceptsBody(resp, ontology.getCategories());
+		addConceptsBody(resp, ontology.getCategories(), new ShortConceptWriter());
 		//return Response.ok(getClass().getResourceAsStream("/templates/ont/getCategories2.xml")).build();
 		return Response.ok(compileResponseDOM(resp)).build();
 	}
@@ -96,14 +99,13 @@ public class OntologyService extends AbstractService{
 		}
 		// TODO session, authentication, project info
 		HiveResponse resp = createResponse(newDocumentBuilder(), req);
-		addConceptsBody(resp, children);
+		addConceptsBody(resp, children, new ShortConceptWriter());
 		return Response.ok(compileResponseDOM(resp)).build();
 	}
-	private void addConceptsBody(HiveResponse response, Iterable<? extends Concept> concepts){
-		Element el = response.addBodyElement(I2b2Constants.ONT_NS, "concepts");
-		el.setPrefix("ns6");
-		for( Concept concept : concepts ){
-			Element c = (Element)el.appendChild(el.getOwnerDocument().createElement("concept"));
+
+	private class ShortConceptWriter implements BiConsumer<Concept, Element>{
+		@Override
+		public void accept(Concept concept, Element c) {
 			// client will accept missing level element, 
 			// but a constructed query will contain <hlevel>undefined</hlevel> 
 			// which will cause the original CRC cell to fail.
@@ -118,14 +120,67 @@ public class OntologyService extends AbstractService{
 				appendTextElement(c, "totalnum", concept.getTotalNum().toString());				
 			}
 //			appendTextElement(c, "totalnum", "").setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil", "true");;
+		}
+	}
+
+	private String encodeValueType(ValueType type){
+		return type.toString();
+	}
+	private class LongConceptWriter extends ShortConceptWriter{
+		@Override
+		public void accept(Concept concept, Element c) {
+			// write short concepts first
+			super.accept(concept,c);
+			log.info("Long concept: "+concept.getKey()+": "+concept.getValueType());
+			// write metadataxml
+			if( concept.getValueType() != null ){
+				Document doc = c.getOwnerDocument();
+				Element metaxml = (Element)c.appendChild(doc.createElement("metadataxml"));
+	
+				Element val = (Element)metaxml.appendChild(doc.createElement("ValueMetadata"));
+				appendTextElement(val, "Version", "3.02");
+				appendTextElement(val, "CreationDateTime", "10/07/2002 15:56:34");
+				appendTextElement(val, "TestID", concept.getKey()); // not displayed
+				appendTextElement(val, "TestName", concept.getDisplayName()); // displayed in value dialog
+				appendTextElement(val, "DataType", encodeValueType(concept.getValueType()));				
+				appendTextElement(val, "Oktousevalues", "Y");
+				// TODO unit values
+				appendTextElement(val, "UnitValues", "Y");
+				/*
+					<UnitValues>
+					    <NormalUnits>th/mm3</NormalUnits>
+					    <EqualUnits>th/mm3</EqualUnits>
+					    <ExcludingUnits />
+					    <ConvertingUnits>
+					        <Units />
+					        <MultiplyingFactor />
+					    </ConvertingUnits>
+					</UnitValues>
+				 */
+			}
+
 		}		
+	}
+	private void addConceptsBody(HiveResponse response, Iterable<? extends Concept> concepts, BiConsumer<Concept, Element> writer){
+		Element el = response.addBodyElement(I2b2Constants.ONT_NS, "concepts");
+		el.setPrefix("ns6");
+		for( Concept concept : concepts ){
+			Element c = (Element)el.appendChild(el.getOwnerDocument().createElement("concept"));
+			writer.accept(concept, c);
+		}
 	}
 	@POST
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("getTermInfo")
-	public Response getTermInfo(){
-		log.info("termInfo");
-		return Response.ok(getClass().getResourceAsStream("/templates/ont/terminfo.xml")).build();
+	public Response getTermInfo(InputStream requestBody)throws HiveException, ParserConfigurationException{
+		log.info("get_term_info");
+		HiveRequest req = parseRequest(requestBody);
+		Element get_children = req.requireBodyElement(I2b2Constants.ONT_NS, "get_term_info");
+		String self = get_children.getChildNodes().item(0).getTextContent();
+		Concept concept = ontology.getConceptByKey(self);
+		HiveResponse resp = createResponse(newDocumentBuilder(), req);
+		addConceptsBody(resp, Collections.singletonList(concept), new LongConceptWriter());
+		return Response.ok(compileResponseDOM(resp)).build();
 	}
 
 // TODO @Path(getCodeInfo): search by code (list of codes via getSchemes

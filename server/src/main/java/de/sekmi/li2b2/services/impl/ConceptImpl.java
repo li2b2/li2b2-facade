@@ -15,12 +15,14 @@ import de.sekmi.li2b2.api.ont.ValueType;
 
 public class ConceptImpl implements Concept{
 
-	@XmlAttribute
+	@XmlAttribute(required=true)
 	private String key;
+	
+	@XmlAttribute(required=false)
+	private ValueType type;
+
 	@XmlAttribute(name="patient-count")
 	private Integer patientCount;
-	@XmlAttribute
-	private ValueType type;
 
 	@XmlElement
 	private String name;
@@ -29,7 +31,7 @@ public class ConceptImpl implements Concept{
 	@XmlElementWrapper(name="narrower")
 	@XmlElement(name="concept")
 	private List<ConceptImpl> concepts;
-	
+
 	@Override
 	public String getKey() {
 		return key;
@@ -69,5 +71,10 @@ public class ConceptImpl implements Concept{
 	@Override
 	public Integer getTotalNum(){
 		return patientCount;
+	}
+
+	@Override
+	public ValueType getValueType(){
+		return type;
 	}
 }

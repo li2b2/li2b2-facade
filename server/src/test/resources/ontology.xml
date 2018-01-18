@@ -1,22 +1,26 @@
 <ontology>
 	<concept key="diag">
-		<name>Diagnosen (leer)</name>
-		<tooltip>Ein Konzept für die Sammlung von Diagnosen</tooltip>
-		<!-- narrower without concepts indicates an empty folder -->
-		<narrower/>
+		<name>Diagnoses (empty)</name>
+		<tooltip>A concept for collection of diagnoses</tooltip>
+		<narrower/><!-- narrower without concepts indicates an empty folder -->
 	</concept>
 	<concept key="example">
-		<name>Beispiel</name>
-		<tooltip>Ein weiteres beispielhaftes Konzept</tooltip>
+		<name>Example</name>
+		<tooltip>Another example concept</tooltip>
 		<narrower>
 			<concept key="examplesub" type="Integer">
-				<name>Sub</name>
-				<tooltip>Ein Beispiel für ein Unterkonzept</tooltip>
+				<name>Integer sub concept</name>
+				<tooltip>Example for a sub concept of numeric integer type</tooltip>
 				<!-- no narrower element indicates leaf -->
 			</concept>
-			<concept key="usw" patient-count="42">
-				<name>Und so weiter</name>
-				<tooltip>Und so weiter</tooltip>
+			<concept key="examplesub2" type="String">
+				<name>String sub concept</name>
+				<tooltip>Example for a sub concept of string type</tooltip>
+				<!-- no narrower element indicates leaf -->
+			</concept>
+			<concept key="etc" patient-count="42">
+				<name>Etcetera...</name>
+				<tooltip>Et cetera (with patient count)</tooltip>
 			</concept>
 		</narrower>
 	</concept>

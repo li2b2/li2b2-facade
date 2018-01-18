@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.sekmi.li2b2.api.ont.Concept;
+import de.sekmi.li2b2.api.ont.ValueType;
 import de.sekmi.li2b2.services.impl.OntologyImpl;
 
 public class TestOntologyImpl {
@@ -21,10 +22,11 @@ public class TestOntologyImpl {
 		
 		Concept c = ont.getConceptByKey("examplesub");
 		Assert.assertNull(c.getTotalNum());
+		Assert.assertEquals(ValueType.Integer, c.getValueType());
 		Assert.assertNotNull(c);
-		Assert.assertEquals("Sub", c.getDisplayName());
+		Assert.assertEquals("Integer sub concept", c.getDisplayName());
 
-		c = ont.getConceptByKey("usw");
+		c = ont.getConceptByKey("etc");
 		Assert.assertEquals((Integer)42, c.getTotalNum());
 	}
 }
