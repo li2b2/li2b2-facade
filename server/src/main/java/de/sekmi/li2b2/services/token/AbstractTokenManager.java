@@ -8,11 +8,20 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+/**
+ * Abstract token manager to handle simple token authentication.
+ * <p>
+ * Expiration defaults to 15 minutes of inactivity. This can be configured
+ * by overriding {@link #getExpirationMillis()}
+ * </p>
+ * @author R.W.Majeed
+ *
+ * @param <T> token user payload
+ */
 public abstract class AbstractTokenManager<T extends Principal> implements TokenManager {
 	private static final Logger log = Logger.getLogger(AbstractTokenManager.class.getName());
 	private Map<UUID, Token<T>> tokenMap;
 	private long maxLifetime;
-	private long expireMilliseconds;
 	private long cleanupInterval;
 	private long lastCleanup;
 	
@@ -20,7 +29,6 @@ public abstract class AbstractTokenManager<T extends Principal> implements Token
 		this.tokenMap = new HashMap<>();
 		this.maxLifetime = Long.MAX_VALUE;
 		// TODO use external configuration
-		this.expireMilliseconds = 1000*60*5; // default is 5 minutes
 		this.cleanupInterval = 1000*60*60; // default is 1 hour
 		this.lastCleanup = System.currentTimeMillis();
 	}
@@ -70,7 +78,7 @@ public abstract class AbstractTokenManager<T extends Principal> implements Token
 		if( now - token.issued > maxLifetime ){
 			log.info("Token lifetime exceeded for "+token.getPayload().getName());
 			return true;
-		}else if( now - token.renewed > expireMilliseconds ){
+		}else if( now - token.renewed > getExpirationMillis() ){
 			log.info("Token too old ("+Instant.ofEpochMilli(token.renewed)+") for "+token.getPayload().getName());
 			return true;
 		}else{
@@ -120,8 +128,10 @@ public abstract class AbstractTokenManager<T extends Principal> implements Token
 			renew(token);
 		}
 	}
+
 	@Override
 	public long getExpirationMillis(){
-		return expireMilliseconds;
+		// default is 15 minutes
+		return 1000*60*15;
 	}
 }

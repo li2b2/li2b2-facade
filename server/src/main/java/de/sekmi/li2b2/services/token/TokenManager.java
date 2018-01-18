@@ -1,5 +1,12 @@
 package de.sekmi.li2b2.services.token;
 
+/**
+ * Simple token management interface
+ * used for the li2b2 server.
+ *
+ * @author R.W.Majeed
+ *
+ */
 public interface TokenManager {
 
 	String registerPrincipal(String name);
@@ -22,6 +29,9 @@ public interface TokenManager {
 	/**
 	 * Get the number of milliseconds after which a token will expire
 	 * if it is not renewed before.
+	 * <p>
+	 * Override this method to change the expiration time
+	 * </p>
 	 * @return expiration timeout in milliseconds
 	 */
 	long getExpirationMillis();
