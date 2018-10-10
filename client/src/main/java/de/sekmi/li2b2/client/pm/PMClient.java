@@ -363,7 +363,7 @@ public class PMClient extends CellClient{
 	}
 	/**
 	 * Retrieve project specific parameters
-	 * @param id id for the parameter to delete
+	 * @param projectId project id to retrieve params for
 	 * @throws HiveException communications error
 	 */
 	public Param[] getProjectParams(String projectId) throws HiveException {
