@@ -1,10 +1,8 @@
 
 package de.sekmi.li2b2.client;
 
-import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Objects;
 
 import javax.xml.bind.JAXB;
 
@@ -16,7 +14,6 @@ import de.sekmi.li2b2.hive.pm.ParamType;
 import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.ont.Concept;
 import de.sekmi.li2b2.client.ont.OntologyClient;
-import de.sekmi.li2b2.client.ont.XMLExport;
 import de.sekmi.li2b2.client.pm.Role;
 import de.sekmi.li2b2.client.pm.User;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
@@ -44,6 +41,9 @@ public class TestClientUOLlocal {
 			System.out.println("Roles:"+Arrays.toString(projects[0].role));
 		}
 		testUserParams(c);
+//		testProjectParams(c);
+		
+//		testHiveParams(c);
 		// initialise other cells
 		c.setServices(uc.getCells());
 //		printOntology(c.ONT());
@@ -103,6 +103,50 @@ public class TestClientUOLlocal {
 		params = c.PM().getUserParams("demo");
 		Assert.assertEquals(count-1, params.length);
 	}
+
+	public static void testProjectParams(Li2b2Client c) throws ErrorResponseException, HiveException {
+		// add param
+		final String PARAM_NAME= "li2b2TEST";
+
+		c.PM().addProjectParam("Demo", ParamType.Text.getCode(), PARAM_NAME, "123");
+		
+		Param[] params = c.PM().getProjectParams("Demo");
+
+		System.out.println("Params: "+params.length);
+		int count = params.length;
+		for( int i=0; i<params.length; i++ ) {
+			System.out.println("Param["+params[i].id+"]=("+params[i].datatype+", name="+params[i].name+", value="+params[i].value+")");
+			if( params[i].name.equals(PARAM_NAME) ) {
+				// delete the param we just added
+				c.PM().deleteProjectParam(params[i].id);
+			}
+		}
+		
+		params = c.PM().getProjectParams("Demo");
+		Assert.assertEquals(count-1, params.length);
+	}
+	public static void testHiveParams(Li2b2Client c) throws ErrorResponseException, HiveException {
+		// add param
+		final String PARAM_NAME= "li2b2TEST";
+
+		c.PM().addHiveParam(ParamType.Text.getCode(), PARAM_NAME, "123");
+		
+		Param[] params = c.PM().getHiveParams("/");
+
+		System.out.println("Params: "+params.length);
+		int count = params.length;
+		for( int i=0; i<params.length; i++ ) {
+			System.out.println("Param["+params[i].id+"]=("+params[i].datatype+", name="+params[i].name+", value="+params[i].value+")");
+			if( params[i].name.equals(PARAM_NAME) ) {
+				// delete the param we just added
+				c.PM().deleteHiveParam(params[i].id);
+			}
+		}
+		
+		params = c.PM().getHiveParams("/");
+		Assert.assertEquals(count-1, params.length);
+	}
+
 	
 	public static void testRoles (Li2b2Client c) throws HiveException {
 		Role[] roles;

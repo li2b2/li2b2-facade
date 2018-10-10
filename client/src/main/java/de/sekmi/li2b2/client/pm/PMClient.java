@@ -4,7 +4,10 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.logging.Logger;
 
+import javax.xml.bind.JAXBException;
+
 import org.w3c.dom.Element;
+
 import de.sekmi.li2b2.client.CellClient;
 import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.hive.Credentials;
@@ -311,12 +314,11 @@ public class PMClient extends CellClient{
 	}
 
 	/**
-	 * Delete a user specific parameter
+	 * Delete a user specific parameter. The official i2b2 server does not give error responses for non-existing ids
 	 * @param id id for the parameter to delete
 	 * @throws HiveException communications error
-	 * @throws ErrorResponseException parameter with the specified id does not exist
 	 */
-	public void deleteUserParam(int id) throws HiveException, ErrorResponseException {
+	public void deleteUserParam(int id) throws HiveException {
 		HiveRequest req = createRequestMessage();
 
 		Element el = req.addBodyElement(XMLNS, "delete_user_param");
@@ -325,5 +327,108 @@ public class PMClient extends CellClient{
 		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
 		// n has content  <ns4:response>1 records</ns4:response>
 		n.getTextContent();		
+	}
+	/**
+	 * Delete a global hive parameter
+	 * @param id id for the parameter to delete
+	 * @throws HiveException communications error
+	 */
+	public void deleteHiveParam(int id) throws HiveException {
+		HiveRequest req = createRequestMessage();
+
+		Element el = req.addBodyElement(XMLNS, "delete_global");
+		el.setPrefix("pm");
+		el.setTextContent(Integer.toString(id));
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
+		// n has content  <ns4:response>1 records</ns4:response>
+		n.getTextContent();		
+	}
+	/**
+	 * Retrieve global hive parameters
+	 * @param project_path ??? web client always sets this parameter to "/"
+	 * @throws HiveException communications error
+	 */
+	public Param[] getHiveParams(String project_path) throws HiveException {
+		HiveRequest req = createRequestMessage();
+
+		Element el = req.addBodyElement(XMLNS, "get_all_global");
+		el.setTextContent(project_path);
+		el.setPrefix("pm");
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "params");
+		try {
+			return Param.parseNodeList(n.getChildNodes());
+		} catch (JAXBException e) {
+			throw new HiveException("Unable to parse response params", e);
+		}
+	}
+	/**
+	 * Retrieve project specific parameters
+	 * @param id id for the parameter to delete
+	 * @throws HiveException communications error
+	 */
+	public Param[] getProjectParams(String projectId) throws HiveException {
+		HiveRequest req = createRequestMessage();
+
+		Element el = req.addBodyElement(XMLNS, "get_all_project_param");
+		el.setPrefix("pm");
+		el.setTextContent(projectId);
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "params");
+		try {
+			return Param.parseNodeList(n.getChildNodes());
+		} catch (JAXBException e) {
+			throw new HiveException("Unable to parse response params", e);
+		}
+	}
+	/**
+	 * Delete a project specific parameter
+	 * @param id id for the parameter to delete
+	 * @throws HiveException communications error
+	 */
+	public void deleteProjectParam(int id) throws HiveException {
+		HiveRequest req = createRequestMessage();
+
+		Element el = req.addBodyElement(XMLNS, "delete_project_param");
+		el.setPrefix("pm");
+		el.setTextContent(Integer.toString(id));
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
+		// n has content  <ns4:response>1 records</ns4:response>
+		n.getTextContent();
+	}
+
+	public void addHiveParam(String paramType, String paramName, String paramValue) throws HiveException {
+		HiveRequest req = createRequestMessage();
+		Element el = req.addBodyElement(XMLNS, "set_global");
+		el.setPrefix("pm");
+
+		// i2b2 webclient always adds the following elements
+		el.appendChild(el.getOwnerDocument().createElement("project_path")).setTextContent("/");
+		el.appendChild(el.getOwnerDocument().createElement("can_override")).setTextContent("Y");
+//		
+		Element par = (Element)el.appendChild(el.getOwnerDocument().createElement("param"));
+		par.setAttribute("datatype", paramType);
+		par.setAttribute("name", paramName);
+		par.setTextContent(paramValue);
+		
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
+		// n has content  <ns4:response>1 records</ns4:response>
+		n.getTextContent();
+	}
+	public void addProjectParam(String projectId, String paramType, String paramName, String paramValue) throws HiveException {
+		HiveRequest req = createRequestMessage();
+		Element el = req.addBodyElement(XMLNS, "set_project_param");
+		el.setPrefix("pm");
+
+		el.setAttribute("id", projectId);
+		// i2b2 webclient always adds the following elements
+//		el.appendChild(el.getOwnerDocument().createElement("project_path")).setTextContent("/Demo");
+//		
+		Element par = (Element)el.appendChild(el.getOwnerDocument().createElement("param"));
+		par.setAttribute("datatype", paramType);
+		par.setAttribute("name", paramName);
+		par.setTextContent(paramValue);
+		
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
+		// n has content  <ns4:response>1 records</ns4:response>
+		n.getTextContent();
 	}
 }
