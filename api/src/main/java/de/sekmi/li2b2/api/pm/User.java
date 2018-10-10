@@ -11,4 +11,6 @@ public interface User extends Principal{
 	// check password
 	boolean hasPassword(char[] password);
 	void setPassword(char[] newPassword);
+
+	// TODO add parameters, check whether param_id can be any String (instead of just integer as i2b2 uses)
 }

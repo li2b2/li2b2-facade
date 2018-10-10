@@ -96,12 +96,19 @@ public abstract class AbstractPMService extends AbstractService{
 		}else if( type.equals("get_all_project_param") ){
 			// called for the node 'params' within a project
 			String projectId = body.getTextContent();
-			getAllProjectParams(response, projectId);
+			getProjectParams(response, projectId);
 
 		// SECTION Hive
 		}else if( type.equals("get_all_hive") ){
 			// called when the Hive section is opened
 			getAllHive(response);
+		}else if( type.equals("get_all_global") ){
+			// called when the the "Global Params" subtree of the Hive section is opened
+			// return global parameters
+			String path = body.getTextContent();
+			getGlobalParams(response, path);
+			// TODO "set_global" (XML) to define global params
+			// TODO delete_global (id) to delete a global param
 
 		// SECTION Cells
 		}else if( type.equals("get_all_cell") ){
@@ -111,6 +118,12 @@ public abstract class AbstractPMService extends AbstractService{
 			getAllCells(response, projectId);
 		}else if( type.equals("get_cell") ){
 			// called when a cell is clicked in the admin tree
+			String id = body.getAttribute("id");
+			String path = body.getElementsByTagName("project_path").item(0).getTextContent();
+			getCell(response, id, path);
+		}else if( type.equals("get_all_cell_param") ){
+			// called when clicked on "Params" subtree of a cell
+			// returns a list of associated parameters
 			String id = body.getAttribute("id");
 			String path = body.getElementsByTagName("project_path").item(0).getTextContent();
 			getCell(response, id, path);
@@ -146,6 +159,20 @@ public abstract class AbstractPMService extends AbstractService{
 			String password = HiveMessage.optionalElementContent(body, "password");
 			
 			setUser(response, userId, fullName, email, admin, password);
+		}else if( type.equals("set_user_param") ) {
+			// called when adding a user param
+			String userId = HiveMessage.optionalElementContent(body, "user_name");
+			Element param = (Element)body.getElementsByTagName("param").item(0);
+			setUserParam(response, userId, param.getAttribute("name"), param.getAttribute("datatype"), param.getTextContent());
+
+		}else if( type.equals("get_all_user_param") ) {
+			// called when the Params subtree for a user is opened
+			String userId = HiveMessage.optionalElementContent(body, "user_name");
+			getUserParams(response, userId);
+
+		}else if( type.equals("delete_user_param") ) {
+			String paramId = body.getTextContent();
+			deleteUserParam(response, paramId);
 			
 		}else if( type.equals("set_project") ){
 			// called to add/update project
@@ -172,14 +199,19 @@ public abstract class AbstractPMService extends AbstractService{
 	protected abstract void getAllProject(HiveResponse response);
 	protected abstract void getProject(HiveResponse response, String projectId, String path);
 	protected abstract void getAllRoles(HiveResponse response, String projectId, String userId);
-	protected abstract void getAllProjectParams(HiveResponse response, String projectId);
+	protected abstract void getProjectParams(HiveResponse response, String projectId);
 
 	protected abstract void getAllHive(HiveResponse response);
+	protected abstract void getGlobalParams(HiveResponse response, String path);
 	protected abstract void getAllCells(HiveResponse response, String projectId) throws JAXBException;
 	protected abstract void getCell(HiveResponse response, String id, String path);
+	protected abstract void getCellParams(HiveResponse response, String id, String path);
 
 	protected abstract void getAllUsers(HiveResponse response);
 	protected abstract void getUser(HiveResponse response, String userId);
+	protected abstract void getUserParams(HiveResponse response, String userId);
+	protected abstract void deleteUserParam(HiveResponse response, String userId);
+	protected abstract void setUserParam(HiveResponse response, String userId, String paramType, String paramName, String paramValue);
 
 	protected abstract void setPassword(HiveResponse Response, Credentials user, String newPassword);
 	@Override

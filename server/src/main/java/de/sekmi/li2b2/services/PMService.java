@@ -166,7 +166,7 @@ public class PMService extends AbstractPMService{
 
 
 	@Override
-	protected void getAllProjectParams(HiveResponse response, String projectId) {
+	protected void getProjectParams(HiveResponse response, String projectId) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -418,5 +418,36 @@ public class PMService extends AbstractPMService{
 		}
 		manager.deleteUser(userId);
 		appendResponseText(response, "1 records");
+	}
+
+
+	@Override
+	protected void getGlobalParams(HiveResponse response, String path) {
+		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+	}
+
+
+	@Override
+	protected void getCellParams(HiveResponse response, String id, String path) {
+		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+	}
+
+
+	@Override
+	protected void getUserParams(HiveResponse response, String userId) {
+		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+	}
+
+
+	@Override
+	protected void deleteUserParam(HiveResponse response, String userId) {
+		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+	}
+
+
+	@Override
+	protected void setUserParam(HiveResponse response, String userId, String paramType, String paramName,
+			String paramValue) {
+		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
 	}
 }
