@@ -4,12 +4,15 @@ package de.sekmi.li2b2.client;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Objects;
 
 import javax.xml.bind.JAXB;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.sekmi.li2b2.hive.pm.Param;
+import de.sekmi.li2b2.hive.pm.ParamType;
 import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.ont.Concept;
 import de.sekmi.li2b2.client.ont.OntologyClient;
@@ -24,11 +27,12 @@ public class TestClientUOLlocal {
 
 	public static void main(String args[]) throws Exception{
 		Li2b2Client c = new Li2b2Client();
-//		c.setProxy(new URL("http://134.106.36.86:2080/webclient/index.php"));
+		c.setMessageLog(FormattedMessageLogger.consoleLogger());
+		c.setProxy(new URL("http://134.106.36.86:8020/webclient/index.php"));
 //		c.setProxy(new URL("http://192.168.33.10/webclient/index.php"));
 //		c.setProxy(new URL("http://localhost/webclient/index.php"));
-//		c.setPM(new URL("http://127.0.0.1:9090/i2b2/services/PMService/"));
-		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
+		c.setPM(new URL("http://127.0.0.1:9090/i2b2/services/PMService/"));
+//		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
 		c.setAuthorisation("i2b2", "demouser", "i2b2demo");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
 		UserProject[] projects = uc.getProjects();
@@ -39,11 +43,12 @@ public class TestClientUOLlocal {
 			System.out.println("Project:"+projects[0].id);
 			System.out.println("Roles:"+Arrays.toString(projects[0].role));
 		}
+		testUserParams(c);
 		// initialise other cells
 		c.setServices(uc.getCells());
 //		printOntology(c.ONT());
-		XMLExport x = new XMLExport(c.ONT(), new OutputStreamWriter(System.out));
-		x.exportAll();
+//		XMLExport x = new XMLExport(c.ONT(), new OutputStreamWriter(System.out));
+//		x.exportAll();
 //		testRoles (c);
 //		testUsers(c);
 		
@@ -76,6 +81,29 @@ public class TestClientUOLlocal {
 			}
 		}
 	}
+
+	public static void testUserParams(Li2b2Client c) throws ErrorResponseException, HiveException {
+		// add param
+		final String PARAM_NAME= "li2b2TEST";
+
+		c.PM().addUserParam("demo", ParamType.Text.getCode(), PARAM_NAME, "123");
+		
+		Param[] params = c.PM().getUserParams("demo");
+
+		System.out.println("Params: "+params.length);
+		int count = params.length;
+		for( int i=0; i<params.length; i++ ) {
+			System.out.println("Param["+params[i].id+"]=("+params[i].datatype+", name="+params[i].name+", value="+params[i].value+")");
+			if( params[i].name.equals(PARAM_NAME) ) {
+				// delete the param we just added
+				c.PM().deleteUserParam(params[i].id);
+			}
+		}
+		
+		params = c.PM().getUserParams("demo");
+		Assert.assertEquals(count-1, params.length);
+	}
+	
 	public static void testRoles (Li2b2Client c) throws HiveException {
 		Role[] roles;
 				

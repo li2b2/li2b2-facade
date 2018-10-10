@@ -10,6 +10,16 @@ public class Param {
 		this.name = name;
 		this.value = value;
 	}
+
+	/** Parameter data type. For a list of valid values, see enum ParamType */ 
+	@XmlAttribute
+	public String datatype;
+
+	/** Identifier for the param. Can be used to delete a param. Usually numeric starting with 1*/
+	@XmlAttribute
+	public Integer id;
+
+	/** Parameter name */
 	@XmlAttribute
 	public String name;
 	@XmlValue

@@ -11,6 +11,8 @@ import de.sekmi.li2b2.hive.Credentials;
 import de.sekmi.li2b2.hive.ErrorResponseException;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
+import de.sekmi.li2b2.hive.pm.Param;
+import de.sekmi.li2b2.hive.pm.ParamType;
 
 public class PMClient extends CellClient{
 	private static final Logger log = Logger.getLogger(PMClient.class.getName());
@@ -262,6 +264,66 @@ public class PMClient extends CellClient{
 		// n has content  <ns4:response>1 records</ns4:response>
 		n.getTextContent();
 	}
-	
 
+	/**
+	 * Add a parameter to the specified user's configuration. Multiple parameters with the same
+	 * name are allowed. The server will assign a unique (numeric) id to each parameter.
+	 *
+	 * @param user_name user for whom to set the parameter
+	 * @param paramType parameter type, see {@link ParamType#getCode()}
+	 * @param paramName parameter name
+	 * @param paramValue parameter value
+	 * @throws HiveException error
+	 */
+	public void addUserParam(String user_name, String paramType, String paramName, String paramValue) throws HiveException {
+		HiveRequest req = createRequestMessage();
+
+		Element el = req.addBodyElement(XMLNS, "set_user_param");
+		el.setPrefix("pm");
+
+		el.appendChild(el.getOwnerDocument().createElement("user_name")).setTextContent(user_name);
+		Element par = (Element)el.appendChild(el.getOwnerDocument().createElement("param"));
+		par.setAttribute("datatype", paramType);
+		par.setAttribute("name", paramName);
+		par.setTextContent(paramValue);
+		
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
+		// n has content  <ns4:response>1 records</ns4:response>
+		n.getTextContent();		
+	}
+
+	public Param[] getUserParams(String user_name) throws HiveException, ErrorResponseException {
+		HiveRequest req = createRequestMessage();
+
+		Element el = req.addBodyElement(XMLNS, "get_all_user_param");
+		el.setPrefix("pm");
+
+		el.appendChild(el.getOwnerDocument().createElement("user_name")).setTextContent(user_name);
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "users");
+		User[] users = User.parse((Element)n);
+
+		// response should contain only the one user for which the params were requested
+		if( users.length != 1 || users[0].user_name == null || !users[0].user_name.equals(user_name)) {
+			// throw some error
+			throw new HiveException("No/illegal params response for user "+user_name);
+		}
+		return users[0].param;
+	}
+
+	/**
+	 * Delete a user specific parameter
+	 * @param id id for the parameter to delete
+	 * @throws HiveException communications error
+	 * @throws ErrorResponseException parameter with the specified id does not exist
+	 */
+	public void deleteUserParam(int id) throws HiveException, ErrorResponseException {
+		HiveRequest req = createRequestMessage();
+
+		Element el = req.addBodyElement(XMLNS, "delete_user_param");
+		el.setPrefix("pm");
+		el.setTextContent(Integer.toString(id));
+		Element n = submitRequestWithResponseContent(req, "getServices", XMLNS, "response");
+		// n has content  <ns4:response>1 records</ns4:response>
+		n.getTextContent();		
+	}
 }

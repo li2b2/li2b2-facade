@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.pm.Param;
 
 @XmlRootElement(name="user") // , namespace="http://www.i2b2.org/xsd/cell/pm/1.1/"
 @XmlAccessorType(XmlAccessType.FIELD) // FIELD NONE ... @XmlElement
@@ -30,6 +31,7 @@ public class User {
 	public String email;
 	public String password;
 	public boolean is_admin;
+	public Param[] param;
 	
 	private void parseUserElement (Element element) {
 		if (element.getElementsByTagName("full_name").getLength() > 0)
