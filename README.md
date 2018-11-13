@@ -5,6 +5,8 @@ li2b2 - Lightweight i2b2 server and client libraries
 This project is meant to be used by other software projects. Except for demos,
 you can not run the software on its own.
 
+Development of the li2b2-facate library was motivated by the AKTIN project https://aktin.org/
+
 Examples
 --------
 TODO code examples
