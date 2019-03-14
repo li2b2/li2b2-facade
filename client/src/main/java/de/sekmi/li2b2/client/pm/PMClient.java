@@ -306,6 +306,7 @@ public class PMClient extends CellClient{
 		User[] users = User.parse((Element)n);
 
 		// response should contain only the one user for which the params were requested
+		// TODO check responce if there are no parameters for the user
 		if( users.length != 1 || users[0].user_name == null || !users[0].user_name.equals(user_name)) {
 			// throw some error
 			throw new HiveException("No/illegal params response for user "+user_name);

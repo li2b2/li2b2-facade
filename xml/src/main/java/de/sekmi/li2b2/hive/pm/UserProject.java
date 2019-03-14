@@ -17,7 +17,13 @@ public class UserProject {
 	public String description;
 	public String path;
 	public String[] role;
+	/**
+	 * List of parameters. First are the project specific 
+	 * parameters listed (independent of any user) and without
+	 * datatype and numeric id.
+	 * Second are the user specific parameters listed, with datatype
+	 * and id. E.g. announcement
+	 */
 	@XmlElement(name="param")
-	// TODO allow list of parameters <param name="announcement">Lalala</param>
 	public Param[] params;
 }
