@@ -20,7 +20,28 @@ import de.sekmi.li2b2.hive.DOMUtils;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.client.pm.PMClient;
+import de.sekmi.li2b2.client.pm.UserConfiguration;
 
+/**
+ * Client application to programmatically access any i2b2 server installation.
+ * To connect to i2b2 webservices, call the following methods: {@link #setProxy(URL)},
+ * {@link #setPM(URL)}, {@link #setAuthorisation(String, String, String, boolean)} and 
+ * {@link #PM()}{@code .requestUserConfiguration()}. The returned {@link UserConfiguration}
+ * must then be used for further configuration e.g. set the project via {@link #setProjectId(String)} 
+ * and {@link #setServices(Cell[])} (with {@link UserConfiguration#getCells()}).
+ * <p>
+ * To find the values needed for the initial configuration, you can look at the contents 
+ * of {@code /webclient/i2b2_config_data.js} of your target i2b2 server.
+ * </p>
+ * <p>
+ * For a code example, see {@code src/test/java/de/sekmi/li2b2/client/TestClient.java}. See also 
+ * the file {@code README.md}.
+ * </p>
+ * 
+ * 
+ * @author R.W.Majeed
+ *
+ */
 public class Li2b2Client {
 //	private static final Logger log = Logger.getLogger(Li2b2Client.class.getName());
 
@@ -75,6 +96,23 @@ public class Li2b2Client {
 	public String getProjectId(){
 		return this.projectId;
 	}
+
+	/**
+	 * Use a reverse proxy configuration (proprietary protocol by i2b2) if
+	 * the i2b2 webservices are not directly available via network.
+	 * <p>
+	 * If the webservices (e.g. /i2b2/services/PMService) are directly available,
+	 * you don't need to use this method or can set the argument to {@code null}.
+	 * </p>
+	 * <p>
+	 * If the application server (e.g. Wildfly) is listening only to {@code localhost},
+	 * then you need to specify the reverse proxy script location. In i2b2 installations,
+	 * this is commonly the PHP script at /webclient/index.php.
+	 * If this method is used, you can then specify the local webservice address 
+	 * via {@link #setPM(URL)} (e.g. {@code http://localhost:8080/i2b2/services/PMService/}). 
+	 * </p>
+	 * @param proxy
+	 */
 	public void setProxy(URL proxy){
 		this.proxy = proxy;
 	}
@@ -144,7 +182,12 @@ public class Li2b2Client {
 	}
 	
 	/**
-	 * Set the PM service URL. The URL must be a complete URL including protocol scheme. 
+	 * Set the PM service URL. The URL must be a complete URL including protocol scheme.
+	 * <p>
+	 * This url can be behind the reverse proxy if, if the reverse proxy was specified 
+	 * via {@link #setProxy(URL)}. E.g. {@code http://localhost:9090/i2b2/services/PMService/}
+	 * for some i2b2 demo VMs.
+	 * </p>
 	 * @param pmService PM service URL
 	 */
 	public void setPM(URL pmService){

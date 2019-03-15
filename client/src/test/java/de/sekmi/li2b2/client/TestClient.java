@@ -20,11 +20,27 @@ public class TestClient {
 
 	public static void main(String args[]) throws Exception{
 		Li2b2Client c = new Li2b2Client();
-		// for logging messages to the console, uncomment the following line
-//		c.setMessageLog(FormattedMessageLogger.consoleLogger());
+		// for logging messages to the console, uncomment or comment the following line
+		//c.setMessageLog(FormattedMessageLogger.consoleLogger());
+
+		// use proxy only if the PM service is not available via network connection.
+		// otherwise, remove this line
 		c.setProxy(new URL("https://www.i2b2.org/webclient/index.php"));
+		
+		// Now, specify the PM service url. This url can be behind the reverse proxy if
+		// the reverse proxy was specified via #setProxy(URL).
+
+		// to access the li2b2-server TestServer, remove the proxy configuration and specify
+		// the following URL: http://localhost:8080/i2b2/services/PMService/
+
+		// In some i2b2 demo VMs, the webservices are listening on localhost port 9090,
+		// therefore you need to point setProxy to the {@code /webclient/index.php} and
+		// specify the following PM URL: http://localhost:9090/i2b2/services/PMService/
+		
+		// For the public i2b2 demo server, the following is used:
 		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
-//		c.setPM(new URL("http://0.0.0.0:8080/i2b2/services/PMService/"));
+		
+		// specify login details: username, password, domain.
 		c.setAuthorisation("demo", "demouser", "i2b2demo");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
 		UserProject[] projects = uc.getProjects();
@@ -34,7 +50,12 @@ public class TestClient {
 
 			System.out.println("Project:"+projects[0].id);
 			System.out.println("Roles:"+Arrays.toString(projects[0].role));
+			for( int i=0; i<projects[0].params.length; i++ ) {
+				System.out.println("ProjectParams["+i+"]: "+projects[0].params[i].name+" -> "+projects[0].params[i].value);
+			}
 		}
+
+
 		// initialise other cells
 		c.setServices(uc.getCells());
 		Concept[] cats;
