@@ -18,6 +18,7 @@ public interface QueryExecution {
 	 * (meaning an index will point to the same element for
 	 * the same instance)
 	 * @return result list
+	 * @throws IOException IO error
 	 */
 	List<? extends QueryResult> getResults() throws IOException;
 	

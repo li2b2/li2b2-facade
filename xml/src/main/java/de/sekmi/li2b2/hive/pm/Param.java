@@ -41,6 +41,7 @@ public class Param {
 	 * Parse a list of param elements.
 	 * @param paramElements node list containing only param elements
 	 * @return unmarshalled param array
+	 * @throws JAXBException JAXB unmarshal error
 	 */
 	public static Param[] parseNodeList(NodeList paramElements) throws JAXBException{
 		Param [] params  = new Param[paramElements.getLength()];

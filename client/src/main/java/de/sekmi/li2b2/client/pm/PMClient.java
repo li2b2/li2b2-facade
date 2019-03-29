@@ -347,6 +347,7 @@ public class PMClient extends CellClient{
 	/**
 	 * Retrieve global hive parameters
 	 * @param project_path ??? web client always sets this parameter to "/"
+	 * @return global hive params
 	 * @throws HiveException communications error
 	 */
 	public Param[] getHiveParams(String project_path) throws HiveException {
@@ -365,6 +366,7 @@ public class PMClient extends CellClient{
 	/**
 	 * Retrieve project specific parameters
 	 * @param projectId project id to retrieve params for
+	 * @return params
 	 * @throws HiveException communications error
 	 */
 	public Param[] getProjectParams(String projectId) throws HiveException {

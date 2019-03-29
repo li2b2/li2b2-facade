@@ -111,7 +111,7 @@ public class Li2b2Client {
 	 * If this method is used, you can then specify the local webservice address 
 	 * via {@link #setPM(URL)} (e.g. {@code http://localhost:8080/i2b2/services/PMService/}). 
 	 * </p>
-	 * @param proxy
+	 * @param proxy URL to the i2b2 reverse proxy php script
 	 */
 	public void setProxy(URL proxy){
 		this.proxy = proxy;
