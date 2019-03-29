@@ -47,8 +47,8 @@ public class Li2b2Client {
 
 	// configuration for connection
 	private URL proxy;
+
 	// information from server
-//	UserConfiguration info;
 	Credentials credentials;
 	private String projectId;
 	
@@ -207,7 +207,11 @@ public class Li2b2Client {
 	public void setCRC(String uri) throws MalformedURLException{
 		this.crc = new QueryClient(this, new URL(pm.serviceUrl, uri));
 	}
-	
+
+	/**
+	 * Get the PM cell client services.
+	 * @return PM client services
+	 */
 	public PMClient PM(){
 		return this.pm;
 	}
