@@ -19,7 +19,7 @@ public class Webclient {
 	 * the folder name between releases.
 	 * Specify the subfolder in the zip file containing the file {@code default.htm}, e.g. {@code /webclient/} or {@code /i2b2-webclient-master/}.
 	 */
-	public static final String WEBCLIENT_SOURCES_RESOURCE_PATH = "/webclient/";
+	public static final String WEBCLIENT_SOURCES_RESOURCE_PATH = "/i2b2-webclient-1.7.12.0001/";
 	@GET
 	@Path("{path: .*}")
 	public Response test(@PathParam("path") String path){

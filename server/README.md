@@ -11,7 +11,7 @@ you do the following:
 Download the webclient source code from https://www.i2b2.org/software/ and install 
 the bundle into your local maven repository manually via
 ```
- mvn install:install-file -Dfile=i2b2webclient-1711.zip -DgroupId=org.i2b2 -DartifactId=webclient -Dversion=1.7.11 -Dpackaging=zip
+ mvn install:install-file -Dfile=i2b2-webclient-1.7.12.0001.zip -DgroupId=org.i2b2 -DartifactId=webclient -Dversion=1.7.12.0001 -Dpackaging=zip
 ```
 To import the webclient into eclipse, run `mvn -P webclient clean eclipse:eclipse`.
 

@@ -40,12 +40,12 @@
 								</goals>
 								<configuration>
 									<artifactItems>
-										<!-- this is a non-standard dependency bundling with i2b2 webclient. 
+										<!-- this is a non-standard dependency bundle with i2b2 webclient. 
 											See README.md for instructions. -->
 										<artifactItem>
 											<groupId>org.i2b2</groupId>
 											<artifactId>webclient</artifactId>
-											<version>1.7.11</version>
+											<version>1.7.12.0001</version>
 											<type>zip</type>
 										</artifactItem>
 									</artifactItems>
