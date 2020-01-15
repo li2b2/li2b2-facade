@@ -57,11 +57,14 @@ public class TestServer {
 		jetty.join();
 	}
 	public void destroy() throws Exception{
-		jetty.destroy();
+		if( jetty.isStopped() ) {
+			jetty.destroy();
+		}
 	}
 	public void stop() throws Exception{
 		jetty.stop();
 	}
+
 
 	public static boolean checkWebclient(){
 		if( null != TestServer.class.getResource(Webclient.WEBCLIENT_SOURCES_RESOURCE_PATH+"default.htm") ){
