@@ -26,35 +26,24 @@ public abstract class AbstractCRCService extends AbstractService{
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	protected Response handleRequest(InputStream requestBody) throws HiveException, ParserConfigurationException{
-		HiveRequest req = parseRequest(requestBody);
-		Element psm_header = (Element)req.getMessageBody().getFirstChild();
-
+	protected void handleRequest(HiveRequest req, Element crc_header, Element request, CrcResponse resp) throws HiveException, ParserConfigurationException{
 		// TODO might have pdo_header instead of psm_header, add PDO support later (e.g. for timeline)
+		log.info("crc header type: "+ crc_header.getLocalName());
 		
-		Element request = (Element)req.getMessageBody().getLastChild();
 		// get request type
-		NodeList nl = psm_header.getElementsByTagName("request_type");
+		NodeList nl = crc_header.getElementsByTagName("request_type");
 		String type = null;
 		if( nl.getLength() != 0 ){
 			type = nl.item(0).getTextContent();
 		}
-		CrcResponse resp = createResponse(req);
-		
-//
-//		Element req = null;
-//		if( sib != null && sib.getNodeType() == Node.ELEMENT_NODE ){
-//			req = (Element)sib;
-//		}
 		
 		try {
-			request(type, psm_header, request, resp);
+			request(type, crc_header, request, resp);
 		} catch (DOMException | JAXBException e) {
 			resp.setResultStatus("ERROR", e.toString());
 		}
-		return Response.ok(compileResponseDOM(resp)).build();
 	}
-	private CrcResponse createResponse(HiveRequest request) throws ParserConfigurationException{
+	protected CrcResponse createResponse(HiveRequest request) throws ParserConfigurationException{
 		CrcResponse resp = new CrcResponse(createResponse(newDocumentBuilder()));
 		fillResponseHeader(resp, request);
 		return resp;
@@ -70,7 +59,16 @@ public abstract class AbstractCRCService extends AbstractService{
 		if( type.equals("CRC_QRY_getResultType") ){
 			getResultType(response);
 		}else if( type.equals("CRC_QRY_getQueryMasterList_fromUserId") ){
-			getQueryMasterList_fromUserId(response, request.getFirstChild().getTextContent());
+			String subtype = request.getLocalName();
+			log.info("getQueryMasterList_fromUserId subtype="+subtype);
+			if( subtype.contentEquals("request") ) {
+				// list queries
+				getQueryMasterList_fromUserId(response, request.getFirstChild().getTextContent());
+			}else if( subtype.contentEquals("get_name_info") ) {
+				// filter query list by name/content
+				// TODO parse filter options from 'request' by string
+				getQueryMasterList_fromUserId(response, request.getFirstChild().getTextContent());
+			}
 		}else if( type.equals("CRC_QRY_runQueryInstance_fromQueryDefinition") ){
 			// TODO
 			Node qd = request.getFirstChild();

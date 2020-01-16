@@ -27,6 +27,7 @@ import de.sekmi.li2b2.api.crc.QueryResult;
 import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.api.crc.ResultType;
 import de.sekmi.li2b2.hive.HiveException;
+import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.crc.CrcResponse;
 import de.sekmi.li2b2.services.token.TokenManager;
 
@@ -57,7 +58,31 @@ public class QueryToolService extends AbstractCRCService {
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("request")
 	public Response request(InputStream httpBody) throws HiveException, ParserConfigurationException{
-		return super.handleRequest(httpBody);
+		HiveRequest req = parseRequest(httpBody);
+		Element crc_header = (Element)req.getMessageBody().getFirstChild();
+		// TODO might have pdo_header instead of psm_header, add PDO support later (e.g. for timeline)
+		Element request = (Element)req.getMessageBody().getLastChild();
+		CrcResponse resp = createResponse(req);
+
+		super.handleRequest(req,crc_header,request, resp);
+		
+		return Response.ok(compileResponseDOM(resp)).build();
+
+	}
+
+	@POST
+	@Produces(MediaType.APPLICATION_XML)
+	@Path("getNameInfo")
+	public Response getNameInfo(InputStream httpBody) throws HiveException, ParserConfigurationException{
+		HiveRequest req = parseRequest(httpBody);
+		Element crc_header = (Element)req.getMessageBody().getFirstChild();
+		Element body = (Element)req.getMessageBody().getLastChild();
+		CrcResponse resp = createResponse(req);
+
+		// TODO filter query master list according to message body
+		getQueryMasterList_fromUserId(resp, req.getSecurity().getUser());
+		
+		return Response.ok(compileResponseDOM(resp)).build();
 	}
 	@Override
 	protected void getQueryMasterList_fromUserId(CrcResponse response, String userId){
