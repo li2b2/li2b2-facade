@@ -6,7 +6,10 @@ public interface User extends Principal{
 	String getFullName();
 	String getDomain();
 	boolean isAdmin();
-	
+	String getEmail();
+	void setEmail(String email);
+	void setFullName(String fullName);
+	void setAdmin(boolean admin);
 	Iterable<Project> getProjects();
 	// check password
 	boolean hasPassword(char[] password);

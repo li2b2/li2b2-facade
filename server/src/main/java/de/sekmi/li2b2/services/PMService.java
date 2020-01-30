@@ -78,7 +78,7 @@ public class PMService extends AbstractPMService{
 		// Information used by the official webclient (as of v1.7.07c):
 		// project/[id,role='DATA_AGG',]
 		// cell_data[id,name,project_path,url], cell_data/param
-		return super.handleRequest(requestBody);
+		return super.handleRequest(requestBody, uri);
 	}
 
 	@Override
@@ -204,9 +204,9 @@ public class PMService extends AbstractPMService{
 		parent.appendChild(el);
 		appendTextElement(el, "full_name", user.getFullName());
 		appendTextElement(el, "user_name", user.getName());
-		appendTextElement(el, "email", "not@supported.yet");
+		appendTextElement(el, "email", user.getEmail());
 		appendTextElement(el, "domain", user.getDomain());
-		appendTextElement(el, "is_admin", "true");
+		appendTextElement(el, "is_admin", Boolean.toString(user.isAdmin()));
 	}
 
 	@Override
@@ -231,8 +231,8 @@ public class PMService extends AbstractPMService{
 	}
 
 
-	@Override
-	protected void getUserConfiguration(HiveRequest req, HiveResponse resp, String projectId) throws JAXBException {
+	@Override// ADD UriInfo
+	protected void getUserConfiguration(HiveRequest req, HiveResponse resp, String projectId, UriInfo uri) throws JAXBException {
 		Credentials cred = req.getSecurity();
 		User user;
 		String sessionKey = null;
@@ -309,7 +309,13 @@ public class PMService extends AbstractPMService{
 		// add cells
 		Element cells = (Element)el.appendChild(el.getOwnerDocument().createElementNS("","cell_datas"));
 		for( Cell cell : otherCells ){
+			// generate absolute paths
 			marshaller.marshal(cell, cells);
+			// get last added cell_data element
+			Element ce = (Element)cells.getLastChild();
+			// locate url and convert it to absolute
+			Element cu = (Element)ce.getElementsByTagName("url").item(0);
+			cu.setTextContent(uri.getAbsolutePath().resolve(cu.getTextContent()).toString());
 		}
 		// TODO remove xmlns="" from elements 'user', 'cell_datas' (which was needed for JAXB)
 		
@@ -366,7 +372,10 @@ public class PMService extends AbstractPMService{
 			user = manager.addUser(userId);
 		}
 		// TODO set other attributes
+		user.setFullName(fullName);
+		user.setEmail(email);
 		user.setPassword(password.toCharArray());
+		user.setAdmin(admin);
 		appendResponseText(response, "1 records");
 	}
 

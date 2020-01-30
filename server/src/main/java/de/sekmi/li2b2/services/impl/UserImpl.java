@@ -2,6 +2,8 @@ package de.sekmi.li2b2.services.impl;
 
 import java.util.Arrays;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import de.sekmi.li2b2.api.pm.Project;
 import de.sekmi.li2b2.api.pm.User;
 
@@ -13,8 +15,12 @@ import de.sekmi.li2b2.api.pm.User;
  *
  */
 public class UserImpl implements User {
+	@XmlTransient
 	private ProjectManagerImpl pm;
 	private String login;
+	private String fullname;
+	private boolean isAdmin;
+	private String email;
 	private String domain;
 	private char[] password;
 	
@@ -27,10 +33,13 @@ public class UserImpl implements User {
 	public String getName() {
 		return login;
 	}
+	protected void setName(String login) {
+		this.login = login;
+	}
 
 	@Override
 	public String getFullName() {
-		return login;
+		return fullname;
 	}
 
 	@Override
@@ -40,7 +49,7 @@ public class UserImpl implements User {
 
 	@Override
 	public boolean isAdmin() {
-		return true;
+		return isAdmin;
 	}
 
 	@Override
@@ -87,6 +96,23 @@ public class UserImpl implements User {
 		if (!login.equals(other.login))
 			return false;
 		return true;
+	}
+	@Override
+	public String getEmail() {
+		return email;
+	}
+	@Override
+	public void setEmail(String email) {
+		this.email = email;
+		
+	}
+	@Override
+	public void setFullName(String fullName) {
+		this.fullname = fullName;
+	}
+	@Override
+	public void setAdmin(boolean admin) {
+		this.isAdmin = admin;
 	}
 
 

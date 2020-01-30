@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -26,7 +27,7 @@ public abstract class AbstractPMService extends AbstractService{
 		super();
 	}
 
-	protected Response handleRequest(InputStream requestBody) throws HiveException, ParserConfigurationException{
+	protected Response handleRequest(InputStream requestBody, UriInfo uri) throws HiveException, ParserConfigurationException{
 		HiveRequest req = parseRequest(requestBody);
 		Element body = (Element)req.getMessageBody().getFirstChild();
 		
@@ -37,7 +38,7 @@ public abstract class AbstractPMService extends AbstractService{
 			resp.setResultStatus("ERROR", message);
 		}else try {
 			String type = body.getLocalName();
-			request(req, type, body, resp);
+			request(uri, req, type, body, resp);
 		} catch (DOMException | JAXBException e) {
 			resp.setResultStatus("ERROR", e.toString());
 		}
@@ -48,12 +49,12 @@ public abstract class AbstractPMService extends AbstractService{
 	}
 
 
-	private void request(HiveRequest request, String type, Element body, HiveResponse response) throws DOMException, JAXBException{
+	private void request(UriInfo uri, HiveRequest request, String type, Element body, HiveResponse response) throws DOMException, JAXBException{
 		log.info("PM request: "+type);
 		if( type.equals("get_user_configuration") ){
 			// called to authenticate the user
 			String projectId = body.getElementsByTagName("project").item(0).getTextContent();
-			getUserConfiguration(request, response, projectId);
+			getUserConfiguration(request, response, projectId, uri);
 
 		}else if( type.equals("set_password") ){
 			// called if the user wants to change his password
@@ -219,5 +220,5 @@ public abstract class AbstractPMService extends AbstractService{
 		return "PM";
 	}
 
-	protected abstract void getUserConfiguration(HiveRequest request, HiveResponse response, String project) throws JAXBException;
+	protected abstract void getUserConfiguration(HiveRequest request, HiveResponse response, String project, UriInfo uri) throws JAXBException;
 }
