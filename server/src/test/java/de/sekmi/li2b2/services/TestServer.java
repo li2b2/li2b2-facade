@@ -3,12 +3,16 @@ package de.sekmi.li2b2.services;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
+
+import de.sekmi.li2b2.util.CORSFilter;
 
 /**
  * li2b2 server for unit tests
@@ -28,7 +32,13 @@ public class TestServer {
 		rc.register(QueryToolService.class);
 		rc.register(WorkplaceService.class);
 		rc.register(OntologyService.class);
-		rc.register(new MyBinder());		
+		rc.register(new MyBinder());
+		// add CORS filter
+		Map<String, String> props = new HashMap<String, String>();
+		
+		props.put("jersey.config.server.provider.classnames", CORSFilter.class.getName());
+		rc.setProperties(props);
+
 	}
 	public void register(Class<?> componentClass){
 		rc.register(componentClass);
