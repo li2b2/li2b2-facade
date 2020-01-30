@@ -17,6 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.ont.Concept;
+import de.sekmi.li2b2.api.ont.Modifier;
 import de.sekmi.li2b2.api.ont.Ontology;
 import de.sekmi.li2b2.api.ont.ValueType;
 import de.sekmi.li2b2.hive.HiveException;
@@ -103,6 +104,30 @@ public class OntologyService extends AbstractService{
 		return Response.ok(compileResponseDOM(resp)).build();
 	}
 
+	@POST
+	@Produces(MediaType.APPLICATION_XML)
+	@Path("getModifiers")
+	public Response getModifiers(InputStream requestBody) throws HiveException, ParserConfigurationException{
+		HiveRequest req = parseRequest(requestBody);
+		Element el = req.requireBodyElement(I2b2Constants.ONT_NS, "get_modifiers");
+		boolean synonyms = Boolean.parseBoolean(el.getAttribute("synonyms"));
+		boolean hiddens = Boolean.parseBoolean(el.getAttribute("hiddens"));
+		String self = el.getChildNodes().item(0).getTextContent();
+		Concept concept = ontology.getConceptByKey(self);
+		Iterable<? extends Modifier> modifiers;
+		if( concept != null && concept.hasModifiers() ){
+			modifiers = concept.getModifiers();
+		}else{
+			// not found, send empty
+			modifiers = Collections.emptyList();
+		}
+		// TODO session, authentication, project info
+		HiveResponse resp = createResponse(newDocumentBuilder(), req);
+		// TODO add more modifier data via lambda
+		addModifiersBody(resp, modifiers, (m,e) -> {});
+		return Response.ok(compileResponseDOM(resp)).build();
+	}
+
 	private class ShortConceptWriter implements BiConsumer<Concept, Element>{
 		@Override
 		public void accept(Concept concept, Element c) {
@@ -167,6 +192,15 @@ public class OntologyService extends AbstractService{
 		for( Concept concept : concepts ){
 			Element c = (Element)el.appendChild(el.getOwnerDocument().createElement("concept"));
 			writer.accept(concept, c);
+		}
+	}
+	private void addModifiersBody(HiveResponse response, Iterable<? extends Modifier> modifiers, BiConsumer<Modifier, Element> writer){
+		// TODO
+		Element el = response.addBodyElement(I2b2Constants.ONT_NS, "modifiers");
+		el.setPrefix("ns6");
+		for( Modifier m : modifiers ){
+			Element c = (Element)el.appendChild(el.getOwnerDocument().createElement("modifier"));
+			writer.accept(m, c);
 		}
 	}
 	@POST
