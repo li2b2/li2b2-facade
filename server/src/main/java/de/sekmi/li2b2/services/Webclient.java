@@ -1,13 +1,19 @@
 package de.sekmi.li2b2.services;
 
+import java.io.BufferedReader;
+import java.io.FilterReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import de.sekmi.li2b2.services.impl.InjectingFilterReader;
 
 
 @Path("/webclient")
@@ -29,14 +35,23 @@ public class Webclient {
 		}else if( path.equals("") ){
 			path = "default.htm";
 		}
+		
 
-		InputStream in = getClass().getResourceAsStream(WEBCLIENT_SOURCES_RESOURCE_PATH+path);
-		if( in == null ){
-			// not found
-			log.warning(path+" not found");
-			return Response.status(Status.NOT_FOUND).build();
-		}else{
-			return Response.ok(in).build();
+		if( path.equals("default.htm") ) {
+			// inject code
+			BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(WEBCLIENT_SOURCES_RESOURCE_PATH+path)));
+			
+			return Response.ok(new InjectingFilterReader(br, Pattern.compile("^</head>"),"<script>alert('allo');</script>",true)).build();
+		}else {
+			InputStream in = getClass().getResourceAsStream(WEBCLIENT_SOURCES_RESOURCE_PATH+path);
+			if( in == null ){
+				// not found
+				log.warning(path+" not found");
+				return Response.status(Status.NOT_FOUND).build();
+			}else{
+				return Response.ok(in).build();
+			}
 		}
 	}
+
 }
