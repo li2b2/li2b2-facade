@@ -80,7 +80,7 @@ public abstract class HiveMessage {
 		for( int i=0; i<a.length; i++ ){
 			a[i] = nl.item(i).getTextContent();
 		}
-		return new Credentials(a[0], a[1], a[2], ((Element)nl.item(2)).getAttribute("is_tokent").equals("true"));
+		return new Credentials(a[0], a[1], a[2], ((Element)nl.item(2)).getAttribute("is_token").equals("true"));
 	}
 	
 	public HiveMessage setProjectId(String projectId){
