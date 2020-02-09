@@ -17,7 +17,10 @@ import de.sekmi.li2b2.util.CORSFilter;
 /**
  * li2b2 server for unit tests
  * or demonstrations.
- * 
+ *
+ * Initial project configuration and users are provided
+ * via {@link MyBinder}.
+ *
  * @author R.W.Majeed
  *
  */
@@ -33,9 +36,9 @@ public class TestServer {
 		rc.register(WorkplaceService.class);
 		rc.register(OntologyService.class);
 		rc.register(new MyBinder());
+		
 		// add CORS filter
 		Map<String, String> props = new HashMap<String, String>();
-		
 		props.put("jersey.config.server.provider.classnames", CORSFilter.class.getName());
 		rc.setProperties(props);
 
