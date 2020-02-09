@@ -1,5 +1,7 @@
 package de.sekmi.li2b2.services.token;
 
+import java.security.Principal;
+
 /**
  * Simple token management interface
  * used for the li2b2 server.
@@ -9,9 +11,14 @@ package de.sekmi.li2b2.services.token;
  */
 public interface TokenManager {
 
+	/**
+	 * Register a principal (user) and return a token
+	 * @param name principal name
+	 * @return token string
+	 */
 	String registerPrincipal(String name);
 
-	Token<?> lookupToken(String uuid);
+	Token<? extends Principal> lookupToken(String uuid);
 
 	/**
 	 * Renew the specified token. If it is not renewed,
