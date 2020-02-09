@@ -1,11 +1,17 @@
 package de.sekmi.li2b2.services.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Singleton;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 
 //import javax.inject.Singleton;
 
@@ -14,15 +20,36 @@ import de.sekmi.li2b2.api.pm.ProjectManager;
 import de.sekmi.li2b2.api.pm.User;
 
 @Singleton
+@XmlAccessorType(XmlAccessType.NONE)
 public class ProjectManagerImpl implements ProjectManager {
 
+	/**
+	 * List of users
+	 */
+	@XmlElementWrapper(name="users")
+	@XmlElement(name="user")
 	private List<UserImpl> users;
+	
+	/**
+	 * List of projects
+	 */
+	@XmlElementWrapper(name="projects")
+	@XmlElement(name="project")
 	private List<ProjectImpl> projects;
 
+	/**
+	 * Global properties
+	 */
+	@XmlElement
+	private Map<String, String> properties;
+	
 	public ProjectManagerImpl(){
 		this.users = new ArrayList<>();
 		this.projects = new ArrayList<>(3);
+		this.properties = new HashMap<>();
 	}
+
+	
 	@Override
 	public User getUserById(String userId) {
 		for( UserImpl user : users ){
@@ -50,7 +77,7 @@ public class ProjectManagerImpl implements ProjectManager {
 		return user;
 	}
 	@Override
-	public Project addProject(String id, String name) {
+	public ProjectImpl addProject(String id, String name) {
 		ProjectImpl p = new ProjectImpl(id, name);
 		projects.add(p);
 		return p;
@@ -98,4 +125,10 @@ public class ProjectManagerImpl implements ProjectManager {
 	}
 	
 
+	public void setProperty(String key, String value) {
+		properties.put(key, value);
+	}
+	public String getProperty(String key) {
+		return properties.get(key);
+	}
 }

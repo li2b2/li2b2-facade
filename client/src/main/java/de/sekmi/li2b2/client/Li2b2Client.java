@@ -173,6 +173,13 @@ public class Li2b2Client {
 	public void setAuthorisation(Credentials credentials){
 		this.credentials = credentials;
 	}
+	/**
+	 * Get credentials used for all API calls to the server.
+	 * @return credentials/token information
+	 */
+	public Credentials getAuthorisation() {
+		return this.credentials;
+	}
 	DocumentBuilder newBuilder(){
 		try {
 			return factory.newDocumentBuilder();

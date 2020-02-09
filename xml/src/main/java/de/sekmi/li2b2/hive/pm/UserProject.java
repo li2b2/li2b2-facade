@@ -1,5 +1,7 @@
 package de.sekmi.li2b2.hive.pm;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -25,5 +27,5 @@ public class UserProject {
 	 * and id. E.g. announcement
 	 */
 	@XmlElement(name="param")
-	public Param[] params;
+	public List<Param> params;
 }

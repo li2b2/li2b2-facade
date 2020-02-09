@@ -1,11 +1,16 @@
 package de.sekmi.li2b2.services.impl;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
 
 import de.sekmi.li2b2.api.pm.Project;
 import de.sekmi.li2b2.api.pm.User;
+import de.sekmi.li2b2.services.PMService;
 
 /**
  * Implementation of li2b2 user.
@@ -14,19 +19,19 @@ import de.sekmi.li2b2.api.pm.User;
  * @author R.W.Majeed
  *
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class UserImpl implements User {
+	
 	@XmlTransient
 	private ProjectManagerImpl pm;
 	private String login;
-	private String fullname;
-	private boolean isAdmin;
-	private String email;
-	private String domain;
 	private char[] password;
-	
+	private Map<String,String> properties;
+
 	public UserImpl(ProjectManagerImpl pm, String login){
 		this.pm = pm;
 		this.login = login;
+		this.properties = new HashMap<>();
 		//this.domain = domain;
 	}
 	@Override
@@ -39,17 +44,18 @@ public class UserImpl implements User {
 
 	@Override
 	public String getFullName() {
-		return fullname;
+		return properties.get(PMService.USER_FULLNAME);
 	}
 
 	@Override
 	public String getDomain() {
-		return domain;
+		return properties.get(PMService.USER_DOMAIN);
 	}
 
 	@Override
 	public boolean isAdmin() {
-		return isAdmin;
+		String admin = getProperty(PMService.USER_ISADMIN);
+		return admin != null && admin.contentEquals(Boolean.TRUE.toString());
 	}
 
 	@Override
@@ -74,7 +80,7 @@ public class UserImpl implements User {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((domain == null) ? 0 : domain.hashCode());
+		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 		result = prime * result + login.hashCode();
 		return result;
 	}
@@ -87,33 +93,35 @@ public class UserImpl implements User {
 		if (getClass() != obj.getClass())
 			return false;
 		UserImpl other = (UserImpl) obj;
-		if (domain == null) {
-			if (other.domain != null)
+		if (properties == null) {
+			if (other.properties != null)
 				return false;
-		} else if (!domain.equals(other.domain))
+		} else if (!properties.equals(other.properties))
 			return false;
 		
 		if (!login.equals(other.login))
 			return false;
 		return true;
 	}
-	@Override
-	public String getEmail() {
-		return email;
-	}
-	@Override
-	public void setEmail(String email) {
-		this.email = email;
-		
-	}
-	@Override
-	public void setFullName(String fullName) {
-		this.fullname = fullName;
-	}
+
 	@Override
 	public void setAdmin(boolean admin) {
-		this.isAdmin = admin;
+		if( admin == false ) {
+			properties.remove(PMService.USER_ISADMIN);
+		}else {
+			setProperty(PMService.USER_ISADMIN, Boolean.TRUE.toString());
+		}
 	}
-
-
+	@Override
+	public Map<String, String> getProperties() {
+		return this.properties;
+	}
+	@Override
+	public String getProperty(String key) {
+		return properties.get(key);
+	}
+	@Override
+	public void setProperty(String key, String value) {
+		properties.put(key, value);
+	}
 }

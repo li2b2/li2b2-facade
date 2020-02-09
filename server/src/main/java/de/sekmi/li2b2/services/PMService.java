@@ -1,6 +1,7 @@
 package de.sekmi.li2b2.services;
 
 import java.io.InputStream;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,8 +33,9 @@ import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.hive.pm.Cell;
-import de.sekmi.li2b2.hive.pm.Param;
 import de.sekmi.li2b2.hive.pm.UserProject;
+import de.sekmi.li2b2.services.impl.ProjectImpl;
+import de.sekmi.li2b2.services.token.Token;
 import de.sekmi.li2b2.services.token.TokenManager;
 
 @Singleton
@@ -41,7 +43,16 @@ import de.sekmi.li2b2.services.token.TokenManager;
 public class PMService extends AbstractPMService{
 	private static final Logger log = Logger.getLogger(PMService.class.getName());
 	public static final String SERVICE_URL = "/i2b2/services/PMService/";
-
+	public static final String SESSION_KEY_PREFIX = "SessionKey:"; // same as official server
+	public static final String PROJECT_DESCRIPTION="pm.description";
+	public static final String PROJECT_WIKI="pm.wiki";
+	public static final String PROJECT_KEY="pm.key";
+	public static final String PROJECT_PATH="pm.path";
+	public static final String USER_EMAIL = "pm.email";
+	public static final String USER_FULLNAME = "pm.fullname";
+	public static final String USER_DOMAIN = "pm.domain";
+	public static final String USER_ISADMIN = "pm.admin";
+	
 	private List<Cell> otherCells;
 	private ProjectManager manager;
 	private TokenManager tokens;
@@ -93,8 +104,12 @@ public class PMService extends AbstractPMService{
 		el.setAttribute("id", project.getId());
 		appendTextElement(el, "name", project.getName());
 //		appendTextElement(el, "key", "K_"+project.getId()); // XXX what for?
-		appendTextElement(el, "wiki", "https://github.org/rwm/li2b2");
-//		appendTextElement(el, "description", "About "+project.getName());
+		if( project.getProperty(PROJECT_WIKI) != null ) {
+			appendTextElement(el, "wiki", project.getProperty(PROJECT_WIKI));			
+		}
+		if( project.getProperty(PROJECT_DESCRIPTION) != null ) {
+			appendTextElement(el, "description", project.getProperty(PROJECT_DESCRIPTION));
+		}
 		appendTextElement(el, "path", project.getPath());
 //		appendTextElement(el, "user_name", "demo"); // XXX what for?
 	}
@@ -202,10 +217,10 @@ public class PMService extends AbstractPMService{
 		// TODO compare to official response (elements and order)
 		Element el = parent.getOwnerDocument().createElementNS("","user");
 		parent.appendChild(el);
-		appendTextElement(el, "full_name", user.getFullName());
+		appendTextElement(el, "full_name", user.getProperty(USER_FULLNAME));
 		appendTextElement(el, "user_name", user.getName());
-		appendTextElement(el, "email", user.getEmail());
-		appendTextElement(el, "domain", user.getDomain());
+		appendTextElement(el, "email", user.getProperty(USER_EMAIL));
+		appendTextElement(el, "domain", user.getProperty(USER_DOMAIN));
 		appendTextElement(el, "is_admin", Boolean.toString(user.isAdmin()));
 	}
 
@@ -236,12 +251,21 @@ public class PMService extends AbstractPMService{
 		Credentials cred = req.getSecurity();
 		User user;
 		String sessionKey = null;
+		
 		if( cred.isToken() ){
 			// need session manager
-			sessionKey = cred.getPassword(); // remove SessionKey: prefix
-			// TODO check for valid session
-			
+			sessionKey = cred.getPassword();
+			// default to invalid authentication (in case something goes wrong)
 			user = null;
+			// session key should start with SESSION_KEY_PREFIX and we need a user manager for user identification
+			if( sessionKey.startsWith(SESSION_KEY_PREFIX) && manager != null ) {
+				// check for valid session
+				// remove the prefix
+				sessionKey = sessionKey.substring(SESSION_KEY_PREFIX.length());
+				Token<? extends Principal> token = getTokenManager().lookupToken(sessionKey);
+				user = manager.getUserById(token.getPayload().getName());
+				// if token was valid, then 'user' points to the authenticated user
+			}
 		}else if( manager != null ){
 			// check user manager
 			user = manager.getUserById(cred.getUser());
@@ -259,11 +283,13 @@ public class PMService extends AbstractPMService{
 			user = null;
 			// no user manager
 		}
+		
 		if( user == null ){
 			// login failed
 			resp.setResultStatus("ERROR", "Authentication failed");
 			return;
 		}
+		
 		JAXBContext jaxb = JAXBContext.newInstance(Cell.class,UserProject.class);
 		Marshaller marshaller = jaxb.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
@@ -275,13 +301,13 @@ public class PMService extends AbstractPMService{
 		// user info
 		// TODO namespaces are not clean, 
 		Element ue = (Element)el.appendChild(el.getOwnerDocument().createElementNS("","user"));
-		appendTextElement(ue, "full_name", user.getFullName());
+		appendTextElement(ue, "full_name", user.getProperty(USER_FULLNAME));
 		appendTextElement(ue, "user_name", user.getName());
 		// TODO session/password
-		Element p = appendTextElement(ue, "password", "SessionKey:"+sessionKey);
+		Element p = appendTextElement(ue, "password", SESSION_KEY_PREFIX+sessionKey);
 		p.setAttribute("is_token", Boolean.TRUE.toString());
 		p.setAttribute("token_ms_timeout", Long.toString(getTokenManager().getExpirationMillis()));
-		appendTextElement(ue, "domain", user.getDomain());
+		appendTextElement(ue, "domain", user.getProperty(USER_DOMAIN));
 		appendTextElement(ue, "is_admin", "true");
 		// add projects
 		for( Project project : user.getProjects() ){
@@ -294,11 +320,11 @@ public class PMService extends AbstractPMService{
 			up.role = new String[roles.size()];
 			roles.toArray(up.role);
 			// param demo
-			up.params = new Param[]{
-					// TODO allow configuration of announcements by project manager
-					new Param("announcement","This is a demo of the <span style='color:orange;font-weight:bold'>li2b2 server</span>."),
-					new Param("Software","<span style='color:orange;font-weight:bold'>li2b2 server</span>")
-			};
+			if( project instanceof ProjectImpl ) {
+				up.params = new ArrayList<>();
+				up.params.addAll(((ProjectImpl)project).getParams());
+				// TODO add ProjectUserParams
+			}
 			// append
 			marshaller.marshal(up, ue);
 		}
@@ -313,7 +339,7 @@ public class PMService extends AbstractPMService{
 			marshaller.marshal(cell, cells);
 			// get last added cell_data element
 			Element ce = (Element)cells.getLastChild();
-			// locate url and convert it to absolute
+			// locate URL and convert it to absolute
 			Element cu = (Element)ce.getElementsByTagName("url").item(0);
 			cu.setTextContent(uri.getAbsolutePath().resolve(cu.getTextContent()).toString());
 		}
@@ -341,11 +367,17 @@ public class PMService extends AbstractPMService{
 		Project project = manager.getProjectById(id);
 		if( project == null ){
 			// create project
-			manager.addProject(id, name);
+			project = manager.addProject(id, name);
+			// set properties
+			
 		}else{
-			// TODO set path
+			// project existing, set/replace properties
 		}
-		// TODO set other attributes
+		project.setProperty("pm.description",description);
+		project.setProperty("pm.wiki",wiki);
+		project.setProperty("pm.key",key);
+		project.setProperty("pm.path", path);
+
 		appendResponseText(response, "1 records");
 	}
 
@@ -371,10 +403,14 @@ public class PMService extends AbstractPMService{
 		if( user == null ){
 			user = manager.addUser(userId);
 		}
-		// TODO set other attributes
-		user.setFullName(fullName);
-		user.setEmail(email);
-		user.setPassword(password.toCharArray());
+
+		user.setProperty(USER_FULLNAME, fullName);
+		user.setProperty(USER_EMAIL, email);
+
+		// replace password only if present (not null)
+		if( password != null ) {
+			user.setPassword(password.toCharArray());
+		}
 		user.setAdmin(admin);
 		appendResponseText(response, "1 records");
 	}
@@ -432,6 +468,7 @@ public class PMService extends AbstractPMService{
 
 	@Override
 	protected void getGlobalParams(HiveResponse response, String path) {
+//		XXX see if project params are returned
 		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
 	}
 
@@ -457,6 +494,12 @@ public class PMService extends AbstractPMService{
 	@Override
 	protected void setUserParam(HiveResponse response, String userId, String paramType, String paramName,
 			String paramValue) {
+		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+	}
+
+
+	@Override
+	protected void getProjectUserParams(HiveResponse response, String projectPath, String userId) {
 		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
 	}
 }

@@ -13,6 +13,7 @@ import de.sekmi.li2b2.client.crc.QueryResultInstance;
 import de.sekmi.li2b2.client.ont.Concept;
 import de.sekmi.li2b2.hive.crc.QueryMaster;
 import de.sekmi.li2b2.hive.crc.QueryResultType;
+import de.sekmi.li2b2.hive.pm.Param;
 import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 
@@ -50,8 +51,9 @@ public class TestClient {
 
 			System.out.println("Project:"+projects[0].id);
 			System.out.println("Roles:"+Arrays.toString(projects[0].role));
-			for( int i=0; i<projects[0].params.length; i++ ) {
-				System.out.println("ProjectParams["+i+"]: "+projects[0].params[i].name+" -> "+projects[0].params[i].value);
+			for( int i=0; i<projects[0].params.size(); i++ ) {
+				Param p = projects[0].params.get(i);
+				System.out.println("ProjectParams["+i+"]: "+p.name+" -> "+p.value);
 			}
 		}
 

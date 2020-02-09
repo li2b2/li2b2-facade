@@ -9,7 +9,9 @@ import de.sekmi.li2b2.api.crc.QueryManager;
 import de.sekmi.li2b2.api.ont.Ontology;
 import de.sekmi.li2b2.api.pm.ProjectManager;
 import de.sekmi.li2b2.api.pm.User;
+import de.sekmi.li2b2.hive.pm.Param;
 import de.sekmi.li2b2.services.impl.OntologyImpl;
+import de.sekmi.li2b2.services.impl.ProjectImpl;
 import de.sekmi.li2b2.services.impl.ProjectManagerImpl;
 import de.sekmi.li2b2.services.impl.crc.QueryManagerImpl;
 import de.sekmi.li2b2.services.token.TokenManager;
@@ -55,7 +57,12 @@ public class MyBinder extends AbstractBinder{
 		ProjectManagerImpl pm = new ProjectManagerImpl();
 		User user = pm.addUser("demo");//, "i2b2demo");
 		user.setPassword("demouser".toCharArray());
-		pm.addProject("Demo", "li2b2 Demo").addUserRoles(user, "USER","EDITOR","DATA_OBFSC");
+		user.setProperty(PMService.USER_FULLNAME, "Demo user");
+	
+		ProjectImpl project = pm.addProject("Demo", "li2b2 Demo");
+		project.addUserRoles(user, "USER","EDITOR","DATA_OBFSC");
+		project.getParams().add(new Param("announcement","This is a demo of the <span style='color:orange;font-weight:bold'>li2b2 server</span>."));
+		project.getParams().add(new Param("Software","<span style='color:orange;font-weight:bold'>li2b2 server</span>"));
 		pm.addProject("Demo2", "li2b2 Demo2").addUserRoles(user, "USER","DATA_OBFSC");
 		bind(pm).to(ProjectManager.class);
 		

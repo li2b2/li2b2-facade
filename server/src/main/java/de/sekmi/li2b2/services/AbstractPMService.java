@@ -171,10 +171,16 @@ public abstract class AbstractPMService extends AbstractService{
 			String userId = HiveMessage.optionalElementContent(body, "user_name");
 			getUserParams(response, userId);
 
+		}else if( type.equals("get_all_project_user_param") ) {
+			// called when the Params subtree for a user is opened
+			String projectPath = HiveMessage.optionalElementContent(body, "path");
+			String userId = HiveMessage.optionalElementContent(body, "user_name");
+			getProjectUserParams(response, projectPath, userId);
+
 		}else if( type.equals("delete_user_param") ) {
 			String paramId = body.getTextContent();
 			deleteUserParam(response, paramId);
-			
+						
 		}else if( type.equals("set_project") ){
 			// called to add/update project
 			String id = body.getAttribute("id");
@@ -191,6 +197,8 @@ public abstract class AbstractPMService extends AbstractService{
 			response.setResultStatus("ERROR", "Method '"+type+"' not supported (yet)");
 		}
 	}
+
+	protected abstract void getProjectUserParams(HiveResponse response, String projectPath, String userId);
 
 	protected abstract void deleteUser(HiveResponse response, String userId);
 	protected abstract void setRole(HiveResponse response, String userId, String role, String projectId);

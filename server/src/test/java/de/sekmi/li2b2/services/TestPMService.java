@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.sekmi.li2b2.client.FormattedMessageLogger;
 import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 public class TestPMService{
@@ -43,11 +44,23 @@ public class TestPMService{
 	@Test
 	public void expectValidUserConfiguration() throws Exception{
 		Li2b2Client client = new Li2b2Client();
+//		client.setMessageLog(FormattedMessageLogger.consoleLogger());
 		client.setPM(getPM_URL());
 		client.setAuthorisation("demo", "demouser", "i2b2demo");
 		UserConfiguration uc = client.PM().requestUserConfiguration();
 		Assert.assertNotNull(uc);
-		// TODO verify additional configuration settings, projects
+		// should have switched to token for authorisation
+		Assert.assertTrue(client.getAuthorisation().isToken());
+		Assert.assertEquals(uc.getSessionKey(), client.getAuthorisation().getPassword());
+
+		// try to get the user configuration with token instead of password
+		// get the user configuration again, this time using the token
+		UserConfiguration uc2 = client.PM().requestUserConfiguration();
+		Assert.assertNotNull(uc2);
+		// should use the same token as before
+		Assert.assertEquals(uc.getSessionKey(), uc2.getSessionKey());
+	
+		// TODO verify additional details, e.g. domain, projects, etc.
 	}
 
 	@Test

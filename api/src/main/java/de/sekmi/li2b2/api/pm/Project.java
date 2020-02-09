@@ -1,5 +1,7 @@
 package de.sekmi.li2b2.api.pm;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface Project {
@@ -39,6 +41,7 @@ public interface Project {
 	 * @param roles roles for this project. see remarks above.
 	 */
 	void addUserRoles(User user, String ... roles );
+	void removeUserRoles(User user, String ... roles );
 	/**
 	 * Get the roles for the given user in this project.
 	 * @param user user
@@ -46,4 +49,10 @@ public interface Project {
 	 */
 	Set<String> getUserRoles(User user);
 	// TODO removeUser (removes all roles), removeUserRole
+	
+	void setProperty(String key, String value);
+	String getProperty(String key);
+	Map<String,String> getProperties();
+	
+	
 }
