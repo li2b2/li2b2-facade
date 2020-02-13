@@ -155,29 +155,42 @@ public class Li2b2Client {
 	 * @param isToken whether specified password argument is a server session token or a password.
 	 *  Set this to {@code false} if you are using a real password.
 	 */
+	@Deprecated
 	public void setAuthorisation(String user, String password, String domain, boolean isToken){
-		setAuthorisation(new Credentials(domain, user, password, isToken));
+		setCredentials(new Credentials(domain, user, password, isToken));
 	}
 	/**
 	 * Set login credentials for password based authentication.
-	 * This method is the same as {@link #setAuthorisation(String, String, String, boolean)} with
-	 * the last argument set to {@code false}.
+	 * This method is deprecated. Please use {@link #setCredentials(String, String, String)}.
 	 * 
 	 * @param user user name
 	 * @param password password
 	 * @param domain server domain name
 	 */
+	@Deprecated
 	public void setAuthorisation(String user, String password, String domain){
 		setAuthorisation(user, password, domain, false);
 	}
-	public void setAuthorisation(Credentials credentials){
+	/**
+	 * Set login credentials for password based authentication.
+	 * This method is the same as {@link #setAuthorisation(String, String, String, boolean)} with
+	 * the last argument set to {@code false}.
+	 *
+	 * @param user user name
+	 * @param password password
+	 * @param domain server domain name
+	 */
+	public void setCredentials(String domain, String user, String password) {
+		setAuthorisation(user, password, domain, false);
+	}
+	public void setCredentials(Credentials credentials){
 		this.credentials = credentials;
 	}
 	/**
 	 * Get credentials used for all API calls to the server.
 	 * @return credentials/token information
 	 */
-	public Credentials getAuthorisation() {
+	public Credentials getCredentials() {
 		return this.credentials;
 	}
 	DocumentBuilder newBuilder(){

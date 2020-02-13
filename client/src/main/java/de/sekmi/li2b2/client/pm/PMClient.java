@@ -62,7 +62,7 @@ public class PMClient extends CellClient{
 		// if we have a session key, use it for future calls
 		if( config.getSessionKey() != null ){
 			log.info("Using session key for future calls: "+config.getSessionKey());
-			client.setAuthorisation(
+			client.setCredentials(
 					new Credentials(
 							config.getUserDomain(), 
 							config.getUserName(), 
