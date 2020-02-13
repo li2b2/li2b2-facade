@@ -1,9 +1,7 @@
 package de.sekmi.li2b2.services;
 
-import java.io.InputStream;
 import java.util.logging.Logger;
 
-import javax.ws.rs.core.Response;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,8 +35,13 @@ public abstract class AbstractCRCService extends AbstractService{
 			type = nl.item(0).getTextContent();
 		}
 		
-		try {
-			request(type, crc_header, request, resp);
+		// check authentication
+		String userId = getAuthenticatedUser(req);
+		if( userId == null ) {
+			// invalid credentials
+			resp.setResultStatus("ERROR", "Illegal credentials");
+		}else try {
+			request(userId, type, crc_header, request, resp);
 		} catch (DOMException | JAXBException e) {
 			resp.setResultStatus("ERROR", e.toString());
 		}
@@ -50,7 +53,7 @@ public abstract class AbstractCRCService extends AbstractService{
 	}
 
 
-	private void request(String type, Element psm_header, Element request, CrcResponse response) throws DOMException, JAXBException{
+	private void request(String userId, String type, Element psm_header, Element request, CrcResponse response) throws DOMException, JAXBException{
 		String rtype = null;
 		if( request != null ){
 			rtype = request.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type");

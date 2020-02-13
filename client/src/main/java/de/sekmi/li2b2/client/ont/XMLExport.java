@@ -86,6 +86,7 @@ public class XMLExport {
 		if( c.isFolder() ){
 			newlineAndIndent(level+1);
 			w.writeStartElement("narrower");
+			// continue recursively with children
 			writeConcepts(o.getChildren(c.key), level+2);
 			newlineAndIndent(level+1);
 			w.writeEndElement();
@@ -141,7 +142,7 @@ public class XMLExport {
 			c.setProxy(new URL(i2b2_proxy));			
 		}
 		c.setPM(new URL(i2b2_pm_service));
-		c.setAuthorisation(i2b2_user, i2b2_pass, i2b2_domain);
+		c.setCredentials(i2b2_domain, i2b2_user, i2b2_pass);
 		UserConfiguration uc = c.PM().requestUserConfiguration();
 		if( i2b2_project == null ){
 			UserProject[] projects = uc.getProjects();

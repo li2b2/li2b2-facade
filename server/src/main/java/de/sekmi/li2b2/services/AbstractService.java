@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -96,6 +98,23 @@ public abstract class AbstractService extends AbstractCell{
 			throw new HiveException("Error parsing request XML", e);
 		}
 	}
+
+	protected HiveUserRequest parseRequestAuthenticated(InputStream requestBody) throws HiveException {
+		HiveRequest hr = parseRequest(requestBody);
+		String userId = getAuthenticatedUser(hr);
+		if( userId == null ) {
+			// authentication failed
+			try {
+				HiveResponse resp;
+				resp = createResponse(newDocumentBuilder(), hr);
+				resp.setResultStatus("ERROR", "Invalid credentials");
+				throw new NotAuthorizedException(compileResponseDOM(resp));
+			} catch (ParserConfigurationException e) {
+				throw new NotAuthorizedException(Response.serverError());
+			}
+		}
+		return new HiveUserRequest(hr.getDOM(), userId);
+	}
 	protected void fillResponseHeader(HiveResponse response, HiveRequest request){
 		response.setTimestamp();
 		
@@ -184,12 +203,13 @@ public abstract class AbstractService extends AbstractCell{
 	 */
 	protected String getAuthenticatedUser(HiveRequest request){
 		Credentials cred = request.getSecurity();
-		if( !cred.isToken() ){
+		if( !cred.isToken() || !cred.getPassword().startsWith(PMService.SESSION_KEY_PREFIX) ){
 			// only token authentication allowed for now
 			log.warning("Only session authentication allowed.");
 			return null;
 		}
-		Token<?> token = getTokenManager().lookupToken(cred.getPassword());
+		String sessionKey = cred.getPassword().substring(PMService.SESSION_KEY_PREFIX.length());
+		Token<?> token = getTokenManager().lookupToken(sessionKey);
 		if( token == null ){
 			// not found or expired
 			log.warning("Invalid or expired token for user "+cred.getUser()+": "+cred.getPassword());

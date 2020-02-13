@@ -38,7 +38,21 @@ public abstract class AbstractPMService extends AbstractService{
 			resp.setResultStatus("ERROR", message);
 		}else try {
 			String type = body.getLocalName();
-			request(uri, req, type, body, resp);
+			// separate handling of get_user_configuration, which does direct (password) authentication
+			if( type.equals("get_user_configuration") ) {
+				// 
+				String projectId = body.getElementsByTagName("project").item(0).getTextContent();
+				getUserConfiguration(req, resp, projectId, uri);
+			}else {
+				// all other request are checked for existing (token) authentication
+				String user = getAuthenticatedUser(req);
+				if( user == null ) {
+					// invalid credentials/token
+					resp.setResultStatus("ERROR", "Invalid credentials");
+				}else {
+					request(uri, new HiveUserRequest(req.getDOM(), user), type, body, resp);
+				}
+			}
 		} catch (DOMException | JAXBException e) {
 			resp.setResultStatus("ERROR", e.toString());
 		}
@@ -49,14 +63,11 @@ public abstract class AbstractPMService extends AbstractService{
 	}
 
 
-	private void request(UriInfo uri, HiveRequest request, String type, Element body, HiveResponse response) throws DOMException, JAXBException{
+	private void request(UriInfo uri, HiveUserRequest request, String type, Element body, HiveResponse response) throws DOMException, JAXBException{
 		log.info("PM request: "+type);
-		if( type.equals("get_user_configuration") ){
-			// called to authenticate the user
-			String projectId = body.getElementsByTagName("project").item(0).getTextContent();
-			getUserConfiguration(request, response, projectId, uri);
-
-		}else if( type.equals("set_password") ){
+		// user info from authentication is in request.getUserId()
+		
+		if( type.equals("set_password") ){
 			// called if the user wants to change his password
 			String password = body.getTextContent();
 			// webclient will add spaces around the password, trim the password

@@ -9,11 +9,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.sekmi.li2b2.client.FormattedMessageLogger;
 import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
+import de.sekmi.li2b2.hive.Credentials;
+import de.sekmi.li2b2.hive.HiveException;
 public class TestPMService{
 	TestServer server;
+	Credentials passwordAuth = new Credentials("i2b2demo", "demo", "demouser",false);
 
 	public URL getPM_URL() throws MalformedURLException{
 		return server.getPMServiceURI().toURL();
@@ -46,12 +48,12 @@ public class TestPMService{
 		Li2b2Client client = new Li2b2Client();
 //		client.setMessageLog(FormattedMessageLogger.consoleLogger());
 		client.setPM(getPM_URL());
-		client.setAuthorisation("demo", "demouser", "i2b2demo");
+		client.setCredentials(passwordAuth);
 		UserConfiguration uc = client.PM().requestUserConfiguration();
 		Assert.assertNotNull(uc);
 		// should have switched to token for authorisation
-		Assert.assertTrue(client.getAuthorisation().isToken());
-		Assert.assertEquals(uc.getSessionKey(), client.getAuthorisation().getPassword());
+		Assert.assertTrue(client.getCredentials().isToken());
+		Assert.assertEquals(uc.getSessionKey(), client.getCredentials().getPassword());
 
 		// try to get the user configuration with token instead of password
 		// get the user configuration again, this time using the token
@@ -64,10 +66,48 @@ public class TestPMService{
 	}
 
 	@Test
+	public void otherCellsRequireAuthentication() throws Exception{
+		Li2b2Client client = new Li2b2Client();
+//		client.setMessageLog(FormattedMessageLogger.consoleLogger());
+		// login via PM
+		client.setPM(getPM_URL());
+		client.setCredentials(passwordAuth);
+		UserConfiguration uc = client.PM().requestUserConfiguration();
+		client.setServices(uc.getCells());
+		client.setProjectId(uc.getProjects()[0].id);
+		// try accessing ontology
+		Assert.assertNotNull(client.ONT());
+		Assert.assertTrue(client.ONT().getCategories().length > 0);
+		// modify token and try again with invalid credentials
+		Credentials cred = client.getCredentials();
+		Assert.assertTrue(cred.isToken());
+		Credentials credx = new Credentials(cred.getDomain(), cred.getUser(), "X"+cred.getPassword(), cred.isToken());
+		client.setCredentials(credx);
+		// try stealing ontology
+		try {
+			client.ONT().getCategories();
+			// this should have thrown an exception, because the authorization was invalid.
+			Assert.fail("Access allowed to ONT cell with invalid credentials");
+		}catch( HiveException e ) {
+			// exception is expected. continue..
+		}
+		// try stealing requests
+		try {
+			client.CRC().getResultType();
+			// this should have thrown an exception, because the authorization was invalid.
+			Assert.fail("Access allowed to CRC cell with invalid credentials");
+		}catch( HiveException e ) {
+			// exception is expected. continue..
+		}
+
+		// TODO verify additional details, e.g. domain, projects, etc.
+	}
+
+	@Test
 	public void verifyCreateUserSetRoles() throws Exception{
 		Li2b2Client client = new Li2b2Client();
 		client.setPM(getPM_URL());
-		client.setAuthorisation("demo", "demouser", "i2b2demo");
+		client.setCredentials("i2b2demo", "demo", "demouser");
 		UserConfiguration uc = client.PM().requestUserConfiguration();
 		Assert.assertNotNull(uc);
 		Assert.assertEquals(1, client.PM().getUsers().length);

@@ -21,7 +21,6 @@ import de.sekmi.li2b2.api.ont.Modifier;
 import de.sekmi.li2b2.api.ont.Ontology;
 import de.sekmi.li2b2.api.ont.ValueType;
 import de.sekmi.li2b2.hive.HiveException;
-import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.services.token.TokenManager;
@@ -66,8 +65,8 @@ public class OntologyService extends AbstractService{
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("getSchemes")
 	public Response getSchemes(InputStream requestBody) throws HiveException, ParserConfigurationException{
-		HiveRequest req = parseRequest(requestBody);
-		// TODO session, authentication, project info
+		HiveUserRequest req = parseRequestAuthenticated(requestBody);
+		// TODO project info
 		HiveResponse resp = createResponse(newDocumentBuilder(), req);
 		addConceptsBody(resp, Collections.emptyList(), new ShortConceptWriter());
 		return Response.ok(compileResponseDOM(resp)).build();
@@ -76,8 +75,8 @@ public class OntologyService extends AbstractService{
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("getCategories")
 	public Response getCategories(InputStream requestBody) throws HiveException, ParserConfigurationException{
-		HiveRequest req = parseRequest(requestBody);
-		// TODO session, authentication, project info
+		HiveUserRequest req = parseRequestAuthenticated(requestBody);
+		// TODO project info
 		HiveResponse resp = createResponse(newDocumentBuilder(), req);
 		addConceptsBody(resp, ontology.getCategories(), new ShortConceptWriter());
 		//return Response.ok(getClass().getResourceAsStream("/templates/ont/getCategories2.xml")).build();
@@ -87,7 +86,7 @@ public class OntologyService extends AbstractService{
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("getChildren")
 	public Response getChildren(InputStream requestBody) throws HiveException, ParserConfigurationException{
-		HiveRequest req = parseRequest(requestBody);
+		HiveUserRequest req = parseRequestAuthenticated(requestBody);
 		Element get_children = req.requireBodyElement(I2b2Constants.ONT_NS, "get_children");
 		String parent = get_children.getChildNodes().item(0).getTextContent();
 		Concept concept = ontology.getConceptByKey(parent);
@@ -108,7 +107,7 @@ public class OntologyService extends AbstractService{
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("getModifiers")
 	public Response getModifiers(InputStream requestBody) throws HiveException, ParserConfigurationException{
-		HiveRequest req = parseRequest(requestBody);
+		HiveUserRequest req = parseRequestAuthenticated(requestBody);
 		Element el = req.requireBodyElement(I2b2Constants.ONT_NS, "get_modifiers");
 		boolean synonyms = Boolean.parseBoolean(el.getAttribute("synonyms"));
 		boolean hiddens = Boolean.parseBoolean(el.getAttribute("hiddens"));
@@ -208,7 +207,7 @@ public class OntologyService extends AbstractService{
 	@Path("getTermInfo")
 	public Response getTermInfo(InputStream requestBody)throws HiveException, ParserConfigurationException{
 		log.info("get_term_info");
-		HiveRequest req = parseRequest(requestBody);
+		HiveUserRequest req = parseRequestAuthenticated(requestBody);
 		Element get_children = req.requireBodyElement(I2b2Constants.ONT_NS, "get_term_info");
 		String self = get_children.getChildNodes().item(0).getTextContent();
 		Concept concept = ontology.getConceptByKey(self);
@@ -217,6 +216,7 @@ public class OntologyService extends AbstractService{
 		return Response.ok(compileResponseDOM(resp)).build();
 	}
 
+	
 // TODO @Path(getCodeInfo): search by code (list of codes via getSchemes
 //	<message_body>
 //	    <ns4:get_code_info blob="true" type="core" max='200'  synonyms="true" hiddens="false">
