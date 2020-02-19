@@ -2,14 +2,13 @@ package de.sekmi.li2b2.services;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import de.sekmi.li2b2.api.crc.QueryManager;
 import de.sekmi.li2b2.api.ont.Ontology;
 import de.sekmi.li2b2.api.pm.ProjectManager;
-import de.sekmi.li2b2.api.pm.User;
-import de.sekmi.li2b2.hive.pm.Param;
 import de.sekmi.li2b2.services.impl.OntologyImpl;
 import de.sekmi.li2b2.services.impl.crc.QueryManagerImpl;
 import de.sekmi.li2b2.services.impl.pm.ParamImpl;
@@ -57,6 +56,8 @@ public class MyBinder extends AbstractBinder{
 	protected void configure() {
 		// project manager
 		ProjectManagerImpl pm = new ProjectManagerImpl();
+		pm.setFlushDestination(Paths.get("target/pm.xml"));
+
 		UserImpl user = pm.addUser("demo");//, "i2b2demo");
 		user.setPassword("demouser".toCharArray());
 		user.setProperty(PMService.USER_FULLNAME, "Demo user");

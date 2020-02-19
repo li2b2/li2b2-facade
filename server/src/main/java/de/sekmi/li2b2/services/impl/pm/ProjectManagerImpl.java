@@ -1,13 +1,18 @@
 package de.sekmi.li2b2.services.impl.pm;
 
-import java.net.URL;
-
+import java.io.Flushable;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
@@ -18,16 +23,17 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 
+import de.sekmi.li2b2.api.pm.Parameter;
 import de.sekmi.li2b2.api.pm.Project;
 import de.sekmi.li2b2.api.pm.ProjectManager;
 import de.sekmi.li2b2.api.pm.User;
 
 @Singleton
 @XmlAccessorType(XmlAccessType.NONE)
-public class ProjectManagerImpl implements ProjectManager {
-
+public class ProjectManagerImpl implements ProjectManager, Flushable {
+	private static final Logger log = Logger.getLogger(ProjectManagerImpl.class.getName());
 	@XmlTransient
-	private URL xmlFlushTarget;
+	private Path xmlFlushTarget;
 
 	/**
 	 * List of users
@@ -60,7 +66,8 @@ public class ProjectManagerImpl implements ProjectManager {
 		this.params = new ArrayList<ParamImpl>();
 	}
 
-	public void setFlushDestination(URL path) {
+	@Override
+	public void setFlushDestination(Path path) {
 		this.xmlFlushTarget = path;
 	}
 	
@@ -152,11 +159,23 @@ public class ProjectManagerImpl implements ProjectManager {
 			// no persistence
 			return;
 		}
-		JAXB.marshal(this, xmlFlushTarget);
+		log.info("Writing state to "+xmlFlushTarget);
+		try( OutputStream out = Files.newOutputStream(xmlFlushTarget) ){
+			JAXB.marshal(this, out);			
+		}catch( IOException e ) {
+			log.log(Level.SEVERE,"Unable to write PM config to file "+xmlFlushTarget, e);
+		}
 	}
 
 	@Override
 	public List<ParamImpl> getParameters() {
 		return params;
+	}
+
+	@Override
+	public Parameter addParameter(String name, String datatype, String value) {
+		ParamImpl p = new ParamImpl(name,datatype,value);
+		params.add(p);
+		return p;
 	}
 }
