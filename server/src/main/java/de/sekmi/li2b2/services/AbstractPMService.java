@@ -17,6 +17,7 @@ import de.sekmi.li2b2.hive.HiveMessage;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
+import de.sekmi.li2b2.services.impl.pm.ParamHandler;
 
 public abstract class AbstractPMService extends AbstractService{
 
@@ -63,6 +64,16 @@ public abstract class AbstractPMService extends AbstractService{
 	}
 
 
+	/**
+	 * Handle authenticated project management request.
+	 * @param uri info about the HTTP call
+	 * @param request request object containing authenticated user name
+	 * @param type type of request. This is the local element name of the first child of the message_body element.
+	 * @param body request body. This is the first child element of the message_body element.
+	 * @param response response to be sent to the client
+	 * @throws DOMException DOM error
+	 * @throws JAXBException JAXB serialization error
+	 */
 	private void request(UriInfo uri, HiveUserRequest request, String type, Element body, HiveResponse response) throws DOMException, JAXBException{
 		log.info("PM request: "+type);
 		// user info from authentication is in request.getUserId()
@@ -107,25 +118,54 @@ public abstract class AbstractPMService extends AbstractService{
 
 		}else if( type.equals("get_all_project_param") ){
 			// called for the node 'params' within a project
-			String projectId = body.getTextContent();
-			getProjectParams(response, projectId);
+			String projectId = body.getTextContent().trim();
+			getProjectParamHandler().allParamsResponse(response, projectId);
 
 		}else if( type.equals("get_project_param") ) {
 			// called when adding a user param
-			String paramId = body.getTextContent();
-			getProjectParam(response, paramId);
+			String paramId = body.getTextContent().trim();
+			getProjectParamHandler().getParamResponse(response, paramId);
+
+		}else if( type.equals("delete_project_param") ) {
+			// called when adding a user param
+			String paramId = body.getTextContent().trim();
+			getProjectParamHandler().deleteParamResponse(response, paramId);
+
+		}else if( type.equals("set_project_param") ) {
+			String projectId = body.getAttribute("id");
+//			String userId = HiveMessage.optionalElementContent(body, "user_name");
+			Element param = (Element)body.getElementsByTagName("param").item(0);
+			getProjectParamHandler().newParamResponse(response, param, projectId);
 
 		// SECTION Hive
 		}else if( type.equals("get_all_hive") ){
 			// called when the Hive section is opened
 			getAllHive(response);
+
 		}else if( type.equals("get_all_global") ){
 			// called when the the "Global Params" subtree of the Hive section is opened
 			// return global parameters
 			String path = body.getTextContent();
-			getGlobalParams(response, path);
-			// TODO "set_global" (XML) to define global params
-			// TODO delete_global (id) to delete a global param
+			// no obvious effect or function of path argument, ignore for now
+			path.length();			
+			getGlobalParamHandler().allParamsResponse(response);
+
+		}else if( type.equals("set_global") ){
+			HiveMessage.optionalElementContent(body,"project_path");
+			HiveMessage.optionalElementContent(body,"can_override");
+			Element param = (Element)body.getElementsByTagName("param").item(0);
+			getGlobalParamHandler().newParamResponse(response, param);
+
+		}else if( type.equals("get_global") ) {
+			// called when adding a user param
+			String paramId = body.getTextContent().trim();
+			getGlobalParamHandler().getParamResponse(response, paramId);
+
+		}else if( type.equals("delete_global") ) {
+			// called when adding a user param
+			String paramId = body.getTextContent().trim();
+			getGlobalParamHandler().deleteParamResponse(response, paramId);
+
 
 		// SECTION Cells
 		}else if( type.equals("get_all_cell") ){
@@ -152,12 +192,12 @@ public abstract class AbstractPMService extends AbstractService{
 
 		}else if( type.equals("get_user") ){
 			// called to display user details
-			String userId = body.getTextContent();
+			String userId = body.getTextContent().trim();
 			getUser(response, userId);
 
 		}else if( type.equals("delete_user") ){
 			// called to display user details
-			String userId = body.getTextContent();
+			String userId = body.getTextContent().trim();
 			deleteUser(response, userId);
 
 		}else if( type.equals("set_user") ){
@@ -178,30 +218,50 @@ public abstract class AbstractPMService extends AbstractService{
 			setUser(response, userId, fullName, email, admin, password);
 		}else if( type.equals("set_user_param") ) {
 			// called when adding a user param
-			String userId = HiveMessage.optionalElementContent(body, "user_name");
+			String userId = HiveMessage.optionalElementContent(body, "user_name");			
 			Element param = (Element)body.getElementsByTagName("param").item(0);
-			setUserParam(response, userId, param.getAttribute("name"), param.getAttribute("datatype"), param.getTextContent());
+			getUserParamHandler().newParamResponse(response, param, userId);
 
 		}else if( type.equals("get_user_param") ) {
 			// called when adding a user param
-			String paramId = body.getTextContent();
-			getUserParam(response, paramId);
+			String paramId = body.getTextContent().trim();
+			getUserParamHandler().getParamResponse(response, paramId);
+
+		}else if( type.equals("delete_user_param") ) {
+			// called when adding a user param
+			String paramId = body.getTextContent().trim();
+			getUserParamHandler().deleteParamResponse(response, paramId);
 
 		}else if( type.equals("get_all_user_param") ) {
 			// called when the Params subtree for a user is opened
 			String userId = HiveMessage.optionalElementContent(body, "user_name");
-			getUserParams(response, userId);
+			getUserParamHandler().allParamsResponse(response, userId);
 
 		}else if( type.equals("get_all_project_user_param") ) {
 			// called when the Params subtree for a user is opened
 			String projectPath = HiveMessage.optionalElementContent(body, "path");
 			String userId = HiveMessage.optionalElementContent(body, "user_name");
-			getProjectUserParams(response, projectPath, userId);
+			getProjectUserParamHandler().allParamsResponse(response, projectPath, userId);
+
+		}else if( type.equals("get_project_user_param") ) {
+			String paramId = body.getTextContent().trim();
+			getProjectUserParamHandler().getParamResponse(response, paramId);
+
+		}else if( type.equals("delete_project_user_param") ) {
+			String paramId = body.getTextContent().trim();
+			getProjectUserParamHandler().deleteParamResponse(response, paramId);
+
+		}else if( type.equals("set_project_user_param") ) {
+			// called when adding a user param
+			String userId = HiveMessage.optionalElementContent(body, "user_name");			
+			String projectId = body.getAttribute("id");
+			Element param = (Element)body.getElementsByTagName("param").item(0);
+			getProjectUserParamHandler().newParamResponse(response, param, projectId, userId);
 
 		}else if( type.equals("delete_user_param") ) {
 			String paramId = body.getTextContent();
-			deleteUserParam(response, paramId);
-						
+			getUserParamHandler().deleteParamResponse(response, paramId);
+
 		}else if( type.equals("set_project") ){
 			// called to add/update project
 			String id = body.getAttribute("id");
@@ -219,7 +279,6 @@ public abstract class AbstractPMService extends AbstractService{
 		}
 	}
 
-	protected abstract void getProjectUserParams(HiveResponse response, String projectPath, String userId);
 
 	protected abstract void deleteUser(HiveResponse response, String userId);
 	protected abstract void setRole(HiveResponse response, String userId, String role, String projectId);
@@ -229,27 +288,27 @@ public abstract class AbstractPMService extends AbstractService{
 	protected abstract void getAllProject(HiveResponse response);
 	protected abstract void getProject(HiveResponse response, String projectId, String path);
 	protected abstract void getAllRoles(HiveResponse response, String projectId, String userId);
-	protected abstract void getProjectParams(HiveResponse response, String projectId);
-
 	protected abstract void getAllHive(HiveResponse response);
-	protected abstract void getGlobalParams(HiveResponse response, String path);
+
 	protected abstract void getAllCells(HiveResponse response, String projectId) throws JAXBException;
 	protected abstract void getCell(HiveResponse response, String id, String path);
-	protected abstract void getCellParams(HiveResponse response, String id, String path);
 
 	protected abstract void getAllUsers(HiveResponse response);
 	protected abstract void getUser(HiveResponse response, String userId);
-	protected abstract void getUserParams(HiveResponse response, String userId);
-	protected abstract void getUserParam(HiveResponse response, String paramId);
-	protected abstract void getProjectParam(HiveResponse response, String paramId);
-	protected abstract void deleteUserParam(HiveResponse response, String paramId);
-	protected abstract void setUserParam(HiveResponse response, String userId, String paramType, String paramName, String paramValue);
+
 
 	protected abstract void setPassword(HiveResponse Response, Credentials user, String newPassword);
+
 	@Override
 	public String getCellId() {
 		return "PM";
 	}
 
 	protected abstract void getUserConfiguration(HiveRequest request, HiveResponse response, String project, UriInfo uri) throws JAXBException;
+
+
+	abstract ParamHandler getGlobalParamHandler();
+	abstract ParamHandler getUserParamHandler();
+	abstract ParamHandler getProjectUserParamHandler();
+	abstract ParamHandler getProjectParamHandler();
 }

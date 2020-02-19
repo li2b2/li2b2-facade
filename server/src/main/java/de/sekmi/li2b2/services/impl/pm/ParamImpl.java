@@ -8,6 +8,11 @@ public class ParamImpl extends Param implements Parameter{
 	public ParamImpl(String name, String value) {
 		super(name,value);
 	}
+
+	public ParamImpl(String name, String type, String value) {
+		super(name,value);
+		this.datatype = type;
+	}
 	/**
 	 * Empty constructor for JAXB
 	 */

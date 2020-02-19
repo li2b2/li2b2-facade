@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
+import de.sekmi.li2b2.api.pm.Parameter;
 import de.sekmi.li2b2.api.pm.Project;
 import de.sekmi.li2b2.api.pm.User;
 
@@ -109,6 +110,24 @@ public class ProjectImpl implements Project{
 			return null;
 		}
 		return uc.param;
+	}
+
+	@Override
+	public Parameter addParameter(String name, String type, String value) {
+		ParamImpl param = new ParamImpl(name,type,value);
+		this.params.add(param);
+		return param;
+	}
+
+	@Override
+	public Parameter addUserParameter(User user, String paramName, String paramType, String paramValue) {
+		ProjectUserConfigImpl uc = getOrCreateUser(user);
+		if( uc == null ) {
+			throw new IllegalArgumentException("User not assigned to this project");
+		}
+		ParamImpl param = new ParamImpl(paramName,paramType,paramValue);
+		uc.param.add(param);
+		return param;
 	}
 
 }

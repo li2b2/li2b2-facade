@@ -37,7 +37,8 @@ import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.hive.pm.UserProject;
-import de.sekmi.li2b2.services.impl.pm.ProjectImpl;
+import de.sekmi.li2b2.services.impl.pm.ParamHandler;
+import de.sekmi.li2b2.services.impl.pm.ParamImpl;
 import de.sekmi.li2b2.services.token.Token;
 import de.sekmi.li2b2.services.token.TokenManager;
 
@@ -195,18 +196,6 @@ public class PMService extends AbstractPMService{
 
 
 	@Override
-	protected void getProjectParams(HiveResponse response, String projectId) {
-		Project project = manager.getProjectById(projectId);
-		if( project == null ) {
-			response.setResultStatus("ERROR", "project not found: "+projectId);
-		}
-		Element el = response.addBodyElement(I2b2Constants.PM_NS, "params");
-		el.setPrefix("ns4");
-		appendParamElements(el, project.getParameters(), i -> projectId+"/"+i);		
-	}
-
-
-	@Override
 	protected void getAllHive(HiveResponse response) {
 		// TODO Auto-generated method stub
 		
@@ -341,14 +330,17 @@ public class PMService extends AbstractPMService{
 			Set<String> roles = project.getUserRoles(user);
 			up.role = new String[roles.size()];
 			roles.toArray(up.role);
-			// param demo
-			if( project instanceof ProjectImpl ) {
-				up.params = new ArrayList<>();
-				up.params.addAll(((ProjectImpl)project).getParameters());
-				//up.params.addAll((project.getUserParameters(user));
-				// TODO add ProjectUserParams
+
+			up.params = new ArrayList<>();
+			// add project params
+			for( Parameter param : project.getParameters() ) {
+				up.params.add(new ParamImpl(param.getName(), param.getDatatype(), param.getValue()));
 			}
-			// append
+			// add project user params
+			for( Parameter param : project.getUserParameters(user) ) {
+				up.params.add(new ParamImpl(param.getName(), param.getDatatype(), param.getValue()));
+			}
+
 			marshaller.marshal(up, ue);
 		}
 		appendTextElement(el, "domain_name", cred.getDomain());
@@ -535,112 +527,104 @@ public class PMService extends AbstractPMService{
 
 
 	@Override
-	protected void getGlobalParams(HiveResponse response, String path) {
-//		XXX see if project params are returned
-		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+	ParamHandler getGlobalParamHandler() {
+		return new ParamHandler(0) {
+			
+			@Override
+			protected List<? extends Parameter> getAllParam(String... path) {
+				return manager.getParameters();
+			}
+			
+			@Override
+			protected Parameter addParam(String name, String type, String value, String... path) {
+				return manager.addParameter(name, type, value);
+			}
+		};
 	}
 
 
 	@Override
-	protected void getCellParams(HiveResponse response, String id, String path) {
-		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
-	}
-
-	private static void appendParamElements(Element parent, List<?extends Parameter> params, Function<Integer,String> idMapping) {
-		for( int i=0; i<params.size(); i++ ) {
-			Parameter par = params.get(i);
-			Element pel = appendTextElement(parent, "param", par.getValue());
-			pel.setAttribute("datatype", par.getDatatype());
-			pel.setAttribute("id", idMapping.apply(i));
-			pel.setAttribute("name", par.getName());
-		}		
-	}
-
-	@Override
-	protected void getUserParams(HiveResponse response, String userId) {
-		User user = manager.getUserById(userId);
-		if( user == null ) {
-			response.setResultStatus("ERROR", "User not found: "+userId);
-		}
-		Element el = response.addBodyElement(I2b2Constants.PM_NS, "params");
-		el.setPrefix("ns4");
-		appendParamElements(el, user.getParameters(), i -> userId+"/"+i);		
-	}
-
-
-	@Override
-	protected void deleteUserParam(HiveResponse response, String paramId) {
-//		User user = manager.getUserById(userId);
-//		if( user == null ) {
-			response.setResultStatus("ERROR", "TODO implement");
-//			return;
-//		}
-//
-//		user.getParameters()
-//		appendResponseText(response, "1 records");
+	ParamHandler getUserParamHandler() {
+		return new ParamHandler(1) {
+			
+			@Override
+			protected List<? extends Parameter> getAllParam(String... path) {
+				User user = manager.getUserById(path[0]);
+				if( user != null ) {
+					return user.getParameters();
+				}else {
+					return null;
+				}
+			}
+			
+			@Override
+			protected Parameter addParam(String name, String type, String value, String... path) {
+				User user = manager.getUserById(path[0]);
+				if( user != null ) {
+					return user.addParameter(name, type, value);
+				}else {
+					return null;
+				}
+			}
+		};
 	}
 
 
 	@Override
-	protected void setUserParam(HiveResponse response, String userId, String paramType, String paramName,
-			String paramValue) {
-		
-		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+	ParamHandler getProjectUserParamHandler() {
+		return new ParamHandler(2) {
+			
+			@Override
+			protected List<? extends Parameter> getAllParam(String... path) {
+				Project project = manager.getProjectById(path[0]);
+				User user = manager.getUserById(path[1]);
+				if( project != null && user != null ) {
+					return project.getUserParameters(user);
+				}else {
+					return null;
+				}
+			}
+			
+			@Override
+			protected Parameter addParam(String name, String type, String value, String... path) {
+				Project project = manager.getProjectById(path[0]);
+				User user = manager.getUserById(path[1]);
+				if( project != null && user != null ) {
+					return project.addUserParameter(user, name, type, value);
+				}else {
+					return null;
+				}
+			}
+		};
 	}
 
 
 	@Override
-	protected void getProjectUserParams(HiveResponse response, String projectPath, String userId) {
-		Project project = manager.getProjectById(projectPath);
-		User user = manager.getUserById(userId);
-		if( project == null || user == null ) {
-			response.setResultStatus("ERROR", "specified project or user unknown");
-			return;
-		}
-		List<? extends Parameter> params = project.getUserParameters(user);
-		if( params == null ) {
-			response.setResultStatus("ERROR", "user not assigned to specified project");
-			return;
-		}
-
-		Element el = response.addBodyElement(I2b2Constants.PM_NS, "params");
-		el.setPrefix("ns4");
-		appendParamElements(el, user.getParameters(), i -> projectPath+"/"+userId+"/"+i);
-	}
-
-	private void appendParamElement(HiveResponse response, Parameter par, String id) {
-		Element el = response.addBodyElement(I2b2Constants.PM_NS, "param");
-		el.setPrefix("ns4");
-		el.setTextContent(par.getValue());
-		el.setAttribute("datatype", par.getDatatype());
-		el.setAttribute("id", id);
-		el.setAttribute("name", par.getName());	
-	}
-
-	@Override
-	protected void getUserParam(HiveResponse response, String paramId) {
-		int slash = paramId.lastIndexOf('/');
-		if( slash == -1 ) {
-			response.setResultStatus("ERROR", "incompatible param id");
-		}
-		String path = paramId.substring(0, slash);
-		int no = Integer.parseInt(paramId.substring(slash+1));
-		User user = manager.getUserById(path);
-		Parameter par = user.getParameters().get(no);
-		appendParamElement(response, par, paramId);
+	ParamHandler getProjectParamHandler() {
+		return new ParamHandler(1) {
+			
+			@Override
+			protected List<? extends Parameter> getAllParam(String... path) {
+				Project project = manager.getProjectById(path[0]);
+				if( project != null ) {
+					return project.getParameters();
+				}else {
+					return null;
+				}
+			}
+			
+			@Override
+			protected Parameter addParam(String name, String type, String value, String... path) {
+				Project project = manager.getProjectById(path[0]);
+				if( project != null ) {
+					return project.addParameter(name, type, value);
+				}else {
+					return null;
+				}
+			}
+		};
 	}
 
 
-	@Override
-	protected void getProjectParam(HiveResponse response, String paramId) {
-		int slash = paramId.lastIndexOf('/');
-		if( slash == -1 ) {
-			response.setResultStatus("ERROR", "incompatible param id");
-		}
-		String path = paramId.substring(0, slash);
-		int no = Integer.parseInt(paramId.substring(slash+1));
-		Project project = manager.getProjectById(path);
-		Parameter par = project.getParameters().get(no);
-		appendParamElement(response, par, paramId);
-	}
+
 }

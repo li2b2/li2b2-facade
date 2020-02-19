@@ -1,6 +1,7 @@
 package de.sekmi.li2b2.api.pm;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -25,6 +26,7 @@ public interface ProjectManager {
 	 * @return list of global parameters
 	 */
 	List<? extends Parameter> getParameters();
+	Parameter addParameter(String name, String datatype, String value);
 	
 	
 	/**
@@ -32,7 +34,7 @@ public interface ProjectManager {
 	 * writes the current state to persistent storage.
 	 * @param dest destination URL
 	 */
-	public void setFlushDestination(URL dest);
+	public void setFlushDestination(Path dest);
 	/**
 	 * Write changes to persistent storage (if available).
 	 */

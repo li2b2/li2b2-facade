@@ -132,4 +132,10 @@ public class UserImpl implements User {
 	public List<ParamImpl> getParameters() {
 		return this.params;
 	}
+	@Override
+	public ParamImpl addParameter(String name, String datatype, String value) {
+		ParamImpl param = new ParamImpl(name,datatype,value);
+		this.params.add(param);
+		return param;
+	}
 }

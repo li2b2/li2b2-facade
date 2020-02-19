@@ -55,6 +55,8 @@ public interface Project {
 	Map<String,String> getProperties();
 
 	List<? extends Parameter> getParameters();
+	Parameter addParameter(String name, String type, String value);
+
 	/**
 	 * Get parameters assigned in this project for the specified user. This
 	 * list is different from the {@link User#getParameters()}.
@@ -62,4 +64,5 @@ public interface Project {
 	 * @return parameter list or {@code null} if the user is not assigned to this project
 	 */
 	List<? extends Parameter> getUserParameters(User user);
+	Parameter addUserParameter(User user, String paramName, String paramType, String paramValue);
 }

@@ -34,5 +34,7 @@ public interface User extends Principal{
 	 * @return parameter list
 	 */
 	List<? extends Parameter> getParameters();
+	Parameter addParameter(String name, String datatype, String value);
+	
 	// TODO add parameters, check whether param_id can be any String (instead of just integer as i2b2 uses)
 }
