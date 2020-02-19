@@ -53,6 +53,13 @@ public interface Project {
 	void setProperty(String key, String value);
 	String getProperty(String key);
 	Map<String,String> getProperties();
-	
-	
+
+	List<? extends Parameter> getParameters();
+	/**
+	 * Get parameters assigned in this project for the specified user. This
+	 * list is different from the {@link User#getParameters()}.
+	 * @param user user for which to receive the parameters
+	 * @return parameter list or {@code null} if the user is not assigned to this project
+	 */
+	List<? extends Parameter> getUserParameters(User user);
 }

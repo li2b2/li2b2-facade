@@ -1,4 +1,6 @@
-package de.sekmi.li2b2.services.impl;
+package de.sekmi.li2b2.services.impl.pm;
+
+import java.net.URL;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,12 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Singleton;
+
+import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-
-//import javax.inject.Singleton;
+import javax.xml.bind.annotation.XmlTransient;
 
 import de.sekmi.li2b2.api.pm.Project;
 import de.sekmi.li2b2.api.pm.ProjectManager;
@@ -22,6 +25,9 @@ import de.sekmi.li2b2.api.pm.User;
 @Singleton
 @XmlAccessorType(XmlAccessType.NONE)
 public class ProjectManagerImpl implements ProjectManager {
+
+	@XmlTransient
+	private URL xmlFlushTarget;
 
 	/**
 	 * List of users
@@ -36,19 +42,27 @@ public class ProjectManagerImpl implements ProjectManager {
 	@XmlElementWrapper(name="projects")
 	@XmlElement(name="project")
 	private List<ProjectImpl> projects;
-
+	
 	/**
 	 * Global properties
 	 */
 	@XmlElement
 	private Map<String, String> properties;
-	
+
+	@XmlElementWrapper(name="params")
+	@XmlElement(name="param")
+	private List<ParamImpl> params;
+
 	public ProjectManagerImpl(){
 		this.users = new ArrayList<>();
 		this.projects = new ArrayList<>(3);
 		this.properties = new HashMap<>();
+		this.params = new ArrayList<ParamImpl>();
 	}
 
+	public void setFlushDestination(URL path) {
+		this.xmlFlushTarget = path;
+	}
 	
 	@Override
 	public User getUserById(String userId) {
@@ -71,7 +85,7 @@ public class ProjectManagerImpl implements ProjectManager {
 	}
 
 	@Override
-	public User addUser(String userId) {
+	public UserImpl addUser(String userId) {
 		UserImpl user = new UserImpl(this, userId);
 		users.add(user);
 		return user;
@@ -130,5 +144,19 @@ public class ProjectManagerImpl implements ProjectManager {
 	}
 	public String getProperty(String key) {
 		return properties.get(key);
+	}
+
+	@Override
+	public void flush() {
+		if( xmlFlushTarget == null ) {
+			// no persistence
+			return;
+		}
+		JAXB.marshal(this, xmlFlushTarget);
+	}
+
+	@Override
+	public List<ParamImpl> getParameters() {
+		return params;
 	}
 }

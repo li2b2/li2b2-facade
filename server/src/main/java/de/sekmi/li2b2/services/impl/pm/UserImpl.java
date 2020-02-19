@@ -1,7 +1,9 @@
-package de.sekmi.li2b2.services.impl;
+package de.sekmi.li2b2.services.impl.pm;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -27,11 +29,13 @@ public class UserImpl implements User {
 	private String login;
 	private char[] password;
 	private Map<String,String> properties;
+	private List<ParamImpl> params;
 
 	public UserImpl(ProjectManagerImpl pm, String login){
 		this.pm = pm;
 		this.login = login;
 		this.properties = new HashMap<>();
+		this.params = new ArrayList<>();
 		//this.domain = domain;
 	}
 	@Override
@@ -123,5 +127,9 @@ public class UserImpl implements User {
 	@Override
 	public void setProperty(String key, String value) {
 		properties.put(key, value);
+	}
+	@Override
+	public List<ParamImpl> getParameters() {
+		return this.params;
 	}
 }

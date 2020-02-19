@@ -1,4 +1,4 @@
-package de.sekmi.li2b2.services.impl;
+package de.sekmi.li2b2.services.impl.pm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 
 import de.sekmi.li2b2.api.pm.Project;
 import de.sekmi.li2b2.api.pm.User;
-import de.sekmi.li2b2.hive.pm.Param;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProjectImpl implements Project{
@@ -26,7 +25,7 @@ public class ProjectImpl implements Project{
 
 	@XmlElementWrapper(name="params")
 	@XmlElement(name="param")
-	private List<Param> params;
+	private List<ParamImpl> params;
 	
 	// TODO enable serialization, process roles like i2b2 does (i2b2 roles always include lower right roles)
 	/**
@@ -45,7 +44,7 @@ public class ProjectImpl implements Project{
 		this.name = name;
 		this.properties = new HashMap<>();
 		this.users = new HashMap<>();
-		this.params = new ArrayList<Param>();
+		this.params = new ArrayList<>();
 	}
 	@Override
 	public String getId() {
@@ -98,9 +97,18 @@ public class ProjectImpl implements Project{
 	public String getProperty(String key) {
 		return properties.get(key);
 	}
+	@Override
+	public List<ParamImpl> getParameters() {
+		return this.params;
+	}
 
-	public List<Param> getParams(){
-		return params;
+	@Override
+	public List<ParamImpl> getUserParameters(User user) {
+		ProjectUserConfigImpl uc = getOrCreateUser(user);
+		if( uc == null ) {
+			return null;
+		}
+		return uc.param;
 	}
 
 }

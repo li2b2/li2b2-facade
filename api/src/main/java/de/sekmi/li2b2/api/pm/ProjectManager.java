@@ -1,5 +1,6 @@
 package de.sekmi.li2b2.api.pm;
 
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -19,5 +20,21 @@ public interface ProjectManager {
 	// TODO exceptions for failure or if user/project does not exist
 	void deleteUser(String userId);
 	void deleteProject(String projectId);
-
+	/**
+	 * Global/Hive parameters.
+	 * @return list of global parameters
+	 */
+	List<? extends Parameter> getParameters();
+	
+	
+	/**
+	 * Specify the target for the {@link #flush()} operation which
+	 * writes the current state to persistent storage.
+	 * @param dest destination URL
+	 */
+	public void setFlushDestination(URL dest);
+	/**
+	 * Write changes to persistent storage (if available).
+	 */
+	void flush();
 }

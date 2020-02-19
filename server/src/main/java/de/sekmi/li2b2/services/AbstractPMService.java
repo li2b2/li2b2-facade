@@ -110,6 +110,11 @@ public abstract class AbstractPMService extends AbstractService{
 			String projectId = body.getTextContent();
 			getProjectParams(response, projectId);
 
+		}else if( type.equals("get_project_param") ) {
+			// called when adding a user param
+			String paramId = body.getTextContent();
+			getProjectParam(response, paramId);
+
 		// SECTION Hive
 		}else if( type.equals("get_all_hive") ){
 			// called when the Hive section is opened
@@ -177,6 +182,11 @@ public abstract class AbstractPMService extends AbstractService{
 			Element param = (Element)body.getElementsByTagName("param").item(0);
 			setUserParam(response, userId, param.getAttribute("name"), param.getAttribute("datatype"), param.getTextContent());
 
+		}else if( type.equals("get_user_param") ) {
+			// called when adding a user param
+			String paramId = body.getTextContent();
+			getUserParam(response, paramId);
+
 		}else if( type.equals("get_all_user_param") ) {
 			// called when the Params subtree for a user is opened
 			String userId = HiveMessage.optionalElementContent(body, "user_name");
@@ -230,7 +240,9 @@ public abstract class AbstractPMService extends AbstractService{
 	protected abstract void getAllUsers(HiveResponse response);
 	protected abstract void getUser(HiveResponse response, String userId);
 	protected abstract void getUserParams(HiveResponse response, String userId);
-	protected abstract void deleteUserParam(HiveResponse response, String userId);
+	protected abstract void getUserParam(HiveResponse response, String paramId);
+	protected abstract void getProjectParam(HiveResponse response, String paramId);
+	protected abstract void deleteUserParam(HiveResponse response, String paramId);
 	protected abstract void setUserParam(HiveResponse response, String userId, String paramType, String paramName, String paramValue);
 
 	protected abstract void setPassword(HiveResponse Response, Credentials user, String newPassword);

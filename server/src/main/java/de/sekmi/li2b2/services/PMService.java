@@ -3,8 +3,10 @@ package de.sekmi.li2b2.services;
 import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -25,6 +27,7 @@ import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.pm.ProjectManager;
 import de.sekmi.li2b2.api.pm.User;
+import de.sekmi.li2b2.api.pm.Parameter;
 import de.sekmi.li2b2.api.pm.Project;
 
 import de.sekmi.li2b2.hive.Credentials;
@@ -34,7 +37,7 @@ import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.hive.pm.UserProject;
-import de.sekmi.li2b2.services.impl.ProjectImpl;
+import de.sekmi.li2b2.services.impl.pm.ProjectImpl;
 import de.sekmi.li2b2.services.token.Token;
 import de.sekmi.li2b2.services.token.TokenManager;
 
@@ -52,6 +55,17 @@ public class PMService extends AbstractPMService{
 	public static final String USER_FULLNAME = "pm.fullname";
 	public static final String USER_DOMAIN = "pm.domain";
 	public static final String USER_ISADMIN = "pm.admin";
+	// roles for project administration
+	public static final String ROLE_PROJECT_MANAGER = "MANAGER";
+	public static final String ROLE_PROJECT_USER = "USER";
+	public static final List<String> ROLES_PROJECT = Arrays.asList(ROLE_PROJECT_MANAGER, ROLE_PROJECT_USER);
+	// roles for project data
+	public static final String ROLE_DATA_PROT = "DATA_PROT";
+	public static final String ROLE_DATA_DEID = "DATA_DEID";
+	public static final String ROLE_DATA_LDS = "DATA_LDS";
+	public static final String ROLE_DATA_AGG = "DATA_AGG";
+	public static final String ROLE_DATA_OBFSC = "DATA_OBFSC";
+	public static final List<String> ROLES_DATA = Arrays.asList(ROLE_DATA_PROT,ROLE_DATA_DEID,ROLE_DATA_LDS,ROLE_DATA_AGG,ROLE_DATA_OBFSC);
 	
 	private List<Cell> otherCells;
 	private ProjectManager manager;
@@ -182,8 +196,13 @@ public class PMService extends AbstractPMService{
 
 	@Override
 	protected void getProjectParams(HiveResponse response, String projectId) {
-		// TODO Auto-generated method stub
-		
+		Project project = manager.getProjectById(projectId);
+		if( project == null ) {
+			response.setResultStatus("ERROR", "project not found: "+projectId);
+		}
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "params");
+		el.setPrefix("ns4");
+		appendParamElements(el, project.getParameters(), i -> projectId+"/"+i);		
 	}
 
 
@@ -213,10 +232,14 @@ public class PMService extends AbstractPMService{
 		
 	}
 
-	private void appendUser(Element parent, User user){
+	private void appendUserElement(Element parent, User user){
 		// TODO compare to official response (elements and order)
 		Element el = parent.getOwnerDocument().createElementNS("","user");
 		parent.appendChild(el);
+		appendUserBasicInfo(el, user);
+	}
+	private void appendUserBasicInfo(Element userElement, User user) {
+		Element el = userElement;
 		appendTextElement(el, "full_name", user.getProperty(USER_FULLNAME));
 		appendTextElement(el, "user_name", user.getName());
 		appendTextElement(el, "email", user.getProperty(USER_EMAIL));
@@ -229,19 +252,18 @@ public class PMService extends AbstractPMService{
 		Element el = response.addBodyElement(I2b2Constants.PM_NS, "users");
 		el.setPrefix("ns4");
 		for( User user : manager.getUsers() ){
-			appendUser(el, user);
+			appendUserElement(el, user);
 		}
 	}
 
 
 	@Override
 	protected void getUser(HiveResponse response, String userId) {
-		// TODO does the official server send a 'users' wrapper?
-		Element el = response.addBodyElement(I2b2Constants.PM_NS, "users");
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "user");
 		el.setPrefix("ns4");
 		User user = manager.getUserById(userId);
 		if( user != null ){
-			appendUser(el, user);
+			appendUserBasicInfo(el, user);
 		}
 	}
 
@@ -322,7 +344,8 @@ public class PMService extends AbstractPMService{
 			// param demo
 			if( project instanceof ProjectImpl ) {
 				up.params = new ArrayList<>();
-				up.params.addAll(((ProjectImpl)project).getParams());
+				up.params.addAll(((ProjectImpl)project).getParameters());
+				//up.params.addAll((project.getUserParameters(user));
 				// TODO add ProjectUserParams
 			}
 			// append
@@ -358,6 +381,7 @@ public class PMService extends AbstractPMService{
 			response.setResultStatus("ERROR", "User not found");
 		}
 		user.setPassword(newPassword.toCharArray());
+		manager.flush();
 	}
 
 
@@ -378,6 +402,7 @@ public class PMService extends AbstractPMService{
 		project.setProperty("pm.key",key);
 		project.setProperty("pm.path", path);
 
+		manager.flush();
 		appendResponseText(response, "1 records");
 	}
 
@@ -412,10 +437,34 @@ public class PMService extends AbstractPMService{
 			user.setPassword(password.toCharArray());
 		}
 		user.setAdmin(admin);
+		manager.flush();
 		appendResponseText(response, "1 records");
 	}
 
 
+	/**
+	 * Replace the role path in the user roles.
+	 * For a given rolePath, all roles in that rolePath with an index less than roleIndex are removed from the user roles.
+	 * All roles in rolePath with an index equal or greater than roleIndex will be added.
+	 *
+	 * @param userRoles user roles to be modified
+	 * @param rolePath role path to user for modification
+	 * @param roleIndex index of the desired role in the role path
+	 */
+	private void replaceRolePath(Set<String> userRoles, List<String> rolePath, int roleIndex) {
+		//
+		if( roleIndex < 0 ) {
+			throw new IndexOutOfBoundsException();
+		}
+		// remove roles with index less than roleIndex
+		for( int i=0; i<roleIndex; i++ ) {
+			userRoles.remove(rolePath.get(i));
+		}
+		// add all roles with index equal or greater than roleIndex
+		for( int i=roleIndex; i<rolePath.size(); i++ ) {
+			userRoles.add(rolePath.get(i));
+		}
+	}
 	@Override
 	protected void setRole(HiveResponse response, String userId, String role, String projectId) {
 		User user = manager.getUserById(userId);
@@ -424,12 +473,30 @@ public class PMService extends AbstractPMService{
 			response.setResultStatus("ERROR", "Project or user not found");
 			return;
 		}
-		// TODO some roles will automatically remove other roles because only one role per group is active
+		Set<String> roles = project.getUserRoles(user);
+		// some roles will automatically remove other roles because only one role per role path is active
 		// e.g. one of MANAGER/USER,  
 		// e.g. one of DATA_OBFSC/DATA_LDS/DATA_AGG/DATA_DEID/DATA_PROT
-		project.getUserRoles(user).add(role);
+
+		// find data path
+		int i = ROLES_DATA.indexOf(role);
+		if( i != -1 ) {
+			replaceRolePath(roles, ROLES_DATA, i);
+		}else {
+			// otherwise find project roles path
+			i = ROLES_PROJECT.indexOf(role);
+			if( i != -1 ) {
+				replaceRolePath(roles, ROLES_PROJECT, i);
+			}
+		}
+		if( i == -1 ) {
+			// role not part of data or project path,
+			// add individual role
+			roles.add(role);
+		}
 		log.info("Role added for project "+projectId+": "+userId+" -> "+role);
 		log.info("Current roles: "+project.getUserRoles(user).toString());
+		manager.flush();
 		appendResponseText(response, "1 records");
 	}
 
@@ -451,6 +518,7 @@ public class PMService extends AbstractPMService{
 		log.info("Role removed for project "+projectId+": "+userId+" -> "+role);
 		log.info("Remaining roles: "+project.getUserRoles(user).toString());
 		// TODO error if role not there
+		manager.flush();
 		appendResponseText(response, "1 records");
 	}
 
@@ -478,28 +546,101 @@ public class PMService extends AbstractPMService{
 		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
 	}
 
+	private static void appendParamElements(Element parent, List<?extends Parameter> params, Function<Integer,String> idMapping) {
+		for( int i=0; i<params.size(); i++ ) {
+			Parameter par = params.get(i);
+			Element pel = appendTextElement(parent, "param", par.getValue());
+			pel.setAttribute("datatype", par.getDatatype());
+			pel.setAttribute("id", idMapping.apply(i));
+			pel.setAttribute("name", par.getName());
+		}		
+	}
 
 	@Override
 	protected void getUserParams(HiveResponse response, String userId) {
-		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+		User user = manager.getUserById(userId);
+		if( user == null ) {
+			response.setResultStatus("ERROR", "User not found: "+userId);
+		}
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "params");
+		el.setPrefix("ns4");
+		appendParamElements(el, user.getParameters(), i -> userId+"/"+i);		
 	}
 
 
 	@Override
-	protected void deleteUserParam(HiveResponse response, String userId) {
-		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+	protected void deleteUserParam(HiveResponse response, String paramId) {
+//		User user = manager.getUserById(userId);
+//		if( user == null ) {
+			response.setResultStatus("ERROR", "TODO implement");
+//			return;
+//		}
+//
+//		user.getParameters()
+//		appendResponseText(response, "1 records");
 	}
 
 
 	@Override
 	protected void setUserParam(HiveResponse response, String userId, String paramType, String paramName,
 			String paramValue) {
+		
 		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
 	}
 
 
 	@Override
 	protected void getProjectUserParams(HiveResponse response, String projectPath, String userId) {
-		response.setResultStatus("ERROR", "TODO implement"); // TODO implement
+		Project project = manager.getProjectById(projectPath);
+		User user = manager.getUserById(userId);
+		if( project == null || user == null ) {
+			response.setResultStatus("ERROR", "specified project or user unknown");
+			return;
+		}
+		List<? extends Parameter> params = project.getUserParameters(user);
+		if( params == null ) {
+			response.setResultStatus("ERROR", "user not assigned to specified project");
+			return;
+		}
+
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "params");
+		el.setPrefix("ns4");
+		appendParamElements(el, user.getParameters(), i -> projectPath+"/"+userId+"/"+i);
+	}
+
+	private void appendParamElement(HiveResponse response, Parameter par, String id) {
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "param");
+		el.setPrefix("ns4");
+		el.setTextContent(par.getValue());
+		el.setAttribute("datatype", par.getDatatype());
+		el.setAttribute("id", id);
+		el.setAttribute("name", par.getName());	
+	}
+
+	@Override
+	protected void getUserParam(HiveResponse response, String paramId) {
+		int slash = paramId.lastIndexOf('/');
+		if( slash == -1 ) {
+			response.setResultStatus("ERROR", "incompatible param id");
+		}
+		String path = paramId.substring(0, slash);
+		int no = Integer.parseInt(paramId.substring(slash+1));
+		User user = manager.getUserById(path);
+		Parameter par = user.getParameters().get(no);
+		appendParamElement(response, par, paramId);
+	}
+
+
+	@Override
+	protected void getProjectParam(HiveResponse response, String paramId) {
+		int slash = paramId.lastIndexOf('/');
+		if( slash == -1 ) {
+			response.setResultStatus("ERROR", "incompatible param id");
+		}
+		String path = paramId.substring(0, slash);
+		int no = Integer.parseInt(paramId.substring(slash+1));
+		Project project = manager.getProjectById(path);
+		Parameter par = project.getParameters().get(no);
+		appendParamElement(response, par, paramId);
 	}
 }
