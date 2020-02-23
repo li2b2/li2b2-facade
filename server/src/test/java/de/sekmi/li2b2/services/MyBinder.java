@@ -56,9 +56,13 @@ public class MyBinder extends AbstractBinder{
 	protected void configure() {
 		// project manager
 		ProjectManagerImpl pm = new ProjectManagerImpl();
+		pm.setProperty(PMService.SERVER_DOMAIN_ID, "i2b2");
+		pm.setProperty(PMService.SERVER_DOMAIN_NAME, "i2b2demo");
+		pm.setProperty(PMService.SERVER_ENVIRONMENT, "DEVELOPMENT");
+		
 		pm.setFlushDestination(Paths.get("target/pm.xml"));
 
-		UserImpl user = pm.addUser("demo");//, "i2b2demo");
+		UserImpl user = pm.addUser("demo");
 		user.setPassword("demouser".toCharArray());
 		user.setProperty(PMService.USER_FULLNAME, "Demo user");
 		user.getParameters().add(new ParamImpl("userparam1","paramvalue1"));
@@ -66,10 +70,13 @@ public class MyBinder extends AbstractBinder{
 		project.getProjectUser(user).addRoles("USER","EDITOR","DATA_OBFSC");
 		project.getParameters().add(new ParamImpl("Software","<span style='color:orange;font-weight:bold'>li2b2 server</span>"));
 		project.getProjectUser(user).addParameter("announcement","T","This is a demo of the <span style='color:orange;font-weight:bold'>li2b2 server</span>.");
+		// admin user should not be able to login into the projects
+		UserImpl admin = pm.addUser("i2b2");
+		admin.setPassword("demouser".toCharArray());
+		admin.setAdmin(true);
 		
 		pm.addProject("Demo2", "li2b2 Demo2").getProjectUser(user).addRoles("USER","DATA_OBFSC");
 		bind(pm).to(ProjectManager.class);
-		
 		
 		// ontology
 		Ontology ont = OntologyImpl.parse(getOntologyURL());

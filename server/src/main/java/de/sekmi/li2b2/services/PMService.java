@@ -36,6 +36,7 @@ import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.hive.pm.UserProject;
+import de.sekmi.li2b2.services.impl.ServerCell;
 import de.sekmi.li2b2.services.impl.pm.ParamCollectionHandler;
 import de.sekmi.li2b2.services.impl.pm.ParamHandler;
 import de.sekmi.li2b2.services.impl.pm.ParamImpl;
@@ -44,17 +45,20 @@ import de.sekmi.li2b2.services.token.TokenManager;
 
 @Singleton
 @Path(PMService.SERVICE_URL)
+@de.sekmi.li2b2.services.Cell(id = "PM")
 public class PMService extends AbstractPMService{
 	private static final Logger log = Logger.getLogger(PMService.class.getName());
 	public static final String SERVICE_URL = "/i2b2/services/PMService/";
 	public static final String SESSION_KEY_PREFIX = "SessionKey:"; // same as official server
+	public static final String SERVER_DOMAIN_NAME = "pm.domain.name";
+	public static final String SERVER_DOMAIN_ID = "pm.domain.id";
+	public static final String SERVER_ENVIRONMENT = "pm.environment";
 	public static final String PROJECT_DESCRIPTION="pm.description";
 	public static final String PROJECT_WIKI="pm.wiki";
 	public static final String PROJECT_KEY="pm.key";
 	public static final String PROJECT_PATH="pm.path";
 	public static final String USER_EMAIL = "pm.email";
 	public static final String USER_FULLNAME = "pm.fullname";
-	public static final String USER_DOMAIN = "pm.domain";
 	public static final String USER_ISADMIN = "pm.admin";
 	// roles for project administration
 	public static final String ROLE_PROJECT_MANAGER = "MANAGER";
@@ -71,13 +75,20 @@ public class PMService extends AbstractPMService{
 	private List<Cell> otherCells;
 	private ProjectManager manager;
 	private TokenManager tokens;
+
+//	@Inject // does not work in jetty
+//	private Instance<AbstractService> cells;
 	
 	public PMService() throws HiveException{
 		otherCells = new ArrayList<>(4);
 		setIndentOutput(true);
-		registerCell(new Cell("ONT", "OntologyService", OntologyService.SERVICE_PATH));
-		registerCell(new Cell("WORK", "WorkplaceSevice", WorkplaceService.SERVICE_PATH));
-		registerCell(new Cell("CRC", "QueryToolService", AbstractCRCService.SERVICE_PATH));
+		registerCell(new ServerCell(OntologyService.class));
+		registerCell(new ServerCell(QueryToolService.class));
+//		registerCell(new ServerCell(PMService.class));
+//		registerCell(new Cell("ONT", "OntologyService", OntologyService.SERVICE_PATH));
+//		registerCell(new Cell("WORK", "WorkplaceSevice", WorkplaceService.SERVICE_PATH));
+//		registerCell(new Cell("CRC", "QueryToolService", AbstractCRCService.SERVICE_PATH));
+		registerCell(new ServerCell(WorkplaceService.class));
 	}
 	
 
@@ -112,10 +123,7 @@ public class PMService extends AbstractPMService{
 		return "PM";
 	}
 
-	private static void appendProject(Element parent, Project project){
-//		Element el = parent.getOwnerDocument().createElementNS("","project");
-		Element el = parent.getOwnerDocument().createElement("project");
-		parent.appendChild(el);
+	private static void fillProject(Element el, Project project) {
 		el.setAttribute("id", project.getId());
 		appendTextElement(el, "name", project.getName());
 //		appendTextElement(el, "key", "K_"+project.getId()); // XXX what for?
@@ -127,6 +135,13 @@ public class PMService extends AbstractPMService{
 		}
 		appendTextElement(el, "path", project.getPath());
 //		appendTextElement(el, "user_name", "demo"); // XXX what for?
+		
+	}
+	private static Element appendProject(Element parent, Project project){
+		Element el = parent.getOwnerDocument().createElement("project");
+		parent.appendChild(el);
+		fillProject(el, project);
+		return el;
 	}
 
 	@Override
@@ -142,7 +157,14 @@ public class PMService extends AbstractPMService{
 
 	@Override
 	protected void getProject(HiveResponse response, String projectId, String path) {
-		// TODO Auto-generated method stub
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "project");
+		el.setPrefix("ns4");
+		Project project = manager.getProjectById(projectId);
+		if( project != null ) {
+			fillProject(el, project);
+		}else {
+			response.setResultStatus("ERROR", "Unknown project "+projectId);
+		}
 	}
 
 
@@ -196,11 +218,26 @@ public class PMService extends AbstractPMService{
 
 	@Override
 	protected void getAllHive(HiveResponse response) {
-		// TODO Auto-generated method stub
-		
+		Element parent = response.addBodyElement(I2b2Constants.PM_NS, "hives");
+		parent.setPrefix("ns4");
+		Element el = parent.getOwnerDocument().createElement("hive");
+		parent.appendChild(el);
+		appendTextElement(el, "environment", manager.getProperty(SERVER_ENVIRONMENT));
+		appendTextElement(el, "helpURL", "https://github.com/li2b2/li2b2-facade");
+		appendTextElement(el, "domain_name", manager.getProperty(SERVER_DOMAIN_NAME));
+		appendTextElement(el, "domain_id", manager.getProperty(SERVER_DOMAIN_ID));
+		appendTextElement(el, "active", "true");
 	}
 
-
+	private void fillCellData(Element cd, Cell cell) {
+		cd.setAttribute("id", cell.id);
+		appendTextElement(cd, "name", cell.name);
+		appendTextElement(cd, "url", cell.url);
+		appendTextElement(cd, "project_path", "/");
+		appendTextElement(cd, "method", "REST");
+		appendTextElement(cd, "can_override", "true");
+		
+	}
 	@Override
 	protected void getAllCells(HiveResponse response, String projectId) throws JAXBException {
 		JAXBContext jaxb = JAXBContext.newInstance(Cell.class);
@@ -216,12 +253,30 @@ public class PMService extends AbstractPMService{
 
 	@Override
 	protected void getCell(HiveResponse response, String id, String path) {
-		// TODO Auto-generated method stub
-		
+		Element el = response.addBodyElement(I2b2Constants.PM_NS, "cell");
+		el.setPrefix("ns4");
+		if( id == "PM" ) {
+			// this cell information
+			log.info("Asked for PM cell info");
+		}else {
+			Cell cell = null;
+			for( int i=0; i<otherCells.size(); i++ ) {
+				Cell c = otherCells.get(i);
+				if( id.contentEquals(c.id) ) {
+					cell = c;
+					break;
+				}
+			}
+			if( cell == null ) {
+				// cell not found
+				response.setResultStatus("ERROR", "Unknown Cell "+id);
+			}else {
+				fillCellData(el, cell);
+			}
+		}
 	}
 
 	private void appendUserElement(Element parent, User user){
-		// TODO compare to official response (elements and order)
 		Element el = parent.getOwnerDocument().createElementNS("","user");
 		parent.appendChild(el);
 		appendUserBasicInfo(el, user);
@@ -231,7 +286,6 @@ public class PMService extends AbstractPMService{
 		appendTextElement(el, "full_name", user.getProperty(USER_FULLNAME));
 		appendTextElement(el, "user_name", user.getName());
 		appendTextElement(el, "email", user.getProperty(USER_EMAIL));
-		appendTextElement(el, "domain", user.getProperty(USER_DOMAIN));
 		appendTextElement(el, "is_admin", Boolean.toString(user.isAdmin()));
 	}
 
@@ -306,7 +360,7 @@ public class PMService extends AbstractPMService{
 
 		// webclient only users configure/[full_name|is_admin], project/[name|path}
 		Element el = resp.addBodyElement(I2b2Constants.PM_NS, "configure");
-		appendTextElement(el, "environment", "DEVELOPMENT");
+		appendTextElement(el, "environment", manager.getProperty(SERVER_ENVIRONMENT));
 		appendTextElement(el, "helpURL", "https://github.com/rwm/li2b2");
 		// user info
 		// TODO namespaces are not clean, 
@@ -317,8 +371,8 @@ public class PMService extends AbstractPMService{
 		Element p = appendTextElement(ue, "password", SESSION_KEY_PREFIX+sessionKey);
 		p.setAttribute("is_token", Boolean.TRUE.toString());
 		p.setAttribute("token_ms_timeout", Long.toString(getTokenManager().getExpirationMillis()));
-		appendTextElement(ue, "domain", user.getProperty(USER_DOMAIN));
-		appendTextElement(ue, "is_admin", "true");
+		appendTextElement(ue, "domain", manager.getProperty(SERVER_DOMAIN_NAME));
+		appendTextElement(ue, "is_admin", Boolean.toString(user.isAdmin()));
 		// add projects
 		for( Project project : user.getProjects() ){
 			// fill project
@@ -397,13 +451,9 @@ public class PMService extends AbstractPMService{
 		appendResponseText(response, "1 records");
 	}
 
-	// TODO use this method
-	private boolean verifyAdmin(HiveRequest request){
-		String name = getAuthenticatedUser(request);
-		if( name == null ){
-			return false;
-		}
-		User user = manager.getUserById(name);
+	@Override
+	protected boolean verifyAdmin(String authenticatedUser){
+		User user = manager.getUserById(authenticatedUser);
 		if( user != null && user.isAdmin() ){
 			return true;
 		}else{
@@ -527,7 +577,7 @@ public class PMService extends AbstractPMService{
 
 	@Override
 	ParamHandler getGlobalParamHandler() {
-		return new ParamCollectionHandler(1, p -> manager);
+		return new ParamCollectionHandler(0, p -> manager, "global");
 	}
 
 

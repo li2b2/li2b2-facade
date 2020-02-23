@@ -27,5 +27,8 @@ public class Cell {
 		this.method = "REST";
 		this.can_override = true;
 	}
-	
+	@Override
+	public String toString() {
+		return "Cell["+id+"]";
+	}
 }

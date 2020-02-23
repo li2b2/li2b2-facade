@@ -23,7 +23,6 @@ import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveMessage;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.HiveResponse;
-import de.sekmi.li2b2.services.impl.pm.ParamHandler;
 import de.sekmi.li2b2.services.token.Token;
 import de.sekmi.li2b2.services.token.TokenManager;
 
@@ -163,30 +162,7 @@ public abstract class AbstractService extends AbstractCell{
 		}
 		return dom;
 	}
-	/*
-	Document createResponse(DocumentBuilder builder, Element request_header){
-		Document dom = builder.newDocument();
-		Element re = (Element)dom.appendChild(dom.createElementNS(HIVE_NS, "response"));
-		NodeList nl;
-		try {
-			Document rh = builder.parse(getClass().getResourceAsStream("/templates/response_header.xml"));
-			stripWhitespace(rh.getDocumentElement());
-			// sending application
-			nl = rh.getElementsByTagName("sending_application").item(0).getChildNodes();
-			nl.item(0).setTextContent(getName());
-			nl.item(1).setTextContent(getVersion());
-			// timestamp
-			rh.getElementsByTagName("datetime_of_message").item(0).setTextContent(Instant.now().toString());
-			// security
-			nl = rh.getElementsByTagName("security").item(0).getChildNodes();
-			// TODO message_id, project, session
-			re.appendChild(dom.adoptNode(rh.getDocumentElement()));
-		} catch (SAXException | IOException | XPathExpressionException e) {
-			log.log(Level.WARNING, "unable to process response header template", e);
-		}
-		
-		return dom;
-	}*/
+
 	static Element appendTextElement(Element parent, String name, String content){
 		return HiveMessage.appendTextElement(parent, name, content);
 	}

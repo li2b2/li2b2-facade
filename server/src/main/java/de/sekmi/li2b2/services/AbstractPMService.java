@@ -63,6 +63,7 @@ public abstract class AbstractPMService extends AbstractService{
 		return createResponse(newDocumentBuilder(), request);
 	}
 
+	protected abstract boolean verifyAdmin(String userId);
 
 	/**
 	 * Handle authenticated project management request.
@@ -80,12 +81,21 @@ public abstract class AbstractPMService extends AbstractService{
 		
 		if( type.equals("set_password") ){
 			// called if the user wants to change his password
+			// this method can be called by any user
 			String password = body.getTextContent();
 			// webclient will add spaces around the password, trim the password
 			password = password.trim();
 			setPassword(response, request.getSecurity(), password);
+			return;
+		}
+		
+		// all other methods require ADMIN privileges
+		if( verifyAdmin(request.getUserId()) == false ) {
+			response.setResultStatus("ERROR", "Access denied for users without ADMIN privileges");
+			return;
+		}
 
-		}else if( type.equals("get_all_project") ){
+		if( type.equals("get_all_project") ){
 			// called to list all projects
 			getAllProject(response);
 
@@ -103,14 +113,12 @@ public abstract class AbstractPMService extends AbstractService{
 			getAllRoles(response, projectId, userId);
 
 		}else if( type.equals("delete_role") ){
-			// XXX might be sufficient to use children 0, 1, 2 instead of names
 			String userId = HiveMessage.optionalElementContent(body, "user_name");
 			String role = HiveMessage.optionalElementContent(body, "role");
 			String projectId = HiveMessage.optionalElementContent(body, "project_id");
 			deleteRole(response, userId, role, projectId);
 
 		}else if( type.equals("set_role") ){
-			// XXX might be sufficient to use children 0, 1, 2 instead of names
 			String userId = HiveMessage.optionalElementContent(body, "user_name");
 			String role = HiveMessage.optionalElementContent(body, "role");
 			String projectId = HiveMessage.optionalElementContent(body, "project_id");

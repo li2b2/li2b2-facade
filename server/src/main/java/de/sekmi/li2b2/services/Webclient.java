@@ -1,7 +1,6 @@
 package de.sekmi.li2b2.services;
 
 import java.io.BufferedReader;
-import java.io.FilterReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Logger;

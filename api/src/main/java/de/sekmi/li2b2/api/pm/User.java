@@ -5,7 +5,6 @@ import java.util.Map;
 
 public interface User extends Principal, ParameterCollection{
 	@Deprecated String getFullName();
-	@Deprecated String getDomain();
 	boolean isAdmin();
 	void setAdmin(boolean admin);
 	Iterable<Project> getProjects();

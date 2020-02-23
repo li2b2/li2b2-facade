@@ -22,6 +22,7 @@ import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.services.token.TokenManager;
 
 @Path(WorkplaceService.SERVICE_PATH)
+@Cell(id="WORK")
 public class WorkplaceService extends AbstractService{
 	private static final Logger log = Logger.getLogger(WorkplaceService.class.getName());
 	public static final String SERVICE_PATH="/i2b2/services/WorkplaceService/";

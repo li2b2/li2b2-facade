@@ -13,7 +13,7 @@ import de.sekmi.li2b2.hive.I2b2Constants;
 public abstract class ParamHandler {
 	int idPathLength;
 	private static final char ID_PATH_SEPARATOR = '/';
-
+	protected String get_param_wrapper;
 	private static class Location{
 		String[] path;
 		int index;
@@ -31,6 +31,7 @@ public abstract class ParamHandler {
 	 */
 	public ParamHandler(int idPathLength) {
 		this.idPathLength = idPathLength;
+		this.get_param_wrapper = null;
 	}
 	
 	final String compileId(int index, String ...path) {
@@ -173,8 +174,15 @@ public abstract class ParamHandler {
 		if( par == null ) {
 			response.setResultStatus("ERROR", "Parameter not found");			
 		}else {
-			Element el = response.addBodyElement(I2b2Constants.PM_NS, "param");
-			el.setPrefix("ns4");
+			Element el;
+			if( get_param_wrapper != null ) {
+				Element parent = response.addBodyElement(I2b2Constants.PM_NS, get_param_wrapper);
+				parent.setPrefix("ns4");
+				el = parent.getOwnerDocument().createElement("param");
+				parent.appendChild(el);				
+			}else {
+				el = response.addBodyElement(I2b2Constants.PM_NS, "param");				
+			}
 			el.setTextContent(par.getValue());
 			el.setAttribute("datatype", par.getDatatype());
 			el.setAttribute("id", paramId);

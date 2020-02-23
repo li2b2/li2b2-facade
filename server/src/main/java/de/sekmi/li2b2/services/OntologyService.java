@@ -21,13 +21,13 @@ import de.sekmi.li2b2.api.ont.Constraints;
 import de.sekmi.li2b2.api.ont.EnumValue;
 import de.sekmi.li2b2.api.ont.Modifier;
 import de.sekmi.li2b2.api.ont.Ontology;
-import de.sekmi.li2b2.api.ont.ValueType;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.services.token.TokenManager;
 
 @Path(OntologyService.SERVICE_PATH)
+@Cell(id="ONT")
 public class OntologyService extends AbstractService{
 	public static final String SERVICE_PATH="/i2b2/services/OntologyService/";
 	private static final Logger log = Logger.getLogger(OntologyService.class.getName());
@@ -116,8 +116,8 @@ public class OntologyService extends AbstractService{
 	public Response getModifiers(InputStream requestBody) throws HiveException, ParserConfigurationException{
 		HiveUserRequest req = parseRequestAuthenticated(requestBody);
 		Element el = req.requireBodyElement(I2b2Constants.ONT_NS, "get_modifiers");
-		boolean synonyms = Boolean.parseBoolean(el.getAttribute("synonyms"));
-		boolean hiddens = Boolean.parseBoolean(el.getAttribute("hiddens"));
+//		boolean synonyms = Boolean.parseBoolean(el.getAttribute("synonyms"));
+//		boolean hiddens = Boolean.parseBoolean(el.getAttribute("hiddens"));
 		String self = el.getChildNodes().item(0).getTextContent();
 		Concept concept = ontology.getConceptByKey(self);
 		Iterable<? extends Modifier> modifiers;

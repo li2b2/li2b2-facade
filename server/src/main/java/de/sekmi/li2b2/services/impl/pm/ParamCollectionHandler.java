@@ -12,6 +12,11 @@ public class ParamCollectionHandler extends ParamHandler {
 		super(pathLength);
 		this.lookup = lookup;
 	}
+	public ParamCollectionHandler(int pathLength, Function<String[],ParameterCollection> lookup, String get_param_wrapper) {
+		super(pathLength);
+		this.lookup = lookup;
+		this.get_param_wrapper = get_param_wrapper;
+	}
 	@Override
 	protected List<? extends Parameter> getAllParam(String... path) {
 		ParameterCollection c = lookup.apply(path);

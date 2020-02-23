@@ -32,6 +32,7 @@ import de.sekmi.li2b2.hive.crc.CrcResponse;
 import de.sekmi.li2b2.services.token.TokenManager;
 
 @Path(AbstractCRCService.SERVICE_PATH)
+@Cell(id = "CRC")
 public class QueryToolService extends AbstractCRCService {
 	private static final Logger log = Logger.getLogger(QueryToolService.class.getName());
 	private QueryManager manager;
@@ -75,8 +76,8 @@ public class QueryToolService extends AbstractCRCService {
 	@Path("getNameInfo")
 	public Response getNameInfo(InputStream httpBody) throws HiveException, ParserConfigurationException{
 		HiveRequest req = parseRequest(httpBody);
-		Element crc_header = (Element)req.getMessageBody().getFirstChild();
-		Element body = (Element)req.getMessageBody().getLastChild();
+//		Element crc_header = (Element)req.getMessageBody().getFirstChild();
+//		Element body = (Element)req.getMessageBody().getLastChild();
 		CrcResponse resp = createResponse(req);
 
 		// TODO filter query master list according to message body

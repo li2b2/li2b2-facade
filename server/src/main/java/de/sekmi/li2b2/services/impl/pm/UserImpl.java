@@ -58,11 +58,6 @@ public class UserImpl implements User {
 	}
 
 	@Override
-	public String getDomain() {
-		return properties.get(PMService.USER_DOMAIN);
-	}
-
-	@Override
 	public boolean isAdmin() {
 		String admin = getProperty(PMService.USER_ISADMIN);
 		return admin != null && admin.contentEquals(Boolean.TRUE.toString());
@@ -97,7 +92,7 @@ public class UserImpl implements User {
 		}
 		CharBuffer in = CharBuffer.allocate(login.length()+password.length);
 		in.append(login);
-		in.append(this.password);
+		in.append(CharBuffer.wrap(password));
 		in.flip();
 		ByteBuffer bytes = StandardCharsets.UTF_8.encode(in);
 		byte[] b = new byte[bytes.remaining()];
