@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<concept>
+    <level>5</level>
+    <key>\\i2b2_LABS\i2b2\Labtests\LAB\(LLB53) Hematology\(LLB54) Blood Diff - Absolute\ANEU\LOINC:26499-4\</key>
+    <name>ABSOLUTE NEUTS (LOINC:26499-4)</name>
+    <synonym_cd>N</synonym_cd>
+    <visualattributes>LA </visualattributes>
+    <totalnum xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+    <basecode>LOINC:26499-4</basecode>
+    <metadataxml>
+        <ValueMetadata>
+            <Version>3.02</Version>
+            <CreationDateTime>04/15/2007 01:22:03</CreationDateTime>
+            <TestID>ANEU</TestID>
+            <TestName>Abs Neuts</TestName>
+            <DataType>PosFloat</DataType>
+            <CodeType>GRP</CodeType>
+            <Loinc>26499-4</Loinc>
+            <Flagstouse>HL</Flagstouse>
+            <Oktousevalues>Y</Oktousevalues>
+            <MaxStringLength />
+            <LowofLowValue>1.8</LowofLowValue>
+            <HighofLowValue>1.8</HighofLowValue>
+            <LowofHighValue>7.0</LowofHighValue>
+            <HighofHighValue>7.7</HighofHighValue>
+            <LowofToxicValue />
+            <HighofToxicValue />
+            <EnumValues />
+            <CommentsDeterminingExclusion>
+                <Com />
+            </CommentsDeterminingExclusion>
+            <UnitValues>
+                <NormalUnits>th/cmm</NormalUnits>
+                <NormalUnits>k/ul</NormalUnits>
+                <EqualUnits>th/cmm</EqualUnits>
+                <EqualUnits>k/ul</EqualUnits>
+                <ExcludingUnits />
+                <ConvertingUnits>
+                    <Units />
+                    <MultiplyingFactor />
+                </ConvertingUnits>
+            </UnitValues>
+            <Analysis>
+                <Enums />
+                <Counts />
+                <New />
+            </Analysis>
+        </ValueMetadata>
+    </metadataxml>
+    <facttablecolumn>concept_cd</facttablecolumn>
+    <tablename>concept_dimension</tablename>
+    <columnname>concept_path</columnname>
+    <columndatatype>T</columndatatype>
+    <operator>like</operator>
+    <dimcode>\i2b2\Labtests\LAB\(LLB53) Hematology\(LLB54) Blood Diff - Absolute\ANEU\LOINC:26499-4\</dimcode>
+    <tooltip>Labtests \ Hematology \ Blood Diff - Absolute \ Abs Neuts (Group:ANEU) \ Absolute Neuts (LOINC:26499-4)</tooltip>
+</concept>
+            

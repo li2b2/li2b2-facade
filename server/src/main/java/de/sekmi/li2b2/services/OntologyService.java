@@ -17,6 +17,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.ont.Concept;
+import de.sekmi.li2b2.api.ont.Constraints;
+import de.sekmi.li2b2.api.ont.EnumValue;
 import de.sekmi.li2b2.api.ont.Modifier;
 import de.sekmi.li2b2.api.ont.Ontology;
 import de.sekmi.li2b2.api.ont.ValueType;
@@ -88,6 +90,7 @@ public class OntologyService extends AbstractService{
 	public Response getChildren(InputStream requestBody) throws HiveException, ParserConfigurationException{
 		HiveUserRequest req = parseRequestAuthenticated(requestBody);
 		Element get_children = req.requireBodyElement(I2b2Constants.ONT_NS, "get_children");
+		String send_blob = get_children.getAttribute("blob");
 		String parent = get_children.getChildNodes().item(0).getTextContent();
 		Concept concept = ontology.getConceptByKey(parent);
 		Iterable<? extends Concept> children;
@@ -99,7 +102,11 @@ public class OntologyService extends AbstractService{
 		}
 		// TODO session, authentication, project info
 		HiveResponse resp = createResponse(newDocumentBuilder(), req);
-		addConceptsBody(resp, children, new ShortConceptWriter());
+		if( send_blob != null && send_blob.contentEquals("true") ) {
+			addConceptsBody(resp, children, new LongConceptWriter());
+		}else {
+			addConceptsBody(resp, children, new ShortConceptWriter());
+		}
 		return Response.ok(compileResponseDOM(resp)).build();
 	}
 
@@ -143,21 +150,21 @@ public class OntologyService extends AbstractService{
 			if( concept.getTotalNum() != null ){
 				appendTextElement(c, "totalnum", concept.getTotalNum().toString());				
 			}
+			if( concept.getCode() != null ) {
+				appendTextElement(c, "basecode", concept.getCode());				
+			}
 //			appendTextElement(c, "totalnum", "").setAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil", "true");;
 		}
 	}
 
-	private String encodeValueType(ValueType type){
-		return type.toString();
-	}
 	private class LongConceptWriter extends ShortConceptWriter{
 		@Override
 		public void accept(Concept concept, Element c) {
 			// write short concepts first
 			super.accept(concept,c);
-			log.info("Long concept: "+concept.getKey()+": "+concept.getValueType());
 			// write metadataxml
-			if( concept.getValueType() != null ){
+			Constraints constraints = concept.getConstraints();
+			if( constraints != null ){
 				Document doc = c.getOwnerDocument();
 				Element metaxml = (Element)c.appendChild(doc.createElement("metadataxml"));
 	
@@ -166,10 +173,23 @@ public class OntologyService extends AbstractService{
 				appendTextElement(val, "CreationDateTime", "10/07/2002 15:56:34");
 				appendTextElement(val, "TestID", concept.getKey()); // not displayed
 				appendTextElement(val, "TestName", concept.getDisplayName()); // displayed in value dialog
-				appendTextElement(val, "DataType", encodeValueType(concept.getValueType()));				
+				appendTextElement(val, "DataType", constraints.getDatatype());				
 				appendTextElement(val, "Oktousevalues", "Y");
-				// TODO unit values
-				appendTextElement(val, "UnitValues", "Y");
+				// TODO enum values
+				if( constraints.getEnumValues() != null ) {
+					Element ev = (Element)val.appendChild(doc.createElement("EnumValues"));
+					for( EnumValue v : constraints.getEnumValues() ) {
+						appendTextElement(ev, "Val", v.getValue()).setAttribute("description", v.getLabel());
+					}
+					
+				}
+				if( constraints.getUnits() != null ) {
+					Element units = (Element)val.appendChild(doc.createElement("UnitValues"));
+					for( int i=0; i<constraints.getUnits().length; i++ ) {
+						appendTextElement(units, "NormalUnits", constraints.getUnits()[i]);
+					}
+				}
+				
 				/*
 					<UnitValues>
 					    <NormalUnits>th/mm3</NormalUnits>

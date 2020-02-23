@@ -58,17 +58,14 @@ public class OntologyClient extends CellClient {
 		return parseConcepts(el);
 	}
 	
-	public Concept[] getChildren(String parentKey) throws HiveException{
-		//	<ns4:get_children blob="false" type="core" max='200'  synonyms="false" hiddens="false">
-		//	  <parent>\\i2b2_DEMO\i2b2\Demographics\</parent>
-		//	</ns4:get_children>
+	public Concept[] getChildren(String parentKey, boolean includeMetadata) throws HiveException{
 		HiveRequest req = createRequestMessage();
 		
 		Element el = req.addBodyElement(XMLNS, "get_children");
 		// official server needs prefix 'ns4'.
 		// seriously, you need to clean up your XML code
 		el.setPrefix("ns4");
-		el.setAttribute("blob", "false");
+		el.setAttribute("blob", Boolean.toString(includeMetadata));
 		el.setAttribute("type", "core");
 		// don't limit number of child concepts. maybe add member variable for limit.
 		//el.setAttribute("max", "200");
@@ -77,7 +74,13 @@ public class OntologyClient extends CellClient {
 		appendTextElement(el, "parent", parentKey);
 
 		el = submitRequestWithResponseContent(req, "getChildren", XMLNS, "concepts");
-		return parseConcepts(el);
+		return parseConcepts(el);		
+	}
+	public Concept[] getChildren(String parentKey) throws HiveException{
+		//	<ns4:get_children blob="false" type="core" max='200'  synonyms="false" hiddens="false">
+		//	  <parent>\\i2b2_DEMO\i2b2\Demographics\</parent>
+		//	</ns4:get_children>
+		return getChildren(parentKey, false);
 	}
 	/**
 	 * Process a DOM concept wrapper element and parse all contained concepts.

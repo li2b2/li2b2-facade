@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import de.sekmi.li2b2.api.ont.Concept;
 import de.sekmi.li2b2.api.ont.ValueType;
+import de.sekmi.li2b2.client.ont.XMLExport;
 import de.sekmi.li2b2.services.impl.OntologyImpl;
 
 public class TestOntologyImpl {
@@ -28,5 +29,10 @@ public class TestOntologyImpl {
 
 		c = ont.getConceptByKey("etc");
 		Assert.assertEquals((Integer)42, c.getTotalNum());
+
+		c = ont.getConceptByKey("/example/enum");
+		Assert.assertEquals("Enum",c.getConstraints().getDatatype());
+		Assert.assertEquals(3, c.getConstraints().getEnumValues().size());
 	}
+
 }

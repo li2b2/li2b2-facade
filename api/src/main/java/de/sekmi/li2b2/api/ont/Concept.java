@@ -7,6 +7,12 @@ public interface Concept {
 	 */
 	String getKey();
 
+	/**
+	 * Get the concept code e.g. LOINC:12345-6
+	 * @return concept code or {@code null} if not available.
+	 */
+	default String getCode() {return null;}
+
 	String getDisplayName();
 	/**
 	 * Get the tooltip text for the concept.
@@ -17,10 +23,10 @@ public interface Concept {
 	default Integer getTotalNum(){return null;}
 	default Concept getSynonymTarget(){return null;}
 
+	@Deprecated
 	default ValueType getValueType(){return null;}
 
-	// TODO more value restrictions like enum values, integer min/max
-	// TODO units
+	default Constraints getConstraints() {return null;}
 	
 	boolean hasNarrower();
 	Iterable<? extends Concept> getNarrower();

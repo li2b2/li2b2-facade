@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import de.sekmi.li2b2.api.ont.Concept;
+import de.sekmi.li2b2.api.ont.Constraints;
 import de.sekmi.li2b2.api.ont.Modifier;
 import de.sekmi.li2b2.api.ont.ValueType;
 @XmlRootElement(name="concept")
@@ -17,9 +18,12 @@ public class ConceptImpl implements Concept{
 
 	@XmlAttribute(required=true)
 	private String key;
-	
+
 	@XmlAttribute(required=false)
-	private ValueType type;
+	private String code;
+
+	@XmlAttribute(required=false)
+	private String unit;
 
 	@XmlAttribute(name="patient-count")
 	private Integer patientCount;
@@ -28,6 +32,10 @@ public class ConceptImpl implements Concept{
 	private String name;
 	@XmlElement
 	private String tooltip;
+
+	@XmlElement
+	private ConstraintsImpl constraints;
+
 	@XmlElementWrapper(name="narrower")
 	@XmlElement(name="concept")
 	private List<ConceptImpl> concepts;
@@ -73,8 +81,39 @@ public class ConceptImpl implements Concept{
 		return patientCount;
 	}
 
+	@Deprecated
 	@Override
 	public ValueType getValueType(){
+		if( constraints == null || constraints.datatype == null ) {
+			return null;
+		}
+		ValueType type = null;
+		switch( constraints.datatype ) {
+		case "PosFloat":
+		case "Float":
+			type = ValueType.Float;
+			break;
+		case "PosInteger":
+		case "Integer":
+			type = ValueType.Integer;
+			break;
+		case "String":
+			type = ValueType.String;
+			break;
+		case "Enum":
+			type = ValueType.Enum;
+			break;
+		}
 		return type;
+	}
+
+	@Override
+	public String getCode() {
+		return code;
+	}
+
+	@Override
+	public Constraints getConstraints() {
+		return constraints;
 	}
 }

@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <ontology>
 	<concept key="diag">
 		<name>Diagnoses (empty)</name>
@@ -8,19 +9,37 @@
 		<name>Example</name>
 		<tooltip>Another example concept</tooltip>
 		<narrower>
-			<concept key="examplesub" type="Integer">
+			<concept key="examplesub" code="LOINC:12345-6">
 				<name>Integer sub concept</name>
 				<tooltip>Example for a sub concept of numeric integer type</tooltip>
+				<constraints>
+					<datatype>Integer</datatype>
+					<unit>Count</unit>
+				</constraints>
 				<!-- no narrower element indicates leaf -->
 			</concept>
-			<concept key="examplesub2" type="String">
+			<concept key="examplesub2">
 				<name>String sub concept</name>
 				<tooltip>Example for a sub concept of string type</tooltip>
+				<constraints>
+					<datatype>String</datatype>
+				</constraints>
 				<!-- no narrower element indicates leaf -->
 			</concept>
 			<concept key="etc" patient-count="42">
 				<name>Etcetera...</name>
 				<tooltip>Et cetera (with patient count)</tooltip>
+			</concept>
+			<concept key="/example/enum">
+				<name>Enum sub concept</name>
+				<constraints>
+					<datatype>Enum</datatype>
+					<enum>
+						<value label="First">1.</value>
+						<value>2.</value>
+						<value>3.</value>
+					</enum>
+				</constraints>
 			</concept>
 		</narrower>
 	</concept>

@@ -186,8 +186,16 @@
 		</dependency>
 
 		<dependency>
+		    <groupId>org.xmlunit</groupId>
+		    <artifactId>xmlunit-core</artifactId>
+		    <version>2.6.3</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
+		
 	</dependencies>
 </project>

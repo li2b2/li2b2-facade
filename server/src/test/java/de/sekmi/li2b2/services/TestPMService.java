@@ -13,19 +13,7 @@ import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 import de.sekmi.li2b2.hive.Credentials;
 import de.sekmi.li2b2.hive.HiveException;
-public class TestPMService{
-	TestServer server;
-	Credentials passwordAuth = new Credentials("i2b2demo", "demo", "demouser",false);
-
-	public URL getPM_URL() throws MalformedURLException{
-		return server.getPMServiceURI().toURL();
-	}
-
-	@Before
-	public void startServer() throws Exception{
-		server = new TestServer();
-		server.start_local(0);
-	}
+public class TestPMService extends TestWithServer{
 	//@Test
 	public void testPost() throws MalformedURLException, IOException{
 		//URL url = createURL("/getServices");
@@ -45,10 +33,7 @@ public class TestPMService{
 
 	@Test
 	public void expectValidUserConfiguration() throws Exception{
-		Li2b2Client client = new Li2b2Client();
-//		client.setMessageLog(FormattedMessageLogger.consoleLogger());
-		client.setPM(getPM_URL());
-		client.setCredentials(passwordAuth);
+		Li2b2Client client = newConfiguredClient();
 		UserConfiguration uc = client.PM().requestUserConfiguration();
 		Assert.assertNotNull(uc);
 		// should have switched to token for authorisation
@@ -127,11 +112,6 @@ public class TestPMService{
 		// get roles for nonexisting user or projects
 		Assert.assertEquals(0, client.PM().getRoles("demo", "non-existing").length);
 		Assert.assertEquals(0, client.PM().getRoles("non-existing", "Demo").length);		
-	}
-
-	@After
-	public void stopServer() throws Exception {
-		server.stop();
 	}
 
 

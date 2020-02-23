@@ -22,4 +22,13 @@ public class TestJAXB {
 		assertEquals("\\\\i2b2_DIAG\\i2b2\\Diagnoses\\Circulatory system (390-459)\\", c.key);
 		assertEquals("Circulatory system", c.name);
 	}
+	/**
+	 * Make sure metadataxml is parsed correctly
+	 */
+	@Test
+	public void unmarshalConceptWithMetadata(){
+		Concept c = JAXB.unmarshal(getClass().getResourceAsStream("/concept_with_metadata.xml"), Concept.class);
+		assertNotNull(c.getMetadataXML());
+		assertEquals("ValueMetadata",c.getMetadataXML().getFirstChild().getLocalName());
+	}
 }
