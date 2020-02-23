@@ -114,7 +114,7 @@ public class XMLExport {
 		// domain name is required
 		int at = i2b2_user.indexOf('@');
 		if( at == -1 ){
-			System.err.println("User domain must be specified in the second argument via '@'. E.g. demo@i2b2demo");
+			System.err.println("Domain must be specified with user name argument via '@'. E.g. demo@i2b2demo");
 			System.exit(-1);
 		}
 		i2b2_domain = i2b2_user.substring(at+1);
@@ -137,24 +137,7 @@ public class XMLExport {
 			i2b2_pm_service = i2b2_pm_service.substring(0, at);
 		}
 
-		Li2b2Client c = new Li2b2Client();
-		if( i2b2_proxy != null ){
-			c.setProxy(new URL(i2b2_proxy));			
-		}
-		c.setPM(new URL(i2b2_pm_service));
-		c.setCredentials(i2b2_domain, i2b2_user, i2b2_pass);
-		UserConfiguration uc = c.PM().requestUserConfiguration();
-		if( i2b2_project == null ){
-			UserProject[] projects = uc.getProjects();
-			if( projects != null ){
-				// use first project
-				c.setProjectId(projects[0].id);
-			}			
-		}else{
-			c.setProjectId(i2b2_project);
-		}
-		// initialise other cells
-		c.setServices(uc.getCells());
+		Li2b2Client c = Li2b2Client.initializeClient(i2b2_proxy, i2b2_pm_service, i2b2_domain, i2b2_user, i2b2_pass, i2b2_project);
 
 		try( Writer out = new OutputStreamWriter(System.out) ){
 			XMLExport x = new XMLExport(c.ONT(), out);

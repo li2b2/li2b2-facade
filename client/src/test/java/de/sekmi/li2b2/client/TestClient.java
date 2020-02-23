@@ -42,7 +42,7 @@ public class TestClient {
 		c.setPM(new URL("http://services.i2b2.org/i2b2/services/PMService/"));
 		
 		// specify login details: username, password, domain.
-		c.setAuthorisation("demo", "demouser", "i2b2demo");
+		c.setCredentials("i2b2demo", "demo", "demouser");
 		UserConfiguration uc = c.PM().requestUserConfiguration();
 		UserProject[] projects = uc.getProjects();
 		if( projects != null ){

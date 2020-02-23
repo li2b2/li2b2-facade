@@ -17,14 +17,23 @@ import de.sekmi.li2b2.client.crc.QueryClient;
 import de.sekmi.li2b2.client.ont.OntologyClient;
 import de.sekmi.li2b2.hive.Credentials;
 import de.sekmi.li2b2.hive.DOMUtils;
+import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveRequest;
 import de.sekmi.li2b2.hive.pm.Cell;
+import de.sekmi.li2b2.hive.pm.UserProject;
 import de.sekmi.li2b2.client.pm.PMClient;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 
 /**
  * Client application to programmatically access any i2b2 server installation.
- * To connect to i2b2 webservices, call the following methods: {@link #setProxy(URL)},
+ * <p>
+ * For simple initialisation/authentication, you can use the convenience 
+ * method {@link #initializeClient(String, String, String, String, String, String)}
+ * which returns a fully usable client instance.
+ * </p>
+ * <p>
+ * Detailed initialisation is as follows: To connect to i2b2 webservices, 
+ * call the following methods: {@link #setProxy(URL)},
  * {@link #setPM(URL)}, {@link #setAuthorisation(String, String, String, boolean)} and 
  * {@link #PM()}{@code .requestUserConfiguration()}. The returned {@link UserConfiguration}
  * must then be used for further configuration e.g. set the project via {@link #setProjectId(String)} 
@@ -269,6 +278,55 @@ public class Li2b2Client {
 //				log.info("Ignoring unsupported cell "+cells[i].id+": "+cells[i].name);
 			}
 		}
+	}
+//\\i2b2_LABS\i2b2\Labtests\
+	/**
+	 * Convenience method to obtain an initialized client instance. 
+	 * Parameters {@code i2b2_proxy} and {@code i2b2_project} are optional.
+	 * If no proxy is specified, a direct connection to the PM service is attempted.
+	 * If no project is specified, it is assumed that the user has only a single project 
+	 * available which's id is obtained from the server. If multiple projects are available,
+	 * this method fails.
+	 * @param i2b2_proxy i2b2 proxy endpoint. Commonly {@code https://yourserver/webclient/index.php}.
+	 * @param i2b2_pm_service i2b2 project management service endpoint URL.
+	 * @param i2b2_domain i2b2 domain name, needed for authentication
+	 * @param i2b2_user i2b2 user name
+	 * @param i2b2_pass password
+	 * @param i2b2_project project name to use for further API calls. If not specified, determined from the server.
+	 * @return initialized client instance
+	 * @throws MalformedURLException malformed URL for i2b2_proxy or i2b2_pm_service
+	 * @throws HiveException communication error with the server
+	 */
+	public static Li2b2Client initializeClient(String i2b2_proxy, String i2b2_pm_service, String i2b2_domain, String i2b2_user, String i2b2_pass, String i2b2_project) throws MalformedURLException, HiveException {
+		Li2b2Client c = new Li2b2Client();
+		if( i2b2_proxy != null ){
+			c.setProxy(new URL(i2b2_proxy));			
+		}
+		c.setPM(new URL(i2b2_pm_service));
+		c.setCredentials(i2b2_domain, i2b2_user, i2b2_pass);
+		UserConfiguration uc = c.PM().requestUserConfiguration();
+		if( i2b2_project == null ){
+			UserProject[] projects = uc.getProjects();
+			if( projects != null && projects.length == 1 ){
+				// use first project
+				c.setProjectId(projects[0].id);
+			}else {
+				// no or multiple projects available.
+				StringBuilder b = new StringBuilder();
+				for( int i=0; i<projects.length; i++ ) {
+					if( i != 0 ) {
+						b.append(", ");
+					}
+					b.append(projects[i].id);
+				}
+				throw new IllegalArgumentException("Auto project selection failed. Available projects: " + b.toString());
+			}
+		}else{
+			c.setProjectId(i2b2_project);
+		}
+		// initialise other cells
+		c.setServices(uc.getCells());
+		return c;
 	}
 	public Document parseXML(InputStream in) throws IOException{
 		try {
