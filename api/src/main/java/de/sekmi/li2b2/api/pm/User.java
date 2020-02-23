@@ -1,10 +1,9 @@
 package de.sekmi.li2b2.api.pm;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 
-public interface User extends Principal{
+public interface User extends Principal, ParameterCollection{
 	@Deprecated String getFullName();
 	@Deprecated String getDomain();
 	boolean isAdmin();
@@ -29,12 +28,6 @@ public interface User extends Principal{
 	String getProperty(String key);
 	void setProperty(String key, String value);
 
-	/**
-	 * Parameter list. I2b2 allows multiple parameters with the same name.
-	 * @return parameter list
-	 */
-	List<? extends Parameter> getParameters();
-	Parameter addParameter(String name, String datatype, String value);
 	
 	// TODO add parameters, check whether param_id can be any String (instead of just integer as i2b2 uses)
 }

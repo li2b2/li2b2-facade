@@ -25,6 +25,11 @@ public class TestParamHandler {
 			protected Parameter addParam(String name, String type, String value, String... path) {
 				return null;
 			}
+
+			@Override
+			protected Parameter updateParam(String name, String type, String value, int index, String... path) {
+				return null;
+			}
 		};
 		Assert.assertEquals("bla/1", ph.compileId(1, "bla"));
 		Assert.assertArrayEquals(new String[] {"bla", "1"}, ph.parseId("bla/1"));
@@ -42,6 +47,11 @@ public class TestParamHandler {
 			
 			@Override
 			protected Parameter addParam(String name, String type, String value, String... path) {
+				return null;
+			}
+
+			@Override
+			protected Parameter updateParam(String name, String type, String value, int index, String... path) {
 				return null;
 			}
 		};

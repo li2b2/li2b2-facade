@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -37,6 +36,7 @@ import de.sekmi.li2b2.hive.HiveResponse;
 import de.sekmi.li2b2.hive.I2b2Constants;
 import de.sekmi.li2b2.hive.pm.Cell;
 import de.sekmi.li2b2.hive.pm.UserProject;
+import de.sekmi.li2b2.services.impl.pm.ParamCollectionHandler;
 import de.sekmi.li2b2.services.impl.pm.ParamHandler;
 import de.sekmi.li2b2.services.impl.pm.ParamImpl;
 import de.sekmi.li2b2.services.token.Token;
@@ -143,7 +143,6 @@ public class PMService extends AbstractPMService{
 	@Override
 	protected void getProject(HiveResponse response, String projectId, String path) {
 		// TODO Auto-generated method stub
-		
 	}
 
 
@@ -337,7 +336,7 @@ public class PMService extends AbstractPMService{
 				up.params.add(new ParamImpl(param.getName(), param.getDatatype(), param.getValue()));
 			}
 			// add project user params
-			for( Parameter param : project.getUserParameters(user) ) {
+			for( Parameter param : project.getProjectUser(user).getParameters() ) {
 				up.params.add(new ParamImpl(param.getName(), param.getDatatype(), param.getValue()));
 			}
 
@@ -528,101 +527,32 @@ public class PMService extends AbstractPMService{
 
 	@Override
 	ParamHandler getGlobalParamHandler() {
-		return new ParamHandler(0) {
-			
-			@Override
-			protected List<? extends Parameter> getAllParam(String... path) {
-				return manager.getParameters();
-			}
-			
-			@Override
-			protected Parameter addParam(String name, String type, String value, String... path) {
-				return manager.addParameter(name, type, value);
-			}
-		};
+		return new ParamCollectionHandler(1, p -> manager);
 	}
 
 
 	@Override
 	ParamHandler getUserParamHandler() {
-		return new ParamHandler(1) {
-			
-			@Override
-			protected List<? extends Parameter> getAllParam(String... path) {
-				User user = manager.getUserById(path[0]);
-				if( user != null ) {
-					return user.getParameters();
-				}else {
-					return null;
-				}
-			}
-			
-			@Override
-			protected Parameter addParam(String name, String type, String value, String... path) {
-				User user = manager.getUserById(path[0]);
-				if( user != null ) {
-					return user.addParameter(name, type, value);
-				}else {
-					return null;
-				}
-			}
-		};
+		return new ParamCollectionHandler(1, p -> manager.getUserById(p[0]));
 	}
 
 
 	@Override
 	ParamHandler getProjectUserParamHandler() {
-		return new ParamHandler(2) {
-			
-			@Override
-			protected List<? extends Parameter> getAllParam(String... path) {
-				Project project = manager.getProjectById(path[0]);
-				User user = manager.getUserById(path[1]);
-				if( project != null && user != null ) {
-					return project.getUserParameters(user);
-				}else {
-					return null;
-				}
+		return new ParamCollectionHandler(2, path -> { 
+			Project project = manager.getProjectById(path[0]);
+			User user = manager.getUserById(path[1]);
+			if( project == null || user == null ) {
+				return null;
+			}else {
+				return project.getProjectUser(user);
 			}
-			
-			@Override
-			protected Parameter addParam(String name, String type, String value, String... path) {
-				Project project = manager.getProjectById(path[0]);
-				User user = manager.getUserById(path[1]);
-				if( project != null && user != null ) {
-					return project.addUserParameter(user, name, type, value);
-				}else {
-					return null;
-				}
-			}
-		};
+		} );
 	}
-
 
 	@Override
 	ParamHandler getProjectParamHandler() {
-		return new ParamHandler(1) {
-			
-			@Override
-			protected List<? extends Parameter> getAllParam(String... path) {
-				Project project = manager.getProjectById(path[0]);
-				if( project != null ) {
-					return project.getParameters();
-				}else {
-					return null;
-				}
-			}
-			
-			@Override
-			protected Parameter addParam(String name, String type, String value, String... path) {
-				Project project = manager.getProjectById(path[0]);
-				if( project != null ) {
-					return project.addParameter(name, type, value);
-				}else {
-					return null;
-				}
-			}
-		};
+		return new ParamCollectionHandler(1, path -> manager.getProjectById(path[0]));
 	}
 
 

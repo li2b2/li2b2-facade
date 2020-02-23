@@ -19,18 +19,20 @@ public class TestProjectManagerImpl {
 	@Test
 	public void jaxbSerialization() throws IOException {
 		ProjectManagerImpl pm = new ProjectManagerImpl();
+		pm.setProperty(ProjectManagerImpl.PROPERTY_PASSWORD_DIGEST_ALGORITHM, "SHA-1");
 		User user = pm.addUser("user1");
+		user.setPassword("demouser".toCharArray());
 		user.setProperty(PMService.USER_FULLNAME,"First user");
 		user.setProperty(PMService.USER_EMAIL, "first@user.com");
 		
 		ProjectImpl project = pm.addProject("Demo", "Demo project");
-		project.addUserRoles(user, "role1","role2");
+		project.getProjectUser(user).addRoles("role1","role2");
 		project.setProperty(PMService.PROJECT_DESCRIPTION,"Project description\nmultiple lines");
 		project.getParameters().add(new ParamImpl("Software", "lalala"));
-		project.getUserParameters(user).add(new ParamImpl("announcement", "announcement1 bla bla"));
+		project.getProjectUser(user).addParameter("announcement", "T", "announcement1 bla bla");
 		user = pm.addUser("admin");
 		user.setProperty(PMService.USER_ISADMIN, "true");
-		pm.getParameters().add(new ParamImpl("globalparam1", "globalvalue1"));
+		pm.addParameter("globalparam1", "T", "globalvalue1");
 
 		Path temp = Files.createTempFile("ProjectManagerImpl", ".xml");
 //		JAXB.marshal(pm,temp.toFile());

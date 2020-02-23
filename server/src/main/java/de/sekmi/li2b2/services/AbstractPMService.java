@@ -135,7 +135,7 @@ public abstract class AbstractPMService extends AbstractService{
 			String projectId = body.getAttribute("id");
 //			String userId = HiveMessage.optionalElementContent(body, "user_name");
 			Element param = (Element)body.getElementsByTagName("param").item(0);
-			getProjectParamHandler().newParamResponse(response, param, projectId);
+			getProjectParamHandler().setParamResponse(response, param, projectId);
 
 		// SECTION Hive
 		}else if( type.equals("get_all_hive") ){
@@ -154,7 +154,7 @@ public abstract class AbstractPMService extends AbstractService{
 			HiveMessage.optionalElementContent(body,"project_path");
 			HiveMessage.optionalElementContent(body,"can_override");
 			Element param = (Element)body.getElementsByTagName("param").item(0);
-			getGlobalParamHandler().newParamResponse(response, param);
+			getGlobalParamHandler().setParamResponse(response, param);
 
 		}else if( type.equals("get_global") ) {
 			// called when adding a user param
@@ -220,7 +220,7 @@ public abstract class AbstractPMService extends AbstractService{
 			// called when adding a user param
 			String userId = HiveMessage.optionalElementContent(body, "user_name");			
 			Element param = (Element)body.getElementsByTagName("param").item(0);
-			getUserParamHandler().newParamResponse(response, param, userId);
+			getUserParamHandler().setParamResponse(response, param, userId);
 
 		}else if( type.equals("get_user_param") ) {
 			// called when adding a user param
@@ -256,7 +256,7 @@ public abstract class AbstractPMService extends AbstractService{
 			String userId = HiveMessage.optionalElementContent(body, "user_name");			
 			String projectId = body.getAttribute("id");
 			Element param = (Element)body.getElementsByTagName("param").item(0);
-			getProjectUserParamHandler().newParamResponse(response, param, projectId, userId);
+			getProjectUserParamHandler().setParamResponse(response, param, projectId, userId);
 
 		}else if( type.equals("delete_user_param") ) {
 			String paramId = body.getTextContent();

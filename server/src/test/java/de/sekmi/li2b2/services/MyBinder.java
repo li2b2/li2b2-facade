@@ -63,11 +63,11 @@ public class MyBinder extends AbstractBinder{
 		user.setProperty(PMService.USER_FULLNAME, "Demo user");
 		user.getParameters().add(new ParamImpl("userparam1","paramvalue1"));
 		ProjectImpl project = pm.addProject("Demo", "li2b2 Demo");
-		project.addUserRoles(user, "USER","EDITOR","DATA_OBFSC");
+		project.getProjectUser(user).addRoles("USER","EDITOR","DATA_OBFSC");
 		project.getParameters().add(new ParamImpl("Software","<span style='color:orange;font-weight:bold'>li2b2 server</span>"));
-		project.getUserParameters(user).add(new ParamImpl("announcement","This is a demo of the <span style='color:orange;font-weight:bold'>li2b2 server</span>."));
+		project.getProjectUser(user).addParameter("announcement","T","This is a demo of the <span style='color:orange;font-weight:bold'>li2b2 server</span>.");
 		
-		pm.addProject("Demo2", "li2b2 Demo2").addUserRoles(user, "USER","DATA_OBFSC");
+		pm.addProject("Demo2", "li2b2 Demo2").getProjectUser(user).addRoles("USER","DATA_OBFSC");
 		bind(pm).to(ProjectManager.class);
 		
 		

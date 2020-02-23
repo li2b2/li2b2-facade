@@ -1,7 +1,12 @@
 package de.sekmi.li2b2.services.impl.pm;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +15,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
 
+import de.sekmi.li2b2.api.pm.Parameter;
 import de.sekmi.li2b2.api.pm.Project;
 import de.sekmi.li2b2.api.pm.User;
 import de.sekmi.li2b2.services.PMService;
@@ -27,7 +33,7 @@ public class UserImpl implements User {
 	@XmlTransient
 	private ProjectManagerImpl pm;
 	private String login;
-	private char[] password;
+	private String password;
 	private Map<String,String> properties;
 	private List<ParamImpl> params;
 
@@ -73,12 +79,38 @@ public class UserImpl implements User {
 			// no password, cannot login
 			return false;
 		}
-		return Arrays.equals(this.password, password);
+		return this.password.equals(calculatePasswordDigest(password));
 	}
 
+	/**
+	 * Calculate the message digest for the given password.
+	 * To prevent rainbow table attacks, the user name is added to the digest input.
+	 * @param password password
+	 * @return message digest output
+	 */
+	private String calculatePasswordDigest(char[] password) {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance(pm.getPasswordDigestAlgorithm());
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("Unsupported password digest algorithm "+pm.getPasswordDigestAlgorithm());
+		}
+		CharBuffer in = CharBuffer.allocate(login.length()+password.length);
+		in.append(login);
+		in.append(this.password);
+		in.flip();
+		ByteBuffer bytes = StandardCharsets.UTF_8.encode(in);
+		byte[] b = new byte[bytes.remaining()];
+		bytes.get(b);
+		
+		b = md.digest(b);
+		String result = Base64.getEncoder().encodeToString(b);
+		return result;
+	}
 	@Override
 	public void setPassword(char[] newPassword) {
-		this.password = newPassword;
+		
+		this.password = calculatePasswordDigest(newPassword);
 	}
 	@Override
 	public int hashCode() {
@@ -137,5 +169,10 @@ public class UserImpl implements User {
 		ParamImpl param = new ParamImpl(name,datatype,value);
 		this.params.add(param);
 		return param;
+	}
+	@Override
+	public Parameter updateParameter(int index, String name, String datatype, String value) {
+		ParamImpl param = new ParamImpl(name,datatype,value);
+		return this.params.set(index, param);
 	}
 }

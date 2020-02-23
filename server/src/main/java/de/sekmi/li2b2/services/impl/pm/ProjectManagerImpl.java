@@ -32,6 +32,9 @@ import de.sekmi.li2b2.api.pm.User;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ProjectManagerImpl implements ProjectManager, Flushable {
 	private static final Logger log = Logger.getLogger(ProjectManagerImpl.class.getName());
+	
+	public static final String PROPERTY_PASSWORD_DIGEST_ALGORITHM = "password-digest-algorithm";
+
 	@XmlTransient
 	private Path xmlFlushTarget;
 
@@ -64,6 +67,14 @@ public class ProjectManagerImpl implements ProjectManager, Flushable {
 		this.projects = new ArrayList<>(3);
 		this.properties = new HashMap<>();
 		this.params = new ArrayList<ParamImpl>();
+	}
+
+	public String getPasswordDigestAlgorithm() {
+		String algo = getProperty("password-digest-algorithm");
+		if( algo == null ) {
+			algo = "SHA-224";
+		}
+		return algo;
 	}
 
 	@Override
@@ -106,7 +117,7 @@ public class ProjectManagerImpl implements ProjectManager, Flushable {
 	public Iterable<Project> getUserProjects(User user){
 		List<Project> up = new LinkedList<>();
 		for( Project p : projects ){
-			if( !p.getUserRoles(user).isEmpty() ){
+			if( !p.getProjectUser(user).getRoles().isEmpty() ){
 				up.add(p);
 			}
 		}
@@ -177,5 +188,10 @@ public class ProjectManagerImpl implements ProjectManager, Flushable {
 		ParamImpl p = new ParamImpl(name,datatype,value);
 		params.add(p);
 		return p;
+	}
+
+	@Override
+	public Parameter updateParameter(int index, String name, String datatype, String value) {
+		return params.set(index, new ParamImpl(name,datatype,value));
 	}
 }

@@ -1,12 +1,10 @@
 package de.sekmi.li2b2.services.impl.pm;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -15,6 +13,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 
 import de.sekmi.li2b2.api.pm.Parameter;
 import de.sekmi.li2b2.api.pm.Project;
+import de.sekmi.li2b2.api.pm.ProjectUser;
 import de.sekmi.li2b2.api.pm.User;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -67,24 +66,6 @@ public class ProjectImpl implements Project{
 		}
 		return uc;
 	}
-	
-	@Override
-	public void addUserRoles(User user, String ...roles) {
-		ProjectUserConfigImpl uc = getOrCreateUser(user);
-		uc.roles.addAll(Arrays.asList(roles));
-	}
-
-	@Override
-	public void removeUserRoles(User user, String ...roles) {
-		ProjectUserConfigImpl uc = getOrCreateUser(user);
-		uc.roles.removeAll(Arrays.asList(roles));
-	}
-
-	@Override
-	public Set<String> getUserRoles(User user) {
-		ProjectUserConfigImpl uc = getOrCreateUser(user);
-		return uc.roles;
-	}
 
 	@Override
 	public void setProperty(String key, String value) {
@@ -104,30 +85,19 @@ public class ProjectImpl implements Project{
 	}
 
 	@Override
-	public List<ParamImpl> getUserParameters(User user) {
-		ProjectUserConfigImpl uc = getOrCreateUser(user);
-		if( uc == null ) {
-			return null;
-		}
-		return uc.param;
-	}
-
-	@Override
 	public Parameter addParameter(String name, String type, String value) {
 		ParamImpl param = new ParamImpl(name,type,value);
 		this.params.add(param);
 		return param;
 	}
+	@Override
+	public Parameter updateParameter(int index, String name, String datatype, String value) {
+		return this.params.set(index, new ParamImpl(name,datatype,value));
+	}
 
 	@Override
-	public Parameter addUserParameter(User user, String paramName, String paramType, String paramValue) {
-		ProjectUserConfigImpl uc = getOrCreateUser(user);
-		if( uc == null ) {
-			throw new IllegalArgumentException("User not assigned to this project");
-		}
-		ParamImpl param = new ParamImpl(paramName,paramType,paramValue);
-		uc.param.add(param);
-		return param;
+	public ProjectUser getProjectUser(User user) {
+		return getOrCreateUser(user);
 	}
 
 }

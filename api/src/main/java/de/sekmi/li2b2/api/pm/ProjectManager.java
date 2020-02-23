@@ -1,7 +1,7 @@
 package de.sekmi.li2b2.api.pm;
 
-import java.net.URL;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.List;
 
 /**
@@ -10,7 +10,7 @@ import java.util.List;
  * @author R.W.Majeed
  *
  */
-public interface ProjectManager {
+public interface ProjectManager extends ParameterCollection {
 
 	User getUserById(String userId);
 	Project getProjectById(String projectId);
@@ -21,14 +21,7 @@ public interface ProjectManager {
 	// TODO exceptions for failure or if user/project does not exist
 	void deleteUser(String userId);
 	void deleteProject(String projectId);
-	/**
-	 * Global/Hive parameters.
-	 * @return list of global parameters
-	 */
-	List<? extends Parameter> getParameters();
-	Parameter addParameter(String name, String datatype, String value);
-	
-	
+
 	/**
 	 * Specify the target for the {@link #flush()} operation which
 	 * writes the current state to persistent storage.
