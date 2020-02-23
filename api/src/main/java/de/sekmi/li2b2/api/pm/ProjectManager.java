@@ -1,7 +1,6 @@
 package de.sekmi.li2b2.api.pm;
 
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.util.List;
 
 /**
@@ -21,6 +20,9 @@ public interface ProjectManager extends ParameterCollection {
 	// TODO exceptions for failure or if user/project does not exist
 	void deleteUser(String userId);
 	void deleteProject(String projectId);
+
+	String getProperty(String key);
+	void setProperty(String key, String value);
 
 	/**
 	 * Specify the target for the {@link #flush()} operation which

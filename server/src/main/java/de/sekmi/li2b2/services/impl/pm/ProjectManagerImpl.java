@@ -157,9 +157,11 @@ public class ProjectManagerImpl implements ProjectManager, Flushable {
 	}
 	
 
+	@Override
 	public void setProperty(String key, String value) {
 		properties.put(key, value);
 	}
+	@Override
 	public String getProperty(String key) {
 		return properties.get(key);
 	}
