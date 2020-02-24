@@ -2,6 +2,7 @@ package de.sekmi.li2b2.client;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -11,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import de.sekmi.li2b2.client.crc.QueryClient;
@@ -330,8 +332,15 @@ public class Li2b2Client {
 	}
 	public Document parseXML(InputStream in) throws IOException{
 		try {
-			return factory.newDocumentBuilder().parse(in);
-		} catch (SAXException | ParserConfigurationException e) {
+			return newBuilder().parse(in);
+		} catch (SAXException e) {
+			throw new IOException(e);
+		}
+	}
+	public Document parseXML(String document) throws IOException{
+		try {
+			return newBuilder().parse(new InputSource(new StringReader(document)));
+		} catch (SAXException e) {
 			throw new IOException(e);
 		}
 	}

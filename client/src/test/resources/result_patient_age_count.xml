@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns10:i2b2_result_envelope xmlns:ns6="http://www.i2b2.org/xsd/cell/crc/psm/analysisdefinition/1.1/" xmlns:ns5="http://www.i2b2.org/xsd/hive/msg/1.1/" xmlns:ns8="http://www.i2b2.org/xsd/cell/pm/1.1/" xmlns:ns7="http://www.i2b2.org/xsd/cell/crc/psm/querydefinition/1.1/" xmlns:ns9="http://www.i2b2.org/xsd/cell/ont/1.1/" xmlns:ns10="http://www.i2b2.org/xsd/hive/msg/result/1.1/" xmlns:ns2="http://www.i2b2.org/xsd/hive/pdo/1.1/" xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/" xmlns:ns3="http://www.i2b2.org/xsd/cell/crc/pdo/1.1/">
+    <body>
+        <ns10:result name="PATIENT_AGE_COUNT_XML">
+            <data type="int" column="  0-9 years old">0</data>
+            <data type="int" column="  10-17 years old">0</data>
+            <data type="int" column="  18-34 years old">16</data>
+            <data type="int" column="  35-44 years old">16</data>
+            <data type="int" column="  45-54 years old">5</data>
+            <data type="int" column="  55-64 years old">4</data>
+            <data type="int" column="  65-74 years old">2</data>
+            <data type="int" column="  75-84 years old">3</data>
+            <data type="int" column="&gt;= 65 years old">10</data>
+            <data type="int" column="&gt;= 85 years old">5</data>
+            <data type="int" column="Not recorded">0</data>
+        </ns10:result>
+    </body>
+</ns10:i2b2_result_envelope>

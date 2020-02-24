@@ -36,29 +36,33 @@ public abstract class FormattedMessageLogger implements MessageLogger {
 
 	@Override
 	public void logRequest(CellClient cell, URL requestUrl, Document request) {
-		StringWriter writer = new StringWriter();
 		try {
-			newTransformer().transform(new DOMSource(request), new StreamResult(writer));
+			logResponse(cell, requestUrl, xmlToString(request));
 		} catch (TransformerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		logRequest(cell, requestUrl, writer.toString());
 	}
 
 	@Override
 	public void logResponse(CellClient cell, URL requestUrl, Document response, Document request) {
-		StringWriter writer = new StringWriter();
 		try {
-			newTransformer().transform(new DOMSource(response), new StreamResult(writer));
+			logResponse(cell, requestUrl, xmlToString(response));
 		} catch (TransformerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		logResponse(cell, requestUrl, writer.toString());
+	}
+	private String xmlToString(Document document) throws TransformerException {
+		StringWriter writer = new StringWriter();
+		newTransformer().transform(new DOMSource(document), new StreamResult(writer));
+		return writer.toString();
+	}
+	public static final String formatXML(Document document) throws TransformerException {
+		return consoleLogger().xmlToString(document);
 	}
 
-	public static final MessageLogger printLogger(final PrintStream out){
+	public static final FormattedMessageLogger printLogger(final PrintStream out){
 		return new FormattedMessageLogger() {
 			@Override
 			public void logResponse(CellClient cell, URL requestUrl, String response) {
@@ -73,7 +77,7 @@ public abstract class FormattedMessageLogger implements MessageLogger {
 			}
 		};
 	}
-	public static final MessageLogger consoleLogger(){
+	public static final FormattedMessageLogger consoleLogger(){
 		return printLogger(System.out);
 	}
 }
