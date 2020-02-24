@@ -84,11 +84,8 @@ public class PMService extends AbstractPMService{
 		setIndentOutput(true);
 		registerCell(new ServerCell(OntologyService.class));
 		registerCell(new ServerCell(QueryToolService.class));
-//		registerCell(new ServerCell(PMService.class));
-//		registerCell(new Cell("ONT", "OntologyService", OntologyService.SERVICE_PATH));
-//		registerCell(new Cell("WORK", "WorkplaceSevice", WorkplaceService.SERVICE_PATH));
-//		registerCell(new Cell("CRC", "QueryToolService", AbstractCRCService.SERVICE_PATH));
 		registerCell(new ServerCell(WorkplaceService.class));
+		// PM cell does not belong here. i2b2 lists only other cells
 	}
 	
 
@@ -396,8 +393,8 @@ public class PMService extends AbstractPMService{
 
 			marshaller.marshal(up, ue);
 		}
-		appendTextElement(el, "domain_name", cred.getDomain());
-		appendTextElement(el, "domain_id", "i2b2");
+		appendTextElement(el, "domain_name", manager.getProperty(SERVER_DOMAIN_NAME));
+		appendTextElement(el, "domain_id", manager.getProperty(SERVER_DOMAIN_ID));
 		appendTextElement(el, "active", "true");
 
 		// add cells
@@ -412,10 +409,10 @@ public class PMService extends AbstractPMService{
 			cu.setTextContent(uri.getAbsolutePath().resolve(cu.getTextContent()).toString());
 		}
 		// TODO remove xmlns="" from elements 'user', 'cell_datas' (which was needed for JAXB)
-		
-//		for( Cell cell : this.otherCells ){
-//			marshaller.marshal(cell, cells);
-//		}
+
+		// append global parameters
+		Element global_data = (Element)el.appendChild(el.getOwnerDocument().createElement("global_data"));
+		getGlobalParamHandler().appendParams(global_data, false);
 	}
 
 

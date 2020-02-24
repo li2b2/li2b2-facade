@@ -54,9 +54,6 @@ public class CORSFilter implements ContainerRequestFilter, ContainerResponseFilt
         // If it is a preflight request, then we add all
         // the CORS headers here.
         if (isPreflightRequest(request)) {
-        	// XXX debug
-        	System.out.println("Preflight request"+request.getUriInfo().getPath());
-        	
             response.getHeaders().add("Access-Control-Allow-Credentials", "true");
             response.getHeaders().add("Access-Control-Allow-Methods",
                 "GET, POST, PUT, DELETE, OPTIONS, HEAD");

@@ -92,13 +92,13 @@ public class TestPMService extends TestWithServer{
 	public void verifyCreateUserSetRoles() throws Exception{
 		Li2b2Client client = new Li2b2Client();
 		client.setPM(getPM_URL());
-		client.setCredentials("i2b2demo", "demo", "demouser");
+		client.setCredentials("i2b2demo", "i2b2", "demouser");
 		UserConfiguration uc = client.PM().requestUserConfiguration();
 		Assert.assertNotNull(uc);
-		Assert.assertEquals(1, client.PM().getUsers().length);
+		Assert.assertEquals(2, client.PM().getUsers().length);
 		// add user
 		client.PM().setUser("aaa", "AAA", "e@ma.il", "aaa", false);
-		Assert.assertEquals(2, client.PM().getUsers().length);
+		Assert.assertEquals(3, client.PM().getUsers().length);
 		Assert.assertEquals(0, client.PM().getRoles("aaa", "Demo").length);
 		// add role
 		client.PM().setRole("aaa", "USER", "Demo");
@@ -108,7 +108,7 @@ public class TestPMService extends TestWithServer{
 		Assert.assertEquals(0, client.PM().getRoles("aaa", "Demo").length);
 		// delete user
 		client.PM().deleteUser("aaa");
-		Assert.assertEquals(1, client.PM().getUsers().length);
+		Assert.assertEquals(2, client.PM().getUsers().length);
 		// get roles for nonexisting user or projects
 		Assert.assertEquals(0, client.PM().getRoles("demo", "non-existing").length);
 		Assert.assertEquals(0, client.PM().getRoles("non-existing", "Demo").length);		

@@ -56,6 +56,7 @@ public class MyBinder extends AbstractBinder{
 	protected void configure() {
 		// project manager
 		ProjectManagerImpl pm = new ProjectManagerImpl();
+		pm.addParameter("globalparam", "T", "test");
 		pm.setProperty(PMService.SERVER_DOMAIN_ID, "i2b2");
 		pm.setProperty(PMService.SERVER_DOMAIN_NAME, "i2b2demo");
 		pm.setProperty(PMService.SERVER_ENVIRONMENT, "DEVELOPMENT");

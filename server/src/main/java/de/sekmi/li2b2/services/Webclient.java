@@ -1,10 +1,7 @@
 package de.sekmi.li2b2.services;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -12,7 +9,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import de.sekmi.li2b2.services.impl.InjectingFilterReader;
 
 
 @Path("/webclient")
@@ -27,21 +23,21 @@ public class Webclient {
 	public static final String WEBCLIENT_SOURCES_RESOURCE_PATH = "/i2b2-webclient-1.7.12.0001/";
 	@GET
 	@Path("{path: .*}")
-	public Response test(@PathParam("path") String path){
+	public Response get(@PathParam("path") String path){
 		if( path.equals("i2b2_config_data.js") ){
 			// send test config data
 			return Response.ok(getClass().getResourceAsStream("/i2b2_config_data.js")).build();
 		}else if( path.equals("") ){
 			path = "default.htm";
 		}
-		
+//		
 
-		if( path.equals("default.htm") ) {
-			// inject code
-			BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(WEBCLIENT_SOURCES_RESOURCE_PATH+path)));
-			
-			return Response.ok(new InjectingFilterReader(br, Pattern.compile("^</head>"),"<script>alert('allo');</script>",true)).build();
-		}else {
+//		if( path.equals("default.htm") ) {
+//			// inject code
+//			BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(WEBCLIENT_SOURCES_RESOURCE_PATH+path)));
+//			
+//			return Response.ok(new InjectingFilterReader(br, Pattern.compile("^</head>"),"<script>alert('allo');</script>",true)).build();
+//		}else {
 			InputStream in = getClass().getResourceAsStream(WEBCLIENT_SOURCES_RESOURCE_PATH+path);
 			if( in == null ){
 				// not found
@@ -50,7 +46,7 @@ public class Webclient {
 			}else{
 				return Response.ok(in).build();
 			}
-		}
+//		}
 	}
 
 }

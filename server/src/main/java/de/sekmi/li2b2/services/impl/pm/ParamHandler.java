@@ -192,12 +192,10 @@ public abstract class ParamHandler {
 	public void allParamsResponse(HiveResponse response, String... path) {
 		Element parent = response.addBodyElement(I2b2Constants.PM_NS, "params");
 		parent.setPrefix("ns4");
+		appendParams(parent, true, path);
+	}
+	public void appendParams(Element parent, boolean includeId, String ...path) {
 		List<?extends Parameter> params = getAllParam(path);
-		if( params == null ) {
-			// unable to retrieve params for path
-			response.setResultStatus("ERROR", "Invalid path to parameter collection");
-			return;
-		}
 		for( int i=0; i<params.size(); i++ ) {
 			Parameter par = params.get(i);
 			// skip parameters set to null
@@ -206,7 +204,9 @@ public abstract class ParamHandler {
 			}
 			Element pel = HiveMessage.appendTextElement(parent, "param", par.getValue());
 			pel.setAttribute("datatype", par.getDatatype());
-			pel.setAttribute("id", compileId(i, path));
+			if( includeId ) {
+				pel.setAttribute("id", compileId(i, path));
+			}
 			pel.setAttribute("name", par.getName());
 		}		
 	}
