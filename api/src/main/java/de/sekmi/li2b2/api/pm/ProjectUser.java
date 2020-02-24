@@ -17,14 +17,12 @@ public interface ProjectUser extends ParameterCollection {
 	 * If the user does not have one of the {@code DATA_...} roles,
 	 * then the webclient will not load correctly.
 	 * </p>
-	 * @param user user to add roles for
 	 * @param roles roles for this project. see remarks above.
 	 */
 	void addRoles(String ... roles );
 	void removeRoles(String ... roles );
 	/**
 	 * Get the roles for the given user in this project.
-	 * @param user user
 	 * @return roles, or empty list if no access to project
 	 */
 	Set<String> getRoles();
