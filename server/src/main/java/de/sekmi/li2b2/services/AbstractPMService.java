@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
+import de.sekmi.li2b2.api.pm.User;
 import de.sekmi.li2b2.hive.Credentials;
 import de.sekmi.li2b2.hive.HiveException;
 import de.sekmi.li2b2.hive.HiveMessage;
@@ -38,21 +39,16 @@ public abstract class AbstractPMService extends AbstractService{
 			log.warning(message);
 			resp.setResultStatus("ERROR", message);
 		}else try {
+			User user;
 			String type = body.getLocalName();
 			// separate handling of get_user_configuration, which does direct (password) authentication
-			if( type.equals("get_user_configuration") ) {
-				// 
-				String projectId = body.getElementsByTagName("project").item(0).getTextContent();
-				getUserConfiguration(req, resp, projectId, uri);
+			// only generate session for calls to get_user_configuration
+			user = accessUserByCredentials(req.getSecurity());
+			if( user == null ) {
+				// invalid credentials/token
+				resp.setResultStatus("ERROR", "Invalid credentials");
 			}else {
-				// all other request are checked for existing (token) authentication
-				String user = getAuthenticatedUser(req);
-				if( user == null ) {
-					// invalid credentials/token
-					resp.setResultStatus("ERROR", "Invalid credentials");
-				}else {
-					request(uri, new HiveUserRequest(req.getDOM(), user), type, body, resp);
-				}
+				request(uri, user, req, type, body, resp);
 			}
 		} catch (DOMException | JAXBException e) {
 			resp.setResultStatus("ERROR", e.toString());
@@ -63,23 +59,26 @@ public abstract class AbstractPMService extends AbstractService{
 		return createResponse(newDocumentBuilder(), request);
 	}
 
-	protected abstract boolean verifyAdmin(String userId);
-
 	/**
 	 * Handle authenticated project management request.
 	 * @param uri info about the HTTP call
-	 * @param request request object containing authenticated user name
+	 * @param user authenticated user object
+	 * @param request request object
 	 * @param type type of request. This is the local element name of the first child of the message_body element.
 	 * @param body request body. This is the first child element of the message_body element.
 	 * @param response response to be sent to the client
 	 * @throws DOMException DOM error
 	 * @throws JAXBException JAXB serialization error
 	 */
-	private void request(UriInfo uri, HiveUserRequest request, String type, Element body, HiveResponse response) throws DOMException, JAXBException{
+	private void request(UriInfo uri, User user, HiveRequest request, String type, Element body, HiveResponse response) throws DOMException, JAXBException{
 		log.info("PM request: "+type);
 		// user info from authentication is in request.getUserId()
 		
-		if( type.equals("set_password") ){
+		if( type.equals("get_user_configuration") ) {
+			String projectId = body.getElementsByTagName("project").item(0).getTextContent();
+			getUserConfiguration(user, request, response, projectId, uri);
+			return;
+		}else if( type.equals("set_password") ){
 			// called if the user wants to change his password
 			// this method can be called by any user
 			String password = body.getTextContent();
@@ -90,7 +89,7 @@ public abstract class AbstractPMService extends AbstractService{
 		}
 		
 		// all other methods require ADMIN privileges
-		if( verifyAdmin(request.getUserId()) == false ) {
+		if( user.isAdmin() == false ) {
 			response.setResultStatus("ERROR", "Access denied for users without ADMIN privileges");
 			return;
 		}
@@ -312,11 +311,13 @@ public abstract class AbstractPMService extends AbstractService{
 		return "PM";
 	}
 
-	protected abstract void getUserConfiguration(HiveRequest request, HiveResponse response, String project, UriInfo uri) throws JAXBException;
+	protected abstract void getUserConfiguration(User user, HiveRequest request, HiveResponse response, String project, UriInfo uri) throws JAXBException;
 
 
 	abstract ParamHandler getGlobalParamHandler();
 	abstract ParamHandler getUserParamHandler();
 	abstract ParamHandler getProjectUserParamHandler();
 	abstract ParamHandler getProjectParamHandler();
+
+	protected abstract User accessUserByCredentials(Credentials cred);
 }

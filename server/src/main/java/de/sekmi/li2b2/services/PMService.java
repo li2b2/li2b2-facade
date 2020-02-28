@@ -306,13 +306,10 @@ public class PMService extends AbstractPMService{
 		}
 	}
 
-
-	@Override// ADD UriInfo
-	protected void getUserConfiguration(HiveRequest req, HiveResponse resp, String projectId, UriInfo uri) throws JAXBException {
-		Credentials cred = req.getSecurity();
+	@Override
+	protected User accessUserByCredentials(Credentials cred) {
 		User user;
 		String sessionKey = null;
-		
 		if( cred.isToken() ){
 			// need session manager
 			sessionKey = cred.getPassword();
@@ -326,6 +323,15 @@ public class PMService extends AbstractPMService{
 				Token<? extends Principal> token = getTokenManager().lookupToken(sessionKey);
 				user = manager.getUserById(token.getPayload().getName());
 				// if token was valid, then 'user' points to the authenticated user
+				// check that user id and credentials are matching
+				if( !user.getName().contentEquals(cred.getUser()) ) {
+					log.warning("Mismatch between credentials and authenticated user token");
+					// reject authentication
+					user = null;
+				}else {
+					// all ok, renew token
+					token.renew();
+				}
 			}
 		}else if( manager != null ){
 			// check user manager
@@ -334,7 +340,6 @@ public class PMService extends AbstractPMService{
 				// user authenticated
 				log.info("Valid user login: "+cred.getUser());
 				// create session
-				sessionKey = getTokenManager().registerPrincipal(cred.getUser());
 			}else{
 				// user or password not valid
 				log.info("Invalid credentials: "+cred.getUser());
@@ -344,7 +349,11 @@ public class PMService extends AbstractPMService{
 			user = null;
 			// no user manager
 		}
-		
+		return user;
+	}
+
+	@Override// ADD UriInfo
+	protected void getUserConfiguration(User user, HiveRequest req, HiveResponse resp, String projectId, UriInfo uri) throws JAXBException {
 		if( user == null ){
 			// login failed
 			resp.setResultStatus("ERROR", "Authentication failed");
@@ -365,9 +374,12 @@ public class PMService extends AbstractPMService{
 		appendTextElement(ue, "full_name", user.getProperty(USER_FULLNAME));
 		appendTextElement(ue, "user_name", user.getName());
 		// TODO session/password
-		Element p = appendTextElement(ue, "password", SESSION_KEY_PREFIX+sessionKey);
+		// create token information
+		String sessionKey = SESSION_KEY_PREFIX+getTokenManager().registerPrincipal(user.getName());
+		Element p = appendTextElement(ue, "password", sessionKey);
 		p.setAttribute("is_token", Boolean.TRUE.toString());
 		p.setAttribute("token_ms_timeout", Long.toString(getTokenManager().getExpirationMillis()));
+
 		appendTextElement(ue, "domain", manager.getProperty(SERVER_DOMAIN_NAME));
 		appendTextElement(ue, "is_admin", Boolean.toString(user.isAdmin()));
 		// add projects
@@ -446,16 +458,6 @@ public class PMService extends AbstractPMService{
 
 		manager.flush();
 		appendResponseText(response, "1 records");
-	}
-
-	@Override
-	protected boolean verifyAdmin(String authenticatedUser){
-		User user = manager.getUserById(authenticatedUser);
-		if( user != null && user.isAdmin() ){
-			return true;
-		}else{
-			return false;
-		}
 	}
 
 	@Override
