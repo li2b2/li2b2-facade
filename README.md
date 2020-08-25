@@ -7,9 +7,18 @@ you can not run the software on its own.
 
 Development of the li2b2-facate library was motivated by the AKTIN project https://aktin.org/
 
-Examples
+Example: Export ontology from i2b2 into XML file
 --------
-TODO code examples
+1. Put the release artifacts li2b2-client-*.jar and li2b2-xml-*.jar into a local directory
+2. Run from command line: E.g. in Windows/git-bash: `java -cp "li2b2-client-0.7.jar;li2b2-xml-0.7.jar" de.sekmi.li2b2.client.ont.XMLExport`
+
+The tool will provide an example on the command line output. E.g. to download a partial tree from the online demo server, use the following command:
+```
+java -cp "li2b2-client-0.7.jar;li2b2-xml-0.7.jar" de.sekmi.li2b2.client.ont.XMLExport http://services.i2b2.org/i2b2/services/PMService/ demo@i2b2demo demouser '\\i2b2_REP\i2b2\Reports\'
+```
+
+To export the full ontology, you can omit the last argument (subtree to export). Use full exports with care, as they will produce large files and load on the server.
+
 
 Users
 -----
