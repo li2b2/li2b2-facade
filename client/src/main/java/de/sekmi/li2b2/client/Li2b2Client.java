@@ -15,6 +15,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import de.li2b2.client.work.WorkplaceClient;
 import de.sekmi.li2b2.client.crc.QueryClient;
 import de.sekmi.li2b2.client.ont.OntologyClient;
 import de.sekmi.li2b2.hive.Credentials;
@@ -66,7 +67,8 @@ public class Li2b2Client {
 	private PMClient pm;
 	private OntologyClient ont;
 	private QueryClient crc;
-	
+	private WorkplaceClient work;
+
 	private Document requestTemplate;
 	private DocumentBuilderFactory factory;
 	
@@ -238,6 +240,9 @@ public class Li2b2Client {
 	public void setCRC(String uri) throws MalformedURLException{
 		this.crc = new QueryClient(this, new URL(pm.serviceUrl, uri));
 	}
+	public void setWORK(String uri) throws MalformedURLException{
+		this.work = new WorkplaceClient(this, new URL(pm.serviceUrl, uri));
+	}
 
 	/**
 	 * Get the PM cell client services.
@@ -252,6 +257,10 @@ public class Li2b2Client {
 	public QueryClient CRC(){
 		return this.crc;
 	}
+	public WorkplaceClient WORK(){
+		return this.work;
+	}
+
 	protected HiveRequest createRequest(DocumentBuilder builder){
 		Document req = builder.newDocument();
 		req.appendChild(req.importNode(requestTemplate.getDocumentElement(), true));
@@ -275,6 +284,9 @@ public class Li2b2Client {
 				break;
 			case "CRC":
 				setCRC(cells[i].url);
+				break;
+			case "WORK":
+				setWORK(cells[i].url);
 				break;
 			default:
 //				log.info("Ignoring unsupported cell "+cells[i].id+": "+cells[i].name);

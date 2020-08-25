@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
+import de.li2b2.client.work.Item;
 import de.sekmi.li2b2.client.ont.Concept;
 
 public class TestJAXB {
@@ -56,5 +57,18 @@ public class TestJAXB {
 		}
 		resultBundle.normalizeDocument();
 //		System.out.println(FormattedMessageLogger.formatXML(resultBundle));
+	}
+	@Test
+	public void unmarshalWorkplaceItem() {
+		Item w = JAXB.unmarshal(getClass().getResourceAsStream("/workplace_item.xml"), Item.class);
+		assertNotNull(w.work_xml);
+		assertEquals("\\\\demo\\854I6FjW6315l22ozk1mA",w.index);
+		assertEquals("73L7M14B2AjwJM2dzX4yH",w.parent_index);
+		assertEquals("demo",w.user_id);
+		assertEquals("Demo",w.group_id);
+		assertEquals("PREV_QUERY",w.work_xml_i2b2_type);
+		assertEquals("plugin_drag_drop",w.work_xml.getFirstChild().getLocalName());
+		assertEquals("query_master",w.work_xml.getFirstChild().getFirstChild().getLocalName());
+		assertEquals("Female@02:51:39 [2-24-2020] [demo]",w.name);
 	}
 }

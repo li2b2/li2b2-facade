@@ -31,7 +31,7 @@ import de.sekmi.li2b2.services.PMService;
 public class UserImpl implements User {
 	
 	@XmlTransient
-	private ProjectManagerImpl pm;
+	ProjectManagerImpl pm;
 	private String login;
 	private String password;
 	private Map<String,String> properties;
@@ -43,6 +43,9 @@ public class UserImpl implements User {
 		this.properties = new HashMap<>();
 		this.params = new ArrayList<>();
 		//this.domain = domain;
+	}
+	protected UserImpl() {
+		// empty constructor for JAXB
 	}
 	@Override
 	public String getName() {

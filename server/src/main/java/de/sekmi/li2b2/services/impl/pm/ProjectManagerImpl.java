@@ -11,12 +11,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
 import javax.xml.bind.JAXB;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -67,13 +69,20 @@ public class ProjectManagerImpl implements ProjectManager, Flushable {
 		this.projects = new ArrayList<>(3);
 		this.properties = new HashMap<>();
 		this.params = new ArrayList<ParamImpl>();
+		// initialize with default properties
+		setProperty(PROPERTY_PASSWORD_DIGEST_ALGORITHM, "SHA-224");
 	}
 
+	// called by jaxb after unmarshalling. we need to add references to User objects
+	void afterUnmarshal(Unmarshaller u, Object parent) {
+		// update references
+		for( UserImpl user : users ) {
+			user.pm = this;
+		}		
+	}
 	public String getPasswordDigestAlgorithm() {
-		String algo = getProperty("password-digest-algorithm");
-		if( algo == null ) {
-			algo = "SHA-224";
-		}
+		String algo = getProperty(PROPERTY_PASSWORD_DIGEST_ALGORITHM);
+		Objects.requireNonNull(algo,"Missing property "+PROPERTY_PASSWORD_DIGEST_ALGORITHM);
 		return algo;
 	}
 

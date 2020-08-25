@@ -157,21 +157,26 @@ public abstract class CellClient {
 	 * Submit a HiveRequest and expect the HiveResponse body to contain
 	 * the specified XML element.
 	 * 
-	 * @param HiveRequest HiveRequest
+	 * @param HiveRequest request
 	 * @param restMethod RESTful method
 	 * @param responseNS HiveResponse body namespace
 	 * @param responseElement HiveResponse body element
 	 * @return HiveResponse element specified in the argument list. if the element is not found, a {@link HiveException} will be thrown.
 	 * @throws HiveException server HiveRequest or HiveResponse error
 	 */
-	protected Element submitRequestWithResponseContent(HiveRequest HiveRequest, String restMethod, String responseNS, String responseElement) throws HiveException{
-		HiveResponse resp = submitRequest(HiveRequest, restMethod);
+	protected Element submitRequestWithResponseContent(HiveRequest request, String restMethod, String responseNS, String responseElement) throws HiveException{
+		HiveResponse resp = submitRequestRequireDone(request, restMethod);
+		return resp.requireBodyElement(responseNS, responseElement);
+	}
+
+	protected HiveResponse submitRequestRequireDone(HiveRequest request, String restMethod) throws HiveException {
+		HiveResponse resp = submitRequest(request, restMethod);
 		ResultStatus rs = resp.getResultStatus();
 		if( !rs.getCode().equals("DONE") ){
 			// TODO allow different subtypes of ErrorResponseException to be generated here, depending on reponse type and message
 			throw new ErrorResponseException(rs);
 		}
-		return resp.requireBodyElement(responseNS, responseElement);
+		return resp;
 	}
 	/**
 	 * Convenience method to append a text element to another element

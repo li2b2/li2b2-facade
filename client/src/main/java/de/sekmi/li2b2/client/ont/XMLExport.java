@@ -15,7 +15,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import de.sekmi.li2b2.client.FormattedMessageLogger;
 import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.hive.HiveException;
 

@@ -103,7 +103,7 @@ public class TestServer {
 		// use port if specified
 		int port;
 		if( args.length == 0 ){
-			port = 8080;
+			port = 8085;
 		}else if( args.length == 1 ){
 			port = Integer.parseInt(args[0]);
 		}else{

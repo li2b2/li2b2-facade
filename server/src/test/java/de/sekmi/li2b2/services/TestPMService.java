@@ -2,11 +2,8 @@ package de.sekmi.li2b2.services;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import de.sekmi.li2b2.client.Li2b2Client;
