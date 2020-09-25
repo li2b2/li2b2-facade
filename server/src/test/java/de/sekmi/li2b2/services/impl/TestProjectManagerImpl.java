@@ -34,7 +34,7 @@ public class TestProjectManagerImpl {
 		user.setProperty(PMService.USER_ISADMIN, "true");
 		pm.addParameter("globalparam1", "T", "globalvalue1");
 
-		Path temp = Files.createTempFile("ProjectManagerImpl", ".xml");
+//		Path temp = Files.createTempFile("ProjectManagerImpl", ".xml");
 //		JAXB.marshal(pm,temp.toFile());
 		// add global param
 //		System.out.println(temp);

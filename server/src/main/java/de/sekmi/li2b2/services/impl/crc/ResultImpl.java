@@ -4,6 +4,9 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.xml.bind.annotation.XmlTransient;
+
 import java.util.Random;
 
 import de.sekmi.li2b2.api.crc.QueryResult;
@@ -11,7 +14,9 @@ import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.api.crc.ResultType;
 
 public class ResultImpl implements QueryResult{
+	@XmlTransient
 	private QueryImpl query;
+	@XmlTransient
 	private ResultTypeImpl type;
 	
 	public ResultImpl(QueryImpl query, ResultTypeImpl type){

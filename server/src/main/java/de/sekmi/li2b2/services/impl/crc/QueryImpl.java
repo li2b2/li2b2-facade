@@ -1,37 +1,86 @@
 package de.sekmi.li2b2.services.impl.crc;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.crc.Query;
 import de.sekmi.li2b2.api.crc.QueryExecution;
+import de.sekmi.li2b2.api.crc.QueryStatus;
+import de.sekmi.li2b2.util.JaxbInstantAdapter;
+
+@XmlAccessorType(XmlAccessType.NONE)
 
 public class QueryImpl implements Query{
+	@XmlAttribute
 	private int id;
+	@XmlElement
 	private String userId;
+	@XmlElement
 	private String groupId;
+	@XmlElement
 	private String displayName;
-	private Element definition;
+
+	@XmlElement
+	@XmlJavaTypeAdapter(JaxbInstantAdapter.class)
 	private Instant createDate;
-	ResultImpl[] results;
-	private VirtualExecution[] executions;
+
+	@XmlElementWrapper(name="result-types")
+	@XmlElement(name="ref")
+	private String[] resultTypes;
 	
-	public QueryImpl(int id, String userId, String groupId, Element definition){
+	@XmlElementWrapper(name = "executions")
+	@XmlElement(name="execution")
+	private List<VirtualExecution> executions;
+	@XmlAnyElement
+	private Element definition;
+	
+	// empty constructor for JAXB
+	private QueryImpl() {
+		
+	}
+	public QueryImpl(int id, String userId, String groupId, Element definition, String[] resultTypes){
+		this();
 		this.id = id;
 		this.userId = userId;
 		this.groupId = groupId;
 		createDate = Instant.now();
 		this.definition = definition;
-		this.executions = new VirtualExecution[]{new VirtualExecution(this, "Total"),new VirtualExecution(this, "DZL"),new VirtualExecution(this, "DKTK 1")};
+		this.resultTypes = resultTypes;
+//		this.executions = new VirtualExecution[]{new VirtualExecution(this, "Total"),new VirtualExecution(this, "DZL"),new VirtualExecution(this, "DKTK 1")};
+		this.executions = new ArrayList<>();
 	}
-	public void setResultTypes(ResultTypeImpl[] results){
-		this.results = new ResultImpl[results.length];
-		for( int i=0; i<results.length; i++ ){
-			this.results[i] = new ResultImpl(this, results[i]);
+
+	// called by jaxb after unmarshalling. we need to add references to executions objects
+	void afterUnmarshal(Unmarshaller u, Object parent) {
+		// update references
+		for( VirtualExecution exec : executions ) {
+			exec.query = this;
 		}
+	}
+
+	public VirtualExecution addExecution(String label, QueryStatus status, ResultTypeImpl[] resultTypes) {
+		VirtualExecution e = new VirtualExecution(this, label);
+		e.setStatus(status);
+		// TODO add result types
+		executions.add(e);
+		return e;
+	}
+
+	public String[] getRequestTypes() {
+		return resultTypes;
 	}
 	@Override
 	public int getId() {
@@ -70,7 +119,7 @@ public class QueryImpl implements Query{
 	@Override
 	public List<? extends QueryExecution> getExecutions() {
 		// multiple executions
-		return Arrays.asList(executions);
+		return executions;
 	}
 
 }

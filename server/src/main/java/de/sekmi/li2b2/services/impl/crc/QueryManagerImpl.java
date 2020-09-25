@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 import org.w3c.dom.Element;
 
 import de.sekmi.li2b2.api.crc.QueryManager;
+import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.api.crc.Query;
 import de.sekmi.li2b2.api.crc.ResultType;
 
+@XmlAccessorType(XmlAccessType.NONE)
 public class QueryManagerImpl implements QueryManager{
 	private List<ResultTypeImpl> types;
 	private List<QueryImpl> queries;
@@ -52,21 +57,45 @@ public class QueryManagerImpl implements QueryManager{
 		}
 		return ret.toArray(new ResultTypeImpl[ret.size()]);
 	}
-	@Override
-	public Query runQuery(String userId, String groupId, Element definition, String[] results) {
-		// TODO move definition node to private fragment
-		QueryImpl q = new QueryImpl(querySeq.incrementAndGet(), userId, groupId, definition);
+	protected String getQueryNameFromQueryDefinition(Element definition) {
+		return definition.getFirstChild().getTextContent();
+	}
+
+	
+	protected void executeQuery(QueryImpl query) {
 		// TODO read query name from definition/query_name (first child)
-		q.setDisplayName("Query "+q.getId());
-		// TODO add properties, 
-		// read/use results
-		q.setResultTypes(getResultTypes(results));
+		
+		query.addExecution("Total", QueryStatus.INCOMPLETE, null);
+		query.addExecution("DZL", QueryStatus.INCOMPLETE, null);
+		query.addExecution("DKTK", QueryStatus.INCOMPLETE, null);
+		
+		
+	}
+	@Override
+	public final Query runQuery(String userId, String groupId, Element definition, String[] results) {
+		ResultTypeImpl[] resultTypes = getResultTypes(results);
+		// TODO check if all requested result types are supported
+
+		QueryImpl q = new QueryImpl(querySeq.incrementAndGet(), userId, groupId, definition, results);
+
+		// parse display name from i2b2 query definition
+		String displayName = getQueryNameFromQueryDefinition(definition);
+		if( displayName == null || displayName.isEmpty() ) {
+			displayName = "Query "+q.getId();
+		}
+		q.setDisplayName(displayName);
+
+		
+
 		queries.add(q);
+
+		executeQuery(q);
+
 		return q;
 	}
 
 	@Override
-	public QueryImpl getQuery(int queryId) {
+	public final QueryImpl getQuery(int queryId) {
 		for( int i=0; i<queries.size(); i++ ){
 			QueryImpl q = queries.get(i);
 			if( queryId == q.getId() ){
@@ -78,13 +107,13 @@ public class QueryManagerImpl implements QueryManager{
 	}
 
 	@Override
-	public Iterable<? extends Query> listQueries(String userId) {
+	public final Iterable<? extends Query> listQueries(String userId) {
 		// for now, all users can see all queries
 		return queries;
 	}
 
 	@Override
-	public Iterable<? extends ResultType> getResultTypes() {
+	public final Iterable<? extends ResultType> getResultTypes() {
 		return types;
 	}
 	@Override
