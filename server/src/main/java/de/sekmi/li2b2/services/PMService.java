@@ -359,6 +359,14 @@ public class PMService extends AbstractPMService{
 			resp.setResultStatus("ERROR", "Authentication failed");
 			return;
 		}
+		// try to use existing session key, if available.
+		String sessionKey;
+		if( req.getSecurity().isToken() ) {
+			sessionKey = req.getSecurity().getPassword();
+		}else {
+			// only register new session key, if password authentication was used
+			sessionKey = SESSION_KEY_PREFIX+getTokenManager().registerPrincipal(user.getName());
+		}
 		
 		JAXBContext jaxb = JAXBContext.newInstance(Cell.class,UserProject.class);
 		Marshaller marshaller = jaxb.createMarshaller();
@@ -375,7 +383,6 @@ public class PMService extends AbstractPMService{
 		appendTextElement(ue, "user_name", user.getName());
 		// TODO session/password
 		// create token information
-		String sessionKey = SESSION_KEY_PREFIX+getTokenManager().registerPrincipal(user.getName());
 		Element p = appendTextElement(ue, "password", sessionKey);
 		p.setAttribute("is_token", Boolean.TRUE.toString());
 		p.setAttribute("token_ms_timeout", Long.toString(getTokenManager().getExpirationMillis()));

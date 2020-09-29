@@ -86,9 +86,23 @@ public class ProjectManagerImpl implements ProjectManager, Flushable {
 		return algo;
 	}
 
+
 	@Override
 	public void setFlushDestination(Path path) {
 		this.xmlFlushTarget = path;
+	}
+	@Override
+	public void flush() {
+		if( xmlFlushTarget == null ) {
+			// no persistence
+			return;
+		}
+		log.info("Writing state to "+xmlFlushTarget);
+		try( OutputStream out = Files.newOutputStream(xmlFlushTarget) ){
+			JAXB.marshal(this, out);			
+		}catch( IOException e ) {
+			log.log(Level.SEVERE,"Unable to write PM config to file "+xmlFlushTarget, e);
+		}
 	}
 	
 	@Override
@@ -175,19 +189,6 @@ public class ProjectManagerImpl implements ProjectManager, Flushable {
 		return properties.get(key);
 	}
 
-	@Override
-	public void flush() {
-		if( xmlFlushTarget == null ) {
-			// no persistence
-			return;
-		}
-		log.info("Writing state to "+xmlFlushTarget);
-		try( OutputStream out = Files.newOutputStream(xmlFlushTarget) ){
-			JAXB.marshal(this, out);			
-		}catch( IOException e ) {
-			log.log(Level.SEVERE,"Unable to write PM config to file "+xmlFlushTarget, e);
-		}
-	}
 
 	@Override
 	public List<ParamImpl> getParameters() {

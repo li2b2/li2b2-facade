@@ -28,14 +28,14 @@ public class TestServer {
 
 	private ResourceConfig rc;
 	private Server jetty;
-	
-	public TestServer(){
+
+	public TestServer(boolean persistence){
 		rc = new ResourceConfig();
 		rc.register(PMService.class);
 		rc.register(QueryToolService.class);
 		rc.register(WorkplaceService.class);
 		rc.register(OntologyService.class);
-		rc.register(new MyBinder());
+		rc.register(new MyBinder(persistence));
 		
 		// add CORS filter
 		Map<String, String> props = new HashMap<String, String>();
@@ -114,7 +114,7 @@ public class TestServer {
 		}
 
 		// start server
-		TestServer server = new TestServer();
+		TestServer server = new TestServer(true);
 		server.register(Webclient.class);
 		server.register(Webadmin.class);
 		try{

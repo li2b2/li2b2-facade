@@ -30,7 +30,7 @@ public interface Project extends ParameterCollection{
 	/**
 	 * Get project specific user configuration
 	 * @param user user
-	 * @return project specific configuration for the given user or {@code null} if user not registered with this project.
+	 * @return project specific configuration for the given user. If the configuration does not exist for the user, it is created and returned.
 	 */
 	ProjectUser getProjectUser(User user);
 

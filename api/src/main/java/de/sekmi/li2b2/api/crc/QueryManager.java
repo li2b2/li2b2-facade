@@ -1,6 +1,7 @@
 package de.sekmi.li2b2.api.crc;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.w3c.dom.Element;
 
@@ -41,4 +42,16 @@ public interface QueryManager {
 	}
 
 	void deleteQuery(int queryId) throws IOException;
+
+	/**
+	 * Specify the target for the {@link #flush()} operation which
+	 * writes the current state to persistent storage.
+	 * @param dest destination URL
+	 */
+	public void setFlushDestination(Path dest);
+	/**
+	 * Write changes to persistent storage (if available).
+	 */
+	void flush();
+
 }

@@ -26,6 +26,13 @@ import de.sekmi.li2b2.services.token.TokenManager;
 
 public class MyBinder extends AbstractBinder{
 
+	/** whether to allow persistence. e.g. read/write state */
+	private boolean persistence;
+
+	public MyBinder(boolean persistence) {
+		this.persistence = persistence;
+	}
+
 	/**
 	 * Get the URL for the ontology XML data.
 	 * Searches for system property ontology.url or 
@@ -63,10 +70,11 @@ public class MyBinder extends AbstractBinder{
 	protected void configure() {
 		// project manager
 		// try to unmarshal
-		Path path = Paths.get("target/pm.xml");
+		Path pm_path = Paths.get("target/pm.xml");
+		Path qm_path = Paths.get("target/qm.xml");
 		ProjectManagerImpl pm;
-		if( Files.exists(path) ) {
-			try( InputStream in = Files.newInputStream(path)) {
+		if( persistence && Files.exists(pm_path) ) {
+			try( InputStream in = Files.newInputStream(pm_path)) {
 				pm = JAXB.unmarshal(in,ProjectManagerImpl.class);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
@@ -93,7 +101,7 @@ public class MyBinder extends AbstractBinder{
 			
 			pm.addProject("Demo2", "li2b2 Demo2").getProjectUser(user).addRoles("USER","DATA_OBFSC");			
 		}		
-		pm.setFlushDestination(path);
+		pm.setFlushDestination(pm_path);
 		bind(pm).to(ProjectManager.class);
 		
 		// ontology
@@ -101,15 +109,25 @@ public class MyBinder extends AbstractBinder{
 		bind(ont).to(Ontology.class);
 		
 		// crc
-		QueryManagerImpl crc = new QueryManagerImpl();
-		crc.addResultType("PATIENT_COUNT_XML", "CATNUM", "Number of patients");//"Patient count (simple)");
-//		crc.addResultType("MULT_SITE_COUNT", "CATNUM", "Number of patients per site");//"Patient count (simple)");
-		crc.addResultType("PATIENT_GENDER_COUNT_XML", "CATNUM", "Gender patient breakdown");
-		crc.addResultType("PATIENT_VITALSTATUS_COUNT_XML", "CATNUM", "Vital Status patient breakdown");
-		crc.addResultType("PATIENT_RACE_COUNT_XML", "CATNUM", "Race patient breakdown");
-		crc.addResultType("PATIENT_AGE_COUNT_XML", "CATNUM", "Age patient breakdown");
+		QueryManagerImpl crc;
+		if( persistence && Files.exists(qm_path) ) {
+			try( InputStream in = Files.newInputStream(qm_path)) {
+				crc = JAXB.unmarshal(in,QueryManagerImpl.class);
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		}else {
+			crc = new QueryManagerImpl();
+			crc.addResultType("PATIENT_COUNT_XML", "CATNUM", "Number of patients");//"Patient count (simple)");
+	//		crc.addResultType("MULT_SITE_COUNT", "CATNUM", "Number of patients per site");//"Patient count (simple)");
+			crc.addResultType("PATIENT_GENDER_COUNT_XML", "CATNUM", "Gender patient breakdown");
+			crc.addResultType("PATIENT_VITALSTATUS_COUNT_XML", "CATNUM", "Vital Status patient breakdown");
+			crc.addResultType("PATIENT_RACE_COUNT_XML", "CATNUM", "Race patient breakdown");
+			crc.addResultType("PATIENT_AGE_COUNT_XML", "CATNUM", "Age patient breakdown");
+		}
 
 		// TODO more result types for i2b2
+		crc.setFlushDestination(qm_path);
 		bind(crc).to(QueryManager.class);
 
 		bind(new TokenManagerImpl()).to(TokenManager.class);

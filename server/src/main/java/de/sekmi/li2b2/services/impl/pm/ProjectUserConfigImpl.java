@@ -1,6 +1,7 @@
 package de.sekmi.li2b2.services.impl.pm;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,11 @@ public class ProjectUserConfigImpl implements ProjectUser {
 
 	@Override
 	public List<? extends Parameter> getParameters() {
-		return param;
+//		if( param != null) {
+			return param;
+//		}else {
+//			return Collections.emptyList();
+//		}
 	}
 	@Override
 	public Parameter addParameter(String name, String datatype, String value) {

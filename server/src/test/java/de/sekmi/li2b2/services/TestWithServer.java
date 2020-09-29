@@ -55,7 +55,7 @@ public class TestWithServer {
 
 	@Before
 	public void startServer() throws Exception{
-		server = new TestServer();
+		server = new TestServer(false);
 		server.start_local(0);
 	}
 

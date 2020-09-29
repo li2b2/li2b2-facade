@@ -2,10 +2,13 @@ package de.sekmi.li2b2.services;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.sekmi.li2b2.client.CellClient;
+import de.sekmi.li2b2.client.FormattedMessageLogger;
 import de.sekmi.li2b2.client.Li2b2Client;
 import de.sekmi.li2b2.client.pm.UserConfiguration;
 import de.sekmi.li2b2.hive.Credentials;
@@ -31,6 +34,7 @@ public class TestPMService extends TestWithServer{
 	@Test
 	public void expectValidUserConfiguration() throws Exception{
 		Li2b2Client client = newConfiguredClient();
+		//client.setMessageLog(FormattedMessageLogger.consoleLogger());
 		UserConfiguration uc = client.PM().requestUserConfiguration();
 		Assert.assertNotNull(uc);
 		// should have switched to token for authorisation

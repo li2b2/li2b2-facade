@@ -1,11 +1,19 @@
 package de.sekmi.li2b2.services.impl.crc;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.w3c.dom.Element;
 
@@ -13,13 +21,18 @@ import de.sekmi.li2b2.api.crc.QueryManager;
 import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.api.crc.Query;
 import de.sekmi.li2b2.api.crc.ResultType;
+import de.sekmi.li2b2.services.impl.pm.ProjectManagerImpl;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class QueryManagerImpl implements QueryManager{
+	private static final Logger log = Logger.getLogger(QueryManagerImpl.class.getName());
 	private List<ResultTypeImpl> types;
 	private List<QueryImpl> queries;
 	private AtomicInteger querySeq;
-	
+
+	@XmlTransient
+	private Path xmlFlushTarget;
+
 	public QueryManagerImpl(){
 		types = new ArrayList<>(5);
 		queries = new ArrayList<>();
@@ -109,5 +122,24 @@ public class QueryManagerImpl implements QueryManager{
 //	public QueryExecution getExecution(String instanceId) {
 //		return getQuery(instanceId);
 //	}
+
+
+	@Override
+	public void setFlushDestination(Path path) {
+		this.xmlFlushTarget = path;
+	}
+	@Override
+	public void flush() {
+		if( xmlFlushTarget == null ) {
+			// no persistence
+			return;
+		}
+		log.info("Writing state to "+xmlFlushTarget);
+		try( OutputStream out = Files.newOutputStream(xmlFlushTarget) ){
+			JAXB.marshal(this, out);			
+		}catch( IOException e ) {
+			log.log(Level.SEVERE,"Unable to write PM config to file "+xmlFlushTarget, e);
+		}
+	}
 
 }
