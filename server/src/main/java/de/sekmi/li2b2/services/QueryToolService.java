@@ -124,7 +124,7 @@ public class QueryToolService extends AbstractCRCService {
 		NodeList nl = result_output_list.getChildNodes();
 		String[] results = new String[nl.getLength()];
 		for( int i=0; i<results.length; i++ ){
-			results[i] = ((Element)nl.item(i)).getAttribute("name");
+			results[i] = ((Element)nl.item(i)).getAttribute("name").toUpperCase();
 		}
 		// run query
 		Query q;
@@ -285,7 +285,12 @@ public class QueryToolService extends AbstractCRCService {
 	@Override
 	protected void deleteQueryMaster(CrcResponse response, String masterId) {
 		try {
-			manager.deleteQuery(parseQueryMasterId(masterId));
+			Query q = manager.getQuery(parseQueryMasterId(masterId));
+			if( q != null ) {
+				manager.deleteQuery(q);
+			}else {
+				// TODO query not found, send error
+			}
 		} catch (IOException e) {
 			response.setResultStatus("ERROR", e.getMessage());
 			return;
@@ -304,7 +309,7 @@ public class QueryToolService extends AbstractCRCService {
 			q = manager.getQuery(parseQueryMasterId(masterId));
 			if( q != null ){
 				// change name
-				q.setDisplayName(newName);
+				manager.renameQuery(q, newName);
 				// write response
 				Element qm = (Element)el.appendChild(el.getOwnerDocument().createElement("query_master"));
 				appendTextElement(qm, "query_master_id", masterId);
@@ -312,6 +317,7 @@ public class QueryToolService extends AbstractCRCService {
 				appendTextElement(qm, "user_id", q.getUser());
 			}else{
 				// fail?
+				// TODO query not found, write error
 			}
 		} catch (IOException e) {
 			log.log(Level.WARNING, "API error", e);

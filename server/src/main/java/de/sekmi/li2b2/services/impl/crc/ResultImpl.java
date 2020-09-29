@@ -80,10 +80,10 @@ public class ResultImpl implements QueryResult{
 	}
 	@Override
 	public Iterable<? extends Entry<String, ?>> getBreakdownData() {
-		Map<String, Object> a = new HashMap<>();
-		a.put("patient_count", new Random().nextInt(10000) );
-		a.put("xyz", new Random().nextInt(10000) );
-		return a.entrySet();
+		if( breakdown == null ) {
+			return null;
+		}
+		return breakdown.entrySet();
 	}
 
 	/**

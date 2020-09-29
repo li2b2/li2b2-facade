@@ -41,17 +41,8 @@ public interface QueryManager {
 		throw new IllegalArgumentException("Unsupported result type "+key);
 	}
 
-	void deleteQuery(int queryId) throws IOException;
+	void deleteQuery(Query query) throws IOException;
 
-	/**
-	 * Specify the target for the {@link #flush()} operation which
-	 * writes the current state to persistent storage.
-	 * @param dest destination URL
-	 */
-	public void setFlushDestination(Path dest);
-	/**
-	 * Write changes to persistent storage (if available).
-	 */
-	void flush();
+	void renameQuery(Query query, String newName) throws IOException;
 
 }

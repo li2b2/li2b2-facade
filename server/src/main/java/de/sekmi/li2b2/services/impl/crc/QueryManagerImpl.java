@@ -1,19 +1,27 @@
 package de.sekmi.li2b2.services.impl.crc;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.w3c.dom.Element;
 
@@ -21,17 +29,23 @@ import de.sekmi.li2b2.api.crc.QueryManager;
 import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.api.crc.Query;
 import de.sekmi.li2b2.api.crc.ResultType;
-import de.sekmi.li2b2.services.impl.pm.ProjectManagerImpl;
+import de.sekmi.li2b2.util.JaxbAtomicIntegerAdapter;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class QueryManagerImpl implements QueryManager{
 	private static final Logger log = Logger.getLogger(QueryManagerImpl.class.getName());
+	@XmlElement
 	private List<ResultTypeImpl> types;
+	@XmlTransient
 	private List<QueryImpl> queries;
+	@XmlElement
+	@XmlJavaTypeAdapter(JaxbAtomicIntegerAdapter.class)
 	private AtomicInteger querySeq;
 
 	@XmlTransient
 	private Path xmlFlushTarget;
+	@XmlTransient
+	private Path xmlQueryDir;
 
 	public QueryManagerImpl(){
 		types = new ArrayList<>(5);
@@ -65,12 +79,23 @@ public class QueryManagerImpl implements QueryManager{
 
 	
 	protected void executeQuery(QueryImpl query) {
-		// TODO read query name from definition/query_name (first child)
+		ExecutionImpl e = query.addExecution(QueryStatus.INCOMPLETE);
+		// TODO perform execution
+		e.setStartTimestamp(Instant.now());
+
+		ResultImpl result = e.getResult("PATIENT_COUNT_XML");
+		if( result != null ) {
+			int count = new Random().nextInt(Integer.MAX_VALUE);
+			result.setBreakdownData(new String[] {"patient_count"}, new int[] {count});
+			result.setSetSize(count);
+		}
+		e.setEndTimestamp(Instant.now());
 		
-		query.addExecution(QueryStatus.INCOMPLETE);
+		e.setStatus(QueryStatus.FINISHED);
 	}
+
 	@Override
-	public final Query runQuery(String userId, String groupId, Element definition, String[] results) {
+	public final QueryImpl runQuery(String userId, String groupId, Element definition, String[] results) {
 		//ResultTypeImpl[] resultTypes = getResultTypes(results);
 		// TODO check if all requested result types are supported
 
@@ -86,9 +111,12 @@ public class QueryManagerImpl implements QueryManager{
 		
 
 		queries.add(q);
+		flushQuery(q);
+		flush(); // flush manager to save querySeq state
 
 		executeQuery(q);
 
+		flushQuery(q);
 		return q;
 	}
 
@@ -115,8 +143,17 @@ public class QueryManagerImpl implements QueryManager{
 		return types;
 	}
 	@Override
-	public void deleteQuery(int queryId) {
-		queries.removeIf( q -> queryId == q.getId() );
+	public void deleteQuery(Query query) throws IOException{
+		
+		queries.removeIf( q -> query.getId() == q.getId() );
+		// TODO delete query from filesystem
+		Path path = getQueryPath(query);
+		Files.deleteIfExists(path);
+	}
+	@Override
+	public void renameQuery(Query query, String newName) throws IOException{
+		query.setDisplayName(newName);
+		flushQuery((QueryImpl)query);
 	}
 //	@Override
 //	public QueryExecution getExecution(String instanceId) {
@@ -124,22 +161,49 @@ public class QueryManagerImpl implements QueryManager{
 //	}
 
 
-	@Override
-	public void setFlushDestination(Path path) {
-		this.xmlFlushTarget = path;
+	public void setFlushDestination(Path config, Path queryDir) throws IOException {
+		this.xmlFlushTarget = config;
+		this.xmlQueryDir = queryDir;
+		if( !Files.isDirectory(xmlQueryDir) ) {
+			Files.createDirectory(xmlQueryDir);
+		}
 	}
-	@Override
+
 	public void flush() {
 		if( xmlFlushTarget == null ) {
 			// no persistence
 			return;
 		}
 		log.info("Writing state to "+xmlFlushTarget);
-		try( OutputStream out = Files.newOutputStream(xmlFlushTarget) ){
-			JAXB.marshal(this, out);			
-		}catch( IOException e ) {
-			log.log(Level.SEVERE,"Unable to write PM config to file "+xmlFlushTarget, e);
-		}
+		JAXB.marshal(this, xmlFlushTarget.toFile());
 	}
 
+	private Path getQueryPath(Query query) {
+		return xmlQueryDir.resolve(Integer.toString(query.getId())+".xml");
+	}
+	public void flushQuery(QueryImpl query) {
+		if( xmlQueryDir == null ) {
+			return; // skip flushing
+		}
+		Path dest = getQueryPath(query);
+		JAXB.marshal(query, dest.toFile());
+	}
+
+	public void loadQueries() throws IOException, JAXBException {
+		Objects.requireNonNull(xmlQueryDir);
+		queries = new ArrayList<>();
+		JAXBContext jc = JAXBContext.newInstance(QueryImpl.class);
+		Unmarshaller um = jc.createUnmarshaller();
+		try( Stream<Path> files = Files.list(xmlQueryDir) ){
+			Iterator<Path> i = files.iterator();
+			while( i.hasNext() ) {
+				Path path = i.next();
+				log.info("Unmarshalling "+path.toFile());
+				//QueryImpl query = (QueryImpl)um.unmarshal(path.toFile());
+				QueryImpl query = JAXB.unmarshal(path.toFile(), QueryImpl.class);
+				// TODO catch unmarshalexception
+				queries.add(query);
+			}
+		}
+	}
 }

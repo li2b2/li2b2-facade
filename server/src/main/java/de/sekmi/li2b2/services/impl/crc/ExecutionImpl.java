@@ -9,11 +9,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import de.sekmi.li2b2.api.crc.Query;
 import de.sekmi.li2b2.api.crc.QueryExecution;
 import de.sekmi.li2b2.api.crc.QueryResult;
 import de.sekmi.li2b2.api.crc.QueryStatus;
+import de.sekmi.li2b2.util.JaxbInstantAdapter;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class ExecutionImpl implements QueryExecution {
@@ -24,8 +26,10 @@ public class ExecutionImpl implements QueryExecution {
 	@XmlElement
 	private String label;
 	@XmlElement
+	@XmlJavaTypeAdapter(JaxbInstantAdapter.class)
 	private Instant start;
 	@XmlElement
+	@XmlJavaTypeAdapter(JaxbInstantAdapter.class)
 	private Instant end;
 	@XmlElement
 	private ResultImpl[] results;

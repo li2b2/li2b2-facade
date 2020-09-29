@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBException;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
@@ -72,6 +73,8 @@ public class MyBinder extends AbstractBinder{
 		// try to unmarshal
 		Path pm_path = Paths.get("target/pm.xml");
 		Path qm_path = Paths.get("target/qm.xml");
+		Path qm_dir = Paths.get("target/qm");
+
 		ProjectManagerImpl pm;
 		if( persistence && Files.exists(pm_path) ) {
 			try( InputStream in = Files.newInputStream(pm_path)) {
@@ -100,8 +103,11 @@ public class MyBinder extends AbstractBinder{
 			admin.setAdmin(true);
 			
 			pm.addProject("Demo2", "li2b2 Demo2").getProjectUser(user).addRoles("USER","DATA_OBFSC");			
-		}		
-		pm.setFlushDestination(pm_path);
+		}
+		if( persistence ) {
+			System.err.println("Flushing PM to "+pm_path);
+			pm.setFlushDestination(pm_path);
+		}
 		bind(pm).to(ProjectManager.class);
 		
 		// ontology
@@ -124,10 +130,20 @@ public class MyBinder extends AbstractBinder{
 			crc.addResultType("PATIENT_VITALSTATUS_COUNT_XML", "CATNUM", "Vital Status patient breakdown");
 			crc.addResultType("PATIENT_RACE_COUNT_XML", "CATNUM", "Race patient breakdown");
 			crc.addResultType("PATIENT_AGE_COUNT_XML", "CATNUM", "Age patient breakdown");
+			// TODO more result types for i2b2
 		}
 
-		// TODO more result types for i2b2
-		crc.setFlushDestination(qm_path);
+		if( persistence ) {
+			System.err.println("Flushing CRC to "+qm_path);
+			try {
+				crc.setFlushDestination(qm_path, qm_dir);
+				crc.loadQueries();
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			} catch (JAXBException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		bind(crc).to(QueryManager.class);
 
 		bind(new TokenManagerImpl()).to(TokenManager.class);

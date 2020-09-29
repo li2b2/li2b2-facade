@@ -78,7 +78,7 @@ public class ProjectManagerImpl implements ProjectManager, Flushable {
 		// update references
 		for( UserImpl user : users ) {
 			user.pm = this;
-		}		
+		}
 	}
 	public String getPasswordDigestAlgorithm() {
 		String algo = getProperty(PROPERTY_PASSWORD_DIGEST_ALGORITHM);
