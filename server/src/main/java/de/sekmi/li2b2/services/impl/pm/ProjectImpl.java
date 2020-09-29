@@ -37,14 +37,15 @@ public class ProjectImpl implements Project{
 	 * Empty constructor for JAXB
 	 */
 	protected ProjectImpl() {
-	}
-
-	public ProjectImpl(String id, String name){
-		this.id = id;
-		this.name = name;
 		this.properties = new HashMap<>();
 		this.users = new HashMap<>();
 		this.params = new ArrayList<>();
+	}
+
+	public ProjectImpl(String id, String name){
+		this();
+		this.id = id;
+		this.name = name;
 	}
 	@Override
 	public String getId() {
@@ -60,8 +61,6 @@ public class ProjectImpl implements Project{
 		ProjectUserConfigImpl uc = users.get(user.getName());
 		if( uc == null ) {
 			uc = new ProjectUserConfigImpl();
-			uc.roles = new HashSet<String>();
-			uc.param = new ArrayList<>();
 			users.put(user.getName(), uc);
 		}
 		return uc;

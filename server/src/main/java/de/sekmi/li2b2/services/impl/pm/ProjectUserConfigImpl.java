@@ -1,7 +1,9 @@
 package de.sekmi.li2b2.services.impl.pm;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +18,12 @@ public class ProjectUserConfigImpl implements ProjectUser {
 	Set<String> roles;
 	List<ParamImpl> param;
 
+	public ProjectUserConfigImpl() {
+		// empty constructor for JAXB
+		roles = new HashSet<>();
+		param = new ArrayList<>();
+	}
+
 	@Override
 	public List<? extends Parameter> getParameters() {
 //		if( param != null) {
@@ -24,6 +32,7 @@ public class ProjectUserConfigImpl implements ProjectUser {
 //			return Collections.emptyList();
 //		}
 	}
+
 	@Override
 	public Parameter addParameter(String name, String datatype, String value) {
 		ParamImpl par = new ParamImpl(name, datatype, value);

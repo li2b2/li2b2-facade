@@ -77,7 +77,10 @@ public class QueryManagerImpl implements QueryManager{
 		return definition.getFirstChild().getTextContent();
 	}
 
-	
+	/**
+	 * Override this method to perform the actual execution
+	 * @param query
+	 */
 	protected void executeQuery(QueryImpl query) {
 		ExecutionImpl e = query.addExecution(QueryStatus.INCOMPLETE);
 		// TODO perform execution
@@ -192,8 +195,8 @@ public class QueryManagerImpl implements QueryManager{
 	public void loadQueries() throws IOException, JAXBException {
 		Objects.requireNonNull(xmlQueryDir);
 		queries = new ArrayList<>();
-		JAXBContext jc = JAXBContext.newInstance(QueryImpl.class);
-		Unmarshaller um = jc.createUnmarshaller();
+//		JAXBContext jc = JAXBContext.newInstance(QueryImpl.class);
+//		Unmarshaller um = jc.createUnmarshaller();
 		try( Stream<Path> files = Files.list(xmlQueryDir) ){
 			Iterator<Path> i = files.iterator();
 			while( i.hasNext() ) {

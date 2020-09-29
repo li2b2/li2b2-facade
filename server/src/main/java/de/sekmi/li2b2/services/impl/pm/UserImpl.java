@@ -37,15 +37,16 @@ public class UserImpl implements User {
 	private Map<String,String> properties;
 	private List<ParamImpl> params;
 
-	public UserImpl(ProjectManagerImpl pm, String login){
-		this.pm = pm;
-		this.login = login;
+	private UserImpl() {
+		// empty constructor for JAXB
 		this.properties = new HashMap<>();
 		this.params = new ArrayList<>();
-		//this.domain = domain;
 	}
-	protected UserImpl() {
-		// empty constructor for JAXB
+	public UserImpl(ProjectManagerImpl pm, String login){
+		this();
+		this.pm = pm;
+		this.login = login;
+		//this.domain = domain;
 	}
 	@Override
 	public String getName() {
