@@ -2,7 +2,6 @@ package de.sekmi.li2b2.services.impl.crc;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.Unmarshaller;
@@ -35,7 +34,7 @@ public class QueryImpl implements Query{
 
 	@XmlElement
 	@XmlJavaTypeAdapter(JaxbInstantAdapter.class)
-	private Instant createDate;
+	private Instant created;
 
 	@XmlElementWrapper(name="result-types")
 	@XmlElement(name="ref")
@@ -43,7 +42,7 @@ public class QueryImpl implements Query{
 	
 	@XmlElementWrapper(name = "executions")
 	@XmlElement(name="execution")
-	private List<VirtualExecution> executions;
+	private List<ExecutionImpl> executions;
 	@XmlAnyElement
 	private Element definition;
 	
@@ -56,7 +55,7 @@ public class QueryImpl implements Query{
 		this.id = id;
 		this.userId = userId;
 		this.groupId = groupId;
-		createDate = Instant.now();
+		created = Instant.now();
 		this.definition = definition;
 		this.resultTypes = resultTypes;
 //		this.executions = new VirtualExecution[]{new VirtualExecution(this, "Total"),new VirtualExecution(this, "DZL"),new VirtualExecution(this, "DKTK 1")};
@@ -66,15 +65,20 @@ public class QueryImpl implements Query{
 	// called by jaxb after unmarshalling. we need to add references to executions objects
 	void afterUnmarshal(Unmarshaller u, Object parent) {
 		// update references
-		for( VirtualExecution exec : executions ) {
+		for( ExecutionImpl exec : executions ) {
 			exec.query = this;
 		}
 	}
 
-	public VirtualExecution addExecution(String label, QueryStatus status, ResultTypeImpl[] resultTypes) {
-		VirtualExecution e = new VirtualExecution(this, label);
+	/**
+	 * Add execution to the query. If multiple executions are used for a single query, 
+	 * the execution label should be set via {@link ExecutionImpl#setLabel(String)} 
+	 * @param status status for the execution
+	 * @return
+	 */
+	public ExecutionImpl addExecution(QueryStatus status) {
+		ExecutionImpl e = new ExecutionImpl(this);
 		e.setStatus(status);
-		// TODO add result types
 		executions.add(e);
 		return e;
 	}
@@ -112,8 +116,8 @@ public class QueryImpl implements Query{
 	}
 
 	@Override
-	public Instant getCreateDate() {
-		return createDate;
+	public Instant getCreateTimestamp() {
+		return created;
 	}
 
 	@Override

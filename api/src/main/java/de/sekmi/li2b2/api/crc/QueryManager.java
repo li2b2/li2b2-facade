@@ -25,5 +25,20 @@ public interface QueryManager {
 	 * @return result types
 	 */
 	Iterable<? extends ResultType> getResultTypes();
+
+	/**
+	 * Get a result type by its name / key. See {@link #getResultTypes()}
+	 * @param key key/name for the result type
+	 * @return result type or {@code null} if the result type is not available/found
+	 */
+	default ResultType getResultType(String key) throws IllegalArgumentException{
+		for( ResultType t : getResultTypes() ) {
+			if( t.getName().contentEquals(key) ){
+				return t;
+			}
+		}
+		throw new IllegalArgumentException("Unsupported result type "+key);
+	}
+
 	void deleteQuery(int queryId) throws IOException;
 }

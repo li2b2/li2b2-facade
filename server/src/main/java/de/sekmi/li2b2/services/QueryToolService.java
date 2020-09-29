@@ -98,7 +98,7 @@ public class QueryToolService extends AbstractCRCService {
 		Element el = response.addResponseBody("master_responseType", "DONE");
 //		Marshaller m = JAXBContext.newInstance(QueryMaster.class).createMarshaller();
 		for( Query q : list ){
-			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateDate(), null);
+			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateTimestamp(), null);
 //		QueryMaster master = new QueryMaster(query.getId(), query.getDisplayName(), query.getUser(), query.getCreateDate());
 //		m.marshal(master, el);
 		}
@@ -134,7 +134,7 @@ public class QueryToolService extends AbstractCRCService {
 			// build response
 			Element el = response.addResponseBody("master_instance_result_responseType", "DONE");
 			// one query_master
-			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateDate(), null);
+			appendQueryMaster(el, q.getId(), q.getDisplayName(), q.getUser(), q.getGroupId(), q.getCreateTimestamp(), null);
 			// request_xml probably not needed, client can request it via getRequestXml
 	
 			List<? extends QueryExecution> execs = q.getExecutions();
@@ -167,9 +167,18 @@ public class QueryToolService extends AbstractCRCService {
 		appendTextElement(e, "user_id", q.getUser());
 		appendTextElement(e, "group_id", q.getGroupId());
 		// TODO webclient appears to parse a 'message' element, which contains multiple <?xml parts each containing elements total_time_secs and name 
-		appendTextElement(e, "start_date", q.getCreateDate().toString());
-		// TODO remove and see what the webclient does
-		appendTextElement(e, "end_date", q.getCreateDate().toString());
+		Instant ts = qi.getStartTimestamp();
+		if( ts == null ) {
+			// use created timestamp if not available from execution
+			ts = q.getCreateTimestamp();
+		}
+		appendTextElement(e, "start_date", ts.toString());
+		
+		// TODO see what the webclient does if no end timestamp is supplied
+		ts = qi.getEndTimestamp();
+		if( ts != null ) {
+			appendTextElement(e, "end_date", ts.toString());			
+		}
 		addStatusType(e, qi.getStatus());
 	}
 	private void addStatusType(Element parent, QueryStatus status){
@@ -186,6 +195,11 @@ public class QueryToolService extends AbstractCRCService {
 		return queryId+"/"+instanceIndex;
 	}
 	private void addResult(Element parent, QueryExecution instance, QueryResult result, int instId, int index){
+		ResultType type = manager.getResultType(result.getResultType());
+		if( type == null ) {
+			log.severe("Skipping unsupported execution result type: "+result.getResultType());
+			return;
+		}
 		Element e = parent.getOwnerDocument().createElement("query_result_instance");
 		parent.appendChild(e);
 		// TODO try without result id
@@ -194,7 +208,7 @@ public class QueryToolService extends AbstractCRCService {
 		// webclient as of 1.7.07c requires a the description to follow a pattern:
 		// for PATIENT_COUNT_XML, the webclient will parse '\1 for "\2"'
 		StringBuilder desc = new StringBuilder();
-		desc.append(result.getResultType().getDescription());
+		desc.append(type.getDescription());
 		desc.append(" for \"");
 		desc.append(instance.getQuery().getDisplayName());
 		desc.append('"');
@@ -207,12 +221,13 @@ public class QueryToolService extends AbstractCRCService {
 		appendTextElement(e, "description", desc.toString());
 
 		// TODO use sequence number for result types
-		addResultType(e, 0, result.getResultType());
+		addResultType(e, 0, type);
 		if( result.getSetSize() != null ){
 			appendTextElement(e, "set_size", result.getSetSize().toString());			
 		}
 		// TODO try without date
-		appendTextElement(e, "start_date", instance.getQuery().getCreateDate().toString());
+		// TODO add and use timestamps for result
+		appendTextElement(e, "start_date", instance.getQuery().getCreateTimestamp().toString());
 		addStatusType(e, result.getStatus());
 	}
 	private void addResultType(Element parent, Integer id, ResultType type){
@@ -422,7 +437,7 @@ public class QueryToolService extends AbstractCRCService {
 			b.append("<body>");
 			// wrong use of namespaces, but we need to do this for compatibility with official i2b2 sources
 			b.append("<ns10:result name=\"");
-			b.append(r.getResultType().getName());
+			b.append(r.getResultType());
 			b.append("\">\n");
 			for( Entry<String,?> e : bd ){
 				Object v = e.getValue();

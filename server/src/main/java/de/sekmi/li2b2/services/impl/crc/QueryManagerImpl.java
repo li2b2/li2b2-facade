@@ -28,17 +28,6 @@ public class QueryManagerImpl implements QueryManager{
 	public void addResultType(String name, String displayType, String description){
 		types.add(new ResultTypeImpl(name, displayType, description));
 	}
-	private ResultTypeImpl getResultType(String name){
-		for( int i=0; i<types.size(); i++ ){
-			ResultTypeImpl r = types.get(i);
-			// TODO result name should always be processed in uppercase
-			// TODO better convert the names at QueryToolService
-			if( name.equalsIgnoreCase(r.getName()) ){
-				return r;
-			}
-		}
-		return null;
-	}
 	/**
 	 * Get result types from type names. The returned list will
 	 * contain only result types which are supported by the
@@ -47,15 +36,15 @@ public class QueryManagerImpl implements QueryManager{
 	 * @param types type names
 	 * @return result types
 	 */
-	private ResultTypeImpl[] getResultTypes(String[] types){
-		List<ResultTypeImpl> ret = new ArrayList<>();
+	private ResultType[] getSupportedResultTypes(String[] types){
+		List<ResultType> ret = new ArrayList<>();
 		for( String type : types ){
-			ResultTypeImpl t = getResultType(type);
+			ResultType t = getResultType(type);
 			if( t != null ){
 				ret.add(t);
 			}
 		}
-		return ret.toArray(new ResultTypeImpl[ret.size()]);
+		return ret.toArray(new ResultType[ret.size()]);
 	}
 	protected String getQueryNameFromQueryDefinition(Element definition) {
 		return definition.getFirstChild().getTextContent();
@@ -65,15 +54,11 @@ public class QueryManagerImpl implements QueryManager{
 	protected void executeQuery(QueryImpl query) {
 		// TODO read query name from definition/query_name (first child)
 		
-		query.addExecution("Total", QueryStatus.INCOMPLETE, null);
-		query.addExecution("DZL", QueryStatus.INCOMPLETE, null);
-		query.addExecution("DKTK", QueryStatus.INCOMPLETE, null);
-		
-		
+		query.addExecution(QueryStatus.INCOMPLETE);
 	}
 	@Override
 	public final Query runQuery(String userId, String groupId, Element definition, String[] results) {
-		ResultTypeImpl[] resultTypes = getResultTypes(results);
+		//ResultTypeImpl[] resultTypes = getResultTypes(results);
 		// TODO check if all requested result types are supported
 
 		QueryImpl q = new QueryImpl(querySeq.incrementAndGet(), userId, groupId, definition, results);

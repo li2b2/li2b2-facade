@@ -2,41 +2,67 @@ package de.sekmi.li2b2.services.impl.crc;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import java.util.Random;
 
 import de.sekmi.li2b2.api.crc.QueryResult;
 import de.sekmi.li2b2.api.crc.QueryStatus;
-import de.sekmi.li2b2.api.crc.ResultType;
 
+@XmlAccessorType(XmlAccessType.NONE)
 public class ResultImpl implements QueryResult{
 	@XmlTransient
 	private QueryImpl query;
-	@XmlTransient
-	private ResultTypeImpl type;
+	@XmlAttribute
+	private String type;
+	@XmlAttribute
+	private QueryStatus status;
 	
-	public ResultImpl(QueryImpl query, ResultTypeImpl type){
+	/**
+	 * I2b2 always sets the {@code set_size} to the number of patients. Even in encounter sets which contain more entries than patients.  
+	 */
+	@XmlElement
+	private Integer size;
+
+	@XmlElement
+	private Map<String,Integer> breakdown;
+
+	/** empty constructor for JAXB **/
+	private ResultImpl() {
+		
+	}
+	public ResultImpl(QueryImpl query, String type){
+		this();
 		this.query = query;
 		this.type = type;
+		this.status = QueryStatus.WAITTOPROCESS;
 	}
 
 	@Override
-	public ResultType getResultType() {
+	public String getResultType() {
 		return type;
 	}
 
 	@Override
 	public Integer getSetSize() {
-		return 123;
+		return size;
+	}
+
+	public void setSetSize(Integer size) {
+		this.size = size;
 	}
 
 	@Override
 	public Instant getStartDate() {
-		return query.getCreateDate();
+		return query.getCreateTimestamp();
 	}
 
 	@Override
@@ -46,15 +72,35 @@ public class ResultImpl implements QueryResult{
 
 	@Override
 	public QueryStatus getStatus() {
-		return QueryStatus.WAITTOPROCESS;
+		return status;
 	}
 
+	public void setStatus(QueryStatus status) {
+		this.status = status;
+	}
 	@Override
 	public Iterable<? extends Entry<String, ?>> getBreakdownData() {
 		Map<String, Object> a = new HashMap<>();
 		a.put("patient_count", new Random().nextInt(10000) );
 		a.put("xyz", new Random().nextInt(10000) );
 		return a.entrySet();
+	}
+
+	/**
+	 * Set the result breakdown data. Also sets the result status to {@link QueryStatus#FINISHED}
+	 * @param keys keys
+	 * @param values values
+	 */
+	public void setBreakdownData(String[] keys, int[] values) {
+		if( keys == null || values == null || keys.length != values.length ) {
+			throw new IllegalArgumentException("keys and values must be non null and of same length");
+		}
+		Map<String, Integer> m = new LinkedHashMap<String, Integer>();
+		for( int i=0; i<keys.length; i++ ) {
+			m.put(keys[i], values[i]);
+		}
+		this.status = QueryStatus.FINISHED;
+		this.breakdown = m;
 	}
 
 }

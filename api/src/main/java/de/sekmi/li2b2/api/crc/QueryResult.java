@@ -6,7 +6,7 @@ import java.util.Map;
 public interface QueryResult {
 	//String getId(); // result id
 	//String getDescription();
-	ResultType getResultType();
+	String getResultType();
 	Integer getSetSize();
 	Instant getStartDate();
 	Instant getEndDate();

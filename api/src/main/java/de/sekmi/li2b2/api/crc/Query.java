@@ -12,7 +12,7 @@ public interface Query {
 	String getUser();
 	String getGroupId();
 	Element getDefinition() throws IOException;
-	Instant getCreateDate();
+	Instant getCreateTimestamp();
 	/**
 	 * Get the instance/executions for the query.
 	 * @return execution instance

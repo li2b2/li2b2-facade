@@ -2,14 +2,23 @@
 <queryImpl id="42">
     <userId>userA</userId>
     <groupId>groupA</groupId>
-    <createDate>2020-09-25T18:09:27.362Z</createDate>
+    <createDate>2020-09-29T20:10:28.935Z</createDate>
     <result-types>
         <ref>patient_count_xml</ref>
         <ref>patient_gender_count_xml</ref>
     </result-types>
     <executions>
-        <execution status="INCOMPLETE">
-            <label>Total</label>
+        <execution status="FINISHED">
+            <results type="patient_count_xml" status="FINISHED">
+                <size>123</size>
+                <breakdown>
+                    <entry>
+                        <key>patient_count</key>
+                        <value>123</value>
+                    </entry>
+                </breakdown>
+            </results>
+            <results type="patient_gender_count_xml" status="WAITTOPROCESS"/>
         </execution>
     </executions>
 	<query_definition xmlns="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">

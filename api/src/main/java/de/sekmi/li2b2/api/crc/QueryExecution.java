@@ -1,6 +1,7 @@
 package de.sekmi.li2b2.api.crc;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 
 public interface QueryExecution {
@@ -13,6 +14,10 @@ public interface QueryExecution {
 	 * @return execution label or {@code null}
 	 */
 	String getLabel();
+
+	Instant getStartTimestamp();
+	Instant getEndTimestamp();
+
 	/**
 	 * Query results returned in predictive/consistent order
 	 * (meaning an index will point to the same element for
