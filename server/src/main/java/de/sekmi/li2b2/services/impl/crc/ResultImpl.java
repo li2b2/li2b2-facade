@@ -1,7 +1,6 @@
 package de.sekmi.li2b2.services.impl.crc;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,8 +10,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
-
-import java.util.Random;
 
 import de.sekmi.li2b2.api.crc.QueryResult;
 import de.sekmi.li2b2.api.crc.QueryStatus;
@@ -103,4 +100,12 @@ public class ResultImpl implements QueryResult{
 		this.breakdown = m;
 	}
 
+	/**
+	 * Convenience method to fill the result with a patient count 
+	 * @param count patient count
+	 */
+	public void fillWithPatientCount(int count) {
+		setBreakdownData(new String[] {"patient_count"}, new int[] {count});
+		setSetSize(count);		
+	}
 }

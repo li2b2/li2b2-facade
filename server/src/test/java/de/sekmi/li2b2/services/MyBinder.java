@@ -18,7 +18,8 @@ import de.sekmi.li2b2.api.crc.QueryManager;
 import de.sekmi.li2b2.api.ont.Ontology;
 import de.sekmi.li2b2.api.pm.ProjectManager;
 import de.sekmi.li2b2.services.impl.OntologyImpl;
-import de.sekmi.li2b2.services.impl.crc.QueryManagerImpl;
+import de.sekmi.li2b2.services.impl.RandomResultQueryManager;
+import de.sekmi.li2b2.services.impl.crc.FileBasedQueryManager;
 import de.sekmi.li2b2.services.impl.pm.ParamImpl;
 import de.sekmi.li2b2.services.impl.pm.ProjectImpl;
 import de.sekmi.li2b2.services.impl.pm.ProjectManagerImpl;
@@ -115,33 +116,24 @@ public class MyBinder extends AbstractBinder{
 		bind(ont).to(Ontology.class);
 		
 		// crc
-		QueryManagerImpl crc;
+		FileBasedQueryManager crc;
 		if( persistence && Files.exists(qm_path) ) {
 			try( InputStream in = Files.newInputStream(qm_path)) {
-				crc = JAXB.unmarshal(in,QueryManagerImpl.class);
+				crc = JAXB.unmarshal(in,RandomResultQueryManager.class);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
 		}else {
-			crc = new QueryManagerImpl();
-			crc.addResultType("PATIENT_COUNT_XML", "CATNUM", "Number of patients");//"Patient count (simple)");
-	//		crc.addResultType("MULT_SITE_COUNT", "CATNUM", "Number of patients per site");//"Patient count (simple)");
-			crc.addResultType("PATIENT_GENDER_COUNT_XML", "CATNUM", "Gender patient breakdown");
-			crc.addResultType("PATIENT_VITALSTATUS_COUNT_XML", "CATNUM", "Vital Status patient breakdown");
-			crc.addResultType("PATIENT_RACE_COUNT_XML", "CATNUM", "Race patient breakdown");
-			crc.addResultType("PATIENT_AGE_COUNT_XML", "CATNUM", "Age patient breakdown");
-			// TODO more result types for i2b2
+			crc = new RandomResultQueryManager();
 		}
 
 		if( persistence ) {
 			System.err.println("Flushing CRC to "+qm_path);
 			try {
 				crc.setFlushDestination(qm_path, qm_dir);
-				crc.loadQueries();
+				crc.loadAllQueries();
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
-			} catch (JAXBException e) {
-				throw new RuntimeException(e);
 			}
 		}
 		bind(crc).to(QueryManager.class);

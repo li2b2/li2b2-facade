@@ -8,15 +8,15 @@ import org.junit.Test;
 import de.sekmi.li2b2.api.crc.QueryStatus;
 import de.sekmi.li2b2.services.impl.crc.ExecutionImpl;
 import de.sekmi.li2b2.services.impl.crc.QueryImpl;
-import de.sekmi.li2b2.services.impl.crc.QueryManagerImpl;
+import de.sekmi.li2b2.services.impl.crc.FileBasedQueryManager;
 import de.sekmi.li2b2.services.impl.crc.ResultImpl;
 
 public class TestQueryManagerImpl {
 
 	@Test
 	public void marshalUnmarshalQueryManager() {
-		QueryManagerImpl crc;
-		crc = new QueryManagerImpl();
+		FileBasedQueryManager crc;
+		crc = new RandomResultQueryManager();
 		crc.addResultType("PATIENT_COUNT_XML", "CATNUM", "Number of patients");//"Patient count (simple)");
 		crc.addResultType("PATIENT_GENDER_COUNT_XML", "CATNUM", "Gender patient breakdown");
 		
