@@ -73,8 +73,8 @@ public class QueryImpl implements Query{
 	/**
 	 * Add execution to the query. If multiple executions are used for a single query, 
 	 * the execution label should be set via {@link ExecutionImpl#setLabel(String)} 
-	 * @param status status for the execution
-	 * @return
+	 * @param status initial status for the execution
+	 * @return new execution
 	 */
 	public ExecutionImpl addExecution(QueryStatus status) {
 		ExecutionImpl e = new ExecutionImpl(this);

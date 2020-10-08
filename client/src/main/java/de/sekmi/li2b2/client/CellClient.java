@@ -157,7 +157,7 @@ public abstract class CellClient {
 	 * Submit a HiveRequest and expect the HiveResponse body to contain
 	 * the specified XML element.
 	 * 
-	 * @param HiveRequest request
+	 * @param request Hive request
 	 * @param restMethod RESTful method
 	 * @param responseNS HiveResponse body namespace
 	 * @param responseElement HiveResponse body element

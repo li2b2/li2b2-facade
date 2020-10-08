@@ -83,12 +83,12 @@ public class ExecutionImpl implements QueryExecution {
 
 	/**
 	 * Convenience method to access a result object by its name/key
-	 * @param key for the result type
+	 * @param key result type key string
 	 * @return result
 	 */
-	public ResultImpl getResult(String name) {
+	public ResultImpl getResult(String key) {
 		for( int i=0; i<results.length; i++ ) {
-			if( results[i].getResultType().contentEquals(name) ) {
+			if( results[i].getResultType().contentEquals(key) ) {
 				return results[i];
 			}
 		}
@@ -109,5 +109,6 @@ public class ExecutionImpl implements QueryExecution {
 	public void setStartTimestamp(Instant start) {
 		this.start = start;
 	}
+
 
 }
