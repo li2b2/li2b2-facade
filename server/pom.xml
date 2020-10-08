@@ -7,7 +7,7 @@
 	This project emulates the core components
 	of an i2b2 server backend. Basic functionality
 	of PM, CRC, ONT and WORK cells allows the
-	official i2b2 webclient to connect ot this
+	official i2b2 webclient to connect to this
 	emulated server.
 	</description>
 
